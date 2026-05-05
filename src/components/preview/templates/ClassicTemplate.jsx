@@ -14,7 +14,11 @@ const SectionTitle = ({ children, color }) => (
 );
 
 export default function ClassicTemplate({ cvData }) {
-  const { personalInfo: p, experiences, education, skills, languages, projects, meta } = cvData;
+  const {
+    personalInfo: p, experiences, education, skills, languages, projects,
+    certifications = [], interests = [], achievements = [], distinctions = [],
+    meta,
+  } = cvData;
   const primary = meta?.colorScheme?.primary || '#1a237e';
   const fontFamily = meta?.fontFamily || 'Inter';
 
@@ -128,6 +132,87 @@ export default function ClassicTemplate({ cvData }) {
               )}
             </Box>
           ))}
+        </>
+      )}
+
+      {certifications.length > 0 && (
+        <>
+          <SectionTitle color={primary}>Certifications</SectionTitle>
+          {certifications.map((c, idx) => (
+            <Box key={c.id} sx={{ mb: idx < certifications.length - 1 ? 1.25 : 0 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>{c.name}</Typography>
+                <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>
+                  {formatDateRange(c.date, c.expiryDate, false)}
+                </Typography>
+              </Box>
+              <Typography sx={{ fontSize: '0.78rem', color: primary, fontWeight: 600 }}>
+                {c.issuer}{c.credentialId ? ` · N° ${c.credentialId}` : ''}
+              </Typography>
+            </Box>
+          ))}
+        </>
+      )}
+
+      {achievements.length > 0 && (
+        <>
+          <SectionTitle color={primary}>Palmarès sportif</SectionTitle>
+          {achievements.map((a, idx) => (
+            <Box key={a.id} sx={{ mb: idx < achievements.length - 1 ? 1.25 : 0 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>
+                  {a.rank ? `${a.rank} — ` : ''}{a.title}
+                </Typography>
+                <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>{formatDateRange(a.date, '', false)}</Typography>
+              </Box>
+              {(a.competition || a.location) && (
+                <Typography sx={{ fontSize: '0.78rem', color: primary, fontWeight: 600 }}>
+                  {[a.competition, a.location].filter(Boolean).join(' · ')}
+                </Typography>
+              )}
+              {a.description && (
+                <Typography sx={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.6 }}>{a.description}</Typography>
+              )}
+            </Box>
+          ))}
+        </>
+      )}
+
+      {distinctions.length > 0 && (
+        <>
+          <SectionTitle color={primary}>Distinctions & publications</SectionTitle>
+          {distinctions.map((d, idx) => (
+            <Box key={d.id} sx={{ mb: idx < distinctions.length - 1 ? 1.25 : 0 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>{d.title}</Typography>
+                <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>{formatDateRange(d.date, '', false)}</Typography>
+              </Box>
+              <Typography sx={{ fontSize: '0.78rem', color: primary, fontWeight: 600 }}>
+                {[d.type, d.issuer].filter(Boolean).join(' · ')}
+              </Typography>
+              {d.description && (
+                <Typography sx={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.6 }}>{d.description}</Typography>
+              )}
+            </Box>
+          ))}
+        </>
+      )}
+
+      {interests.length > 0 && (
+        <>
+          <SectionTitle color={primary}>Centres d'intérêt</SectionTitle>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+            {interests.map((it) => (
+              <Box key={it.id} sx={{
+                px: 1.25, py: 0.25, borderRadius: 1,
+                border: `1px solid ${primary}`, display: 'inline-block',
+              }}>
+                <Typography sx={{ fontSize: '0.7rem', color: primary, fontWeight: 500 }}>
+                  {it.name}{it.category ? ` (${it.category})` : ''}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
         </>
       )}
     </Box>

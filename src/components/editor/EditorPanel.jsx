@@ -6,6 +6,10 @@ import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import LanguageIcon from '@mui/icons-material/Language';
 import CodeIcon from '@mui/icons-material/Code';
+import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
+import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 import PersonalInfoSection from './sections/PersonalInfoSection';
 import ExperienceSection from './sections/ExperienceSection';
@@ -13,29 +17,41 @@ import EducationSection from './sections/EducationSection';
 import SkillsSection from './sections/SkillsSection';
 import LanguagesSection from './sections/LanguagesSection';
 import ProjectsSection from './sections/ProjectsSection';
+import CertificationsSection from './sections/CertificationsSection';
+import InterestsSection from './sections/InterestsSection';
+import AchievementsSection from './sections/AchievementsSection';
+import DistinctionsSection from './sections/DistinctionsSection';
 import CustomizationSection from './sections/CustomizationSection';
 import { useCV } from '@context/CVContext';
 import { cvCompletionScore } from '@utils/cvHelpers';
 import { tokens } from '@theme/tokens';
 
 const SECTIONS = [
-  { id: 'personal',      label: 'Infos',          icon: <PersonOutlineIcon fontSize="small" /> },
-  { id: 'experience',    label: 'Expérience',      icon: <WorkOutlineIcon fontSize="small" /> },
-  { id: 'education',     label: 'Formation',       icon: <SchoolOutlinedIcon fontSize="small" /> },
-  { id: 'skills',        label: 'Compétences',     icon: <StarBorderIcon fontSize="small" /> },
-  { id: 'languages',     label: 'Langues',         icon: <LanguageIcon fontSize="small" /> },
-  { id: 'projects',      label: 'Projets',         icon: <CodeIcon fontSize="small" /> },
-  { id: 'customization', label: 'Design',          icon: <PaletteOutlinedIcon fontSize="small" /> },
+  { id: 'personal',       label: 'Infos',           icon: <PersonOutlineIcon fontSize="small" /> },
+  { id: 'experience',     label: 'Expérience',      icon: <WorkOutlineIcon fontSize="small" /> },
+  { id: 'education',      label: 'Formation',       icon: <SchoolOutlinedIcon fontSize="small" /> },
+  { id: 'skills',         label: 'Compétences',     icon: <StarBorderIcon fontSize="small" /> },
+  { id: 'languages',      label: 'Langues',         icon: <LanguageIcon fontSize="small" /> },
+  { id: 'projects',       label: 'Projets',         icon: <CodeIcon fontSize="small" /> },
+  { id: 'certifications', label: 'Certifications',  icon: <WorkspacePremiumOutlinedIcon fontSize="small" /> },
+  { id: 'achievements',   label: 'Palmarès',        icon: <EmojiEventsOutlinedIcon fontSize="small" /> },
+  { id: 'distinctions',   label: 'Distinctions',    icon: <MilitaryTechOutlinedIcon fontSize="small" /> },
+  { id: 'interests',      label: 'Intérêts',        icon: <FavoriteBorderIcon fontSize="small" /> },
+  { id: 'customization',  label: 'Design',          icon: <PaletteOutlinedIcon fontSize="small" /> },
 ];
 
 const SECTION_COMPONENTS = {
-  personal:      <PersonalInfoSection />,
-  experience:    <ExperienceSection />,
-  education:     <EducationSection />,
-  skills:        <SkillsSection />,
-  languages:     <LanguagesSection />,
-  projects:      <ProjectsSection />,
-  customization: <CustomizationSection />,
+  personal:       <PersonalInfoSection />,
+  experience:     <ExperienceSection />,
+  education:      <EducationSection />,
+  skills:         <SkillsSection />,
+  languages:      <LanguagesSection />,
+  projects:       <ProjectsSection />,
+  certifications: <CertificationsSection />,
+  achievements:   <AchievementsSection />,
+  distinctions:   <DistinctionsSection />,
+  interests:      <InterestsSection />,
+  customization:  <CustomizationSection />,
 };
 
 export default function EditorPanel() {

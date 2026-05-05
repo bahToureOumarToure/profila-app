@@ -2,7 +2,11 @@ import { Box, Typography } from '@mui/material';
 import { formatDateRange } from '@utils/cvHelpers';
 
 export default function MinimalTemplate({ cvData }) {
-  const { personalInfo: p, experiences, education, skills, languages, projects, meta } = cvData;
+  const {
+    personalInfo: p, experiences, education, skills, languages, projects,
+    certifications = [], interests = [], achievements = [], distinctions = [],
+    meta,
+  } = cvData;
   const primary = meta?.colorScheme?.primary || '#1a237e';
   const fontFamily = meta?.fontFamily || 'Inter';
 
@@ -120,6 +124,74 @@ export default function MinimalTemplate({ cvData }) {
               {proj.description && <Typography sx={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.65 }}>{proj.description}</Typography>}
             </Box>
           ))}
+        </Section>
+      )}
+
+      {certifications.length > 0 && (
+        <Section title="Certifications">
+          {certifications.map((c, idx) => (
+            <Box key={c.id} sx={{ mb: idx < certifications.length - 1 ? 1 : 0 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>{c.name}</Typography>
+                <Typography sx={{ fontSize: '0.68rem', color: '#aaa' }}>
+                  {formatDateRange(c.date, c.expiryDate, false)}
+                </Typography>
+              </Box>
+              <Typography sx={{ fontSize: '0.75rem', color: '#666' }}>
+                {c.issuer}{c.credentialId ? ` · N° ${c.credentialId}` : ''}
+              </Typography>
+            </Box>
+          ))}
+        </Section>
+      )}
+
+      {achievements.length > 0 && (
+        <Section title="Palmarès sportif">
+          {achievements.map((a, idx) => (
+            <Box key={a.id} sx={{ mb: idx < achievements.length - 1 ? 1 : 0 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>
+                  {a.rank ? `${a.rank} — ` : ''}{a.title}
+                </Typography>
+                <Typography sx={{ fontSize: '0.68rem', color: '#aaa' }}>{formatDateRange(a.date, '', false)}</Typography>
+              </Box>
+              {(a.competition || a.location) && (
+                <Typography sx={{ fontSize: '0.75rem', color: '#666' }}>
+                  {[a.competition, a.location].filter(Boolean).join(' · ')}
+                </Typography>
+              )}
+              {a.description && (
+                <Typography sx={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.6 }}>{a.description}</Typography>
+              )}
+            </Box>
+          ))}
+        </Section>
+      )}
+
+      {distinctions.length > 0 && (
+        <Section title="Distinctions & publications">
+          {distinctions.map((d, idx) => (
+            <Box key={d.id} sx={{ mb: idx < distinctions.length - 1 ? 1 : 0 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>{d.title}</Typography>
+                <Typography sx={{ fontSize: '0.68rem', color: '#aaa' }}>{formatDateRange(d.date, '', false)}</Typography>
+              </Box>
+              <Typography sx={{ fontSize: '0.75rem', color: '#666' }}>
+                {[d.type, d.issuer].filter(Boolean).join(' · ')}
+              </Typography>
+              {d.description && (
+                <Typography sx={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.6 }}>{d.description}</Typography>
+              )}
+            </Box>
+          ))}
+        </Section>
+      )}
+
+      {interests.length > 0 && (
+        <Section title="Centres d'intérêt">
+          <Typography sx={{ fontSize: '0.78rem', color: '#444', lineHeight: 1.7 }}>
+            {interests.map((it) => it.name).filter(Boolean).join(' · ')}
+          </Typography>
         </Section>
       )}
     </Box>

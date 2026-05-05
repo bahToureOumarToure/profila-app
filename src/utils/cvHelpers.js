@@ -20,15 +20,22 @@ export function getInitials(firstName, lastName) {
 
 export function cvCompletionScore(cvData) {
   let score = 0;
-  const { personalInfo, experiences, education, skills } = cvData;
+  const {
+    personalInfo, experiences, education, skills,
+    certifications = [], interests = [], achievements = [], distinctions = [],
+  } = cvData;
 
   const personalFields = ['firstName', 'lastName', 'title', 'email', 'phone', 'summary'];
   const filled = personalFields.filter((f) => personalInfo[f]?.trim()).length;
-  score += Math.round((filled / personalFields.length) * 40);
+  score += Math.round((filled / personalFields.length) * 35);
 
-  if (experiences.length > 0)     score += 25;
-  if (education.length > 0)       score += 20;
-  if (skills.length >= 3)         score += 15;
+  if (experiences.length > 0)     score += 20;
+  if (education.length > 0)       score += 15;
+  if (skills.length >= 3)         score += 10;
+
+  const extras = [certifications, achievements, distinctions, interests];
+  const filledExtras = extras.filter((arr) => arr.length > 0).length;
+  score += Math.min(filledExtras, 4) * 5;
 
   return Math.min(score, 100);
 }
