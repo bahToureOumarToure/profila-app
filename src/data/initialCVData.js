@@ -54,12 +54,47 @@ const initialCVData = {
     photo:      '',
     summary:    '',
   },
-  experiences: [],
-  education:   [],
-  skills:      [],
-  languages:   [],
-  projects:    [],
+  experiences:    [],
+  education:      [],
+  skills:         [],
+  languages:      [],
+  projects:       [],
   certifications: [],
+  interests:      [],
+  achievements:   [],
+  distinctions:   [],
 };
+
+export const INTEREST_CATEGORIES = [
+  'Sport',
+  'Lecture',
+  'Cinéma',
+  'Musique',
+  'Voyages',
+  'Bénévolat',
+  'Art',
+  'Cuisine',
+  'Technologie',
+  'Autre',
+];
+
+export const ACHIEVEMENT_TYPES = [
+  'Compétition',
+  'Médaille',
+  'Titre',
+  'Record',
+  'Sélection',
+  'Distinction',
+  'Autre',
+];
+
+export const DISTINCTION_TYPES = [
+  'Distinction',
+  'Prix',
+  'Publication',
+  'Conférence',
+  'Brevet',
+  'Autre',
+];
 
 export default initialCVData;

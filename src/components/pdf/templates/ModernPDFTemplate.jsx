@@ -29,7 +29,11 @@ const styles = StyleSheet.create({
 });
 
 export function ModernPDFTemplate({ cvData }) {
-  const { personalInfo: p, experiences, education, skills, languages, projects, meta } = cvData;
+  const {
+    personalInfo: p, experiences, education, skills, languages, projects,
+    certifications = [], interests = [], achievements = [], distinctions = [],
+    meta,
+  } = cvData;
   const primary = meta?.colorScheme?.primary || '#1a237e';
 
   const SideSection = ({ title, children }) => (
@@ -96,6 +100,16 @@ export function ModernPDFTemplate({ cvData }) {
               ))}
             </SideSection>
           )}
+
+          {interests.length > 0 && (
+            <SideSection title="Centres d'intérêt">
+              {interests.map((it) => (
+                <Text key={it.id} style={[styles.contactTxt, { marginTop: 2 }]}>
+                  {it.name}{it.category ? ` — ${it.category}` : ''}
+                </Text>
+              ))}
+            </SideSection>
+          )}
         </View>
 
         {/* Main */}
@@ -143,6 +157,62 @@ export function ModernPDFTemplate({ cvData }) {
                   <Text style={styles.expTitle}>{proj.name}</Text>
                   {proj.technologies && <Text style={[styles.expCompany, { color: primary }]}>{proj.technologies}</Text>}
                   {proj.description && <Text style={styles.expDesc}>{proj.description}</Text>}
+                </View>
+              ))}
+            </MainSection>
+          )}
+
+          {certifications.length > 0 && (
+            <MainSection title="Certifications">
+              {certifications.map((c) => (
+                <View key={c.id} style={[styles.expBlock, { marginBottom: 8 }]}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={styles.expTitle}>{c.name}</Text>
+                    <Text style={styles.expDate}>{formatDateRange(c.date, c.expiryDate, false)}</Text>
+                  </View>
+                  {c.issuer && (
+                    <Text style={[styles.expCompany, { color: primary }]}>
+                      {c.issuer}{c.credentialId ? ` · N° ${c.credentialId}` : ''}
+                    </Text>
+                  )}
+                </View>
+              ))}
+            </MainSection>
+          )}
+
+          {achievements.length > 0 && (
+            <MainSection title="Palmarès sportif">
+              {achievements.map((a) => (
+                <View key={a.id} style={[styles.expBlock, { marginBottom: 8 }]}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={styles.expTitle}>
+                      {a.rank ? `${a.rank} — ` : ''}{a.title}
+                    </Text>
+                    <Text style={styles.expDate}>{formatDateRange(a.date, '', false)}</Text>
+                  </View>
+                  {(a.competition || a.location) && (
+                    <Text style={[styles.expCompany, { color: primary }]}>
+                      {[a.competition, a.location].filter(Boolean).join(' · ')}
+                    </Text>
+                  )}
+                  {a.description && <Text style={styles.expDesc}>{a.description}</Text>}
+                </View>
+              ))}
+            </MainSection>
+          )}
+
+          {distinctions.length > 0 && (
+            <MainSection title="Distinctions & publications">
+              {distinctions.map((d) => (
+                <View key={d.id} style={[styles.expBlock, { marginBottom: 8 }]}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={styles.expTitle}>{d.title}</Text>
+                    <Text style={styles.expDate}>{formatDateRange(d.date, '', false)}</Text>
+                  </View>
+                  <Text style={[styles.expCompany, { color: primary }]}>
+                    {[d.type, d.issuer].filter(Boolean).join(' · ')}
+                  </Text>
+                  {d.description && <Text style={styles.expDesc}>{d.description}</Text>}
                 </View>
               ))}
             </MainSection>

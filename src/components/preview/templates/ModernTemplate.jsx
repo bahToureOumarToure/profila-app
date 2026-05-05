@@ -30,7 +30,11 @@ const SectionTitle = ({ children, color }) => (
 );
 
 export default function ModernTemplate({ cvData }) {
-  const { personalInfo: p, experiences, education, skills, languages, projects, meta } = cvData;
+  const {
+    personalInfo: p, experiences, education, skills, languages, projects,
+    certifications = [], interests = [], achievements = [], distinctions = [],
+    meta,
+  } = cvData;
   const primary = meta?.colorScheme?.primary || '#1a237e';
   const fontFamily = meta?.fontFamily || 'Inter';
 
@@ -117,6 +121,26 @@ export default function ModernTemplate({ cvData }) {
             ))}
           </Box>
         )}
+
+        {/* Interests */}
+        {interests.length > 0 && (
+          <Box>
+            <SectionTitle color="#fff">Centres d'intérêt</SectionTitle>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {interests.map((it) => (
+                <Chip
+                  key={it.id}
+                  label={it.name}
+                  size="small"
+                  sx={{
+                    bgcolor: alpha('#fff', 0.18), color: '#fff',
+                    fontSize: '0.65rem', height: 20,
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
+        )}
       </Box>
 
       {/* Main content */}
@@ -193,6 +217,87 @@ export default function ModernTemplate({ cvData }) {
                 {proj.description && (
                   <Typography sx={{ fontSize: '0.78rem', color: '#444', lineHeight: 1.65 }}>
                     {proj.description}
+                  </Typography>
+                )}
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {/* Certifications */}
+        {certifications.length > 0 && (
+          <Box>
+            <SectionTitle color={primary}>Certifications</SectionTitle>
+            {certifications.map((c, idx) => (
+              <Box key={c.id} sx={{ mb: idx < certifications.length - 1 ? 1.25 : 0 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#111' }}>{c.name}</Typography>
+                  {(c.date || c.expiryDate) && (
+                    <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>
+                      {formatDateRange(c.date, c.expiryDate, false)}
+                    </Typography>
+                  )}
+                </Box>
+                {c.issuer && (
+                  <Typography sx={{ fontSize: '0.75rem', color: primary, fontWeight: 500 }}>{c.issuer}</Typography>
+                )}
+                {c.credentialId && (
+                  <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>N° {c.credentialId}</Typography>
+                )}
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {/* Achievements */}
+        {achievements.length > 0 && (
+          <Box>
+            <SectionTitle color={primary}>Palmarès sportif</SectionTitle>
+            {achievements.map((a, idx) => (
+              <Box key={a.id} sx={{ mb: idx < achievements.length - 1 ? 1.25 : 0 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#111' }}>
+                    {a.rank ? `${a.rank} — ` : ''}{a.title}
+                  </Typography>
+                  {a.date && (
+                    <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>{formatDateRange(a.date, '', false)}</Typography>
+                  )}
+                </Box>
+                {(a.competition || a.location) && (
+                  <Typography sx={{ fontSize: '0.75rem', color: primary, fontWeight: 500 }}>
+                    {[a.competition, a.location].filter(Boolean).join(' · ')}
+                  </Typography>
+                )}
+                {a.description && (
+                  <Typography sx={{ fontSize: '0.75rem', color: '#444', lineHeight: 1.6, mt: 0.25 }}>
+                    {a.description}
+                  </Typography>
+                )}
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {/* Distinctions */}
+        {distinctions.length > 0 && (
+          <Box>
+            <SectionTitle color={primary}>Distinctions & publications</SectionTitle>
+            {distinctions.map((d, idx) => (
+              <Box key={d.id} sx={{ mb: idx < distinctions.length - 1 ? 1.25 : 0 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#111' }}>{d.title}</Typography>
+                  {d.date && (
+                    <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>{formatDateRange(d.date, '', false)}</Typography>
+                  )}
+                </Box>
+                {(d.type || d.issuer) && (
+                  <Typography sx={{ fontSize: '0.72rem', color: primary, fontWeight: 500 }}>
+                    {[d.type, d.issuer].filter(Boolean).join(' · ')}
+                  </Typography>
+                )}
+                {d.description && (
+                  <Typography sx={{ fontSize: '0.75rem', color: '#444', lineHeight: 1.6, mt: 0.25 }}>
+                    {d.description}
                   </Typography>
                 )}
               </Box>
