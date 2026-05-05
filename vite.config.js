@@ -34,6 +34,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
   optimizeDeps: {
-    include: ['@react-pdf/renderer'],
+    exclude: ['@react-pdf/renderer'],
   },
 });
