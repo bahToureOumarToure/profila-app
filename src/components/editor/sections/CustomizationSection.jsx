@@ -1,6 +1,6 @@
 import {
-  Box, Typography, Grid, Card, CardActionArea, CardContent,
-  Stack, Chip, Select, MenuItem, FormControl, InputLabel, Tooltip,
+  Box, Typography, Grid, Card, CardActionArea,
+  Stack, Select, MenuItem, FormControl, InputLabel, Tooltip,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useCV } from '@context/CVContext';

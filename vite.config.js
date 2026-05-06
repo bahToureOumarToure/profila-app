@@ -34,6 +34,9 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
   optimizeDeps: {
-    include: ['@react-pdf/renderer'],
+    // @react-pdf's browser bundle imports CommonJS/browser polyfill packages
+    // that can fail Vite's esbuild pre-bundling on Windows. Let Rollup handle
+    // these modules directly instead of forcing them into optimizeDeps.
+    exclude: ['@react-pdf/renderer', '@react-pdf/render', 'events', 'queue'],
   },
 });

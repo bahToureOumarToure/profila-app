@@ -24,7 +24,6 @@ import DistinctionsSection from './sections/DistinctionsSection';
 import CustomizationSection from './sections/CustomizationSection';
 import { useCV } from '@context/CVContext';
 import { cvCompletionScore } from '@utils/cvHelpers';
-import { tokens } from '@theme/tokens';
 
 const SECTIONS = [
   { id: 'personal',       label: 'Infos',           icon: <PersonOutlineIcon fontSize="small" /> },

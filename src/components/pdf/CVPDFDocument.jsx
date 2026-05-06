@@ -1,6 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { PDFDownloadLink, BlobProvider } from '@react-pdf/renderer';
-import { Button, CircularProgress, Box } from '@mui/material';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { Button, CircularProgress } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import { ModernPDFTemplate } from './templates/ModernPDFTemplate';
 import { useCV } from '@context/CVContext';
@@ -27,7 +26,7 @@ export default function PDFDownloadButton({ variant = 'contained', size = 'mediu
       fileName={fileName}
       style={{ textDecoration: 'none' }}
     >
-      {({ loading, error }) => (
+      {({ loading }) => (
         <Button
           variant={variant}
           size={size}

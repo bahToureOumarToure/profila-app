@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Container, Typography, Button, Grid, Card, CardContent,
-  Stack, Chip, Avatar, useTheme, useMediaQuery,
+  Stack, Chip, Avatar,
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
@@ -56,8 +56,6 @@ const STEPS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
     <>
