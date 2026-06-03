@@ -1,7 +1,8 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useRef, lazy, Suspense } from 'react';
 import {
   Box, Grid, Fab, Drawer, useTheme, useMediaQuery,
   Tooltip, Typography, Paper, Divider, Stack, Button, Snackbar, Alert,
+  IconButton, Menu, MenuItem, ListItemIcon, ListItemText,
 } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
@@ -11,6 +12,7 @@ import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 const ImportPdfDialog = lazy(() => import('@components/ai/ImportPdfDialog'));
 const JobCoachDialog = lazy(() => import('@components/ai/JobCoachDialog'));
@@ -28,6 +30,8 @@ export default function BuilderPage() {
   const [aiImportOpen, setAiImportOpen] = useState(false);
   const [coachOpen, setCoachOpen] = useState(false);
   const [savedToast, setSavedToast] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const jsonInputRef = useRef(null);
   const { cvData, loadCV, resetCV, saveCV } = useCV();
 
   const handleSave = () => { saveCV(); setSavedToast(true); };
@@ -89,35 +93,37 @@ export default function BuilderPage() {
               </Button>
             </Tooltip>
 
-            <Tooltip title="Enregistrer dans ce navigateur (sauvegarde automatique aussi active)">
+            <Tooltip title="Enregistrer dans ce navigateur">
               <Button size="small" startIcon={<CloudDoneOutlinedIcon />} onClick={handleSave} variant="outlined">
                 Sauvegarder
               </Button>
             </Tooltip>
 
-            <Tooltip title="Exporter une copie JSON (sauvegarde de secours)">
-              <Button size="small" startIcon={<SaveAltIcon />} onClick={handleExportJSON} variant="text">
-                Exporter
-              </Button>
-            </Tooltip>
-
-            <Tooltip title="Importer un JSON">
-              <Box component="label" sx={{ cursor: 'pointer' }}>
-                <Button size="small" startIcon={<UploadFileOutlinedIcon />} variant="outlined" component="span">
-                  Importer
-                </Button>
-                <input type="file" accept=".json" hidden onChange={handleImportJSON} />
-              </Box>
-            </Tooltip>
-
-            <Tooltip title="Réinitialiser le CV">
-              <Button size="small" startIcon={<RestartAltIcon />} color="error" variant="outlined" onClick={handleReset}>
-                Reset
-              </Button>
-            </Tooltip>
-
             <Divider orientation="vertical" flexItem />
             <PDFDownloadButton size="small" />
+
+            <Tooltip title="Plus d'actions">
+              <IconButton size="small" onClick={(e) => setMenuAnchor(e.currentTarget)}>
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+              <MenuItem onClick={() => { handleExportJSON(); setMenuAnchor(null); }}>
+                <ListItemIcon><SaveAltIcon fontSize="small" /></ListItemIcon>
+                <ListItemText>Exporter en JSON</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={() => { jsonInputRef.current?.click(); setMenuAnchor(null); }}>
+                <ListItemIcon><UploadFileOutlinedIcon fontSize="small" /></ListItemIcon>
+                <ListItemText>Importer un JSON</ListItemText>
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={() => { handleReset(); setMenuAnchor(null); }} sx={{ color: 'error.main' }}>
+                <ListItemIcon><RestartAltIcon fontSize="small" color="error" /></ListItemIcon>
+                <ListItemText>Réinitialiser le CV</ListItemText>
+              </MenuItem>
+            </Menu>
+            <input ref={jsonInputRef} type="file" accept=".json" hidden onChange={handleImportJSON} />
           </Stack>
         </Paper>
 
