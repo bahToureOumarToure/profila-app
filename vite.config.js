@@ -35,9 +35,10 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
   optimizeDeps: {
-    // @react-pdf's browser bundle imports CommonJS/browser polyfill packages
-    // that can fail Vite's esbuild pre-bundling on Windows. Let Rollup handle
-    // these modules directly instead of forcing them into optimizeDeps.
-    exclude: ['@react-pdf/renderer', '@react-pdf/render', 'events', 'queue'],
+    // Pre-bundle @react-pdf/renderer so Vite (esbuild) resolves its CommonJS
+    // dependency chain (base64-js, pako, fontkit, events, queue…) into ESM with
+    // proper default exports. Excluding it instead breaks the dev server with
+    // "does not provide an export named 'default'" on those CJS deps.
+    include: ['@react-pdf/renderer'],
   },
 });
