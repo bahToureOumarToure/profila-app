@@ -48,10 +48,23 @@ export async function generateJSON({ prompt, apiKey, model, temperature = 0.2 })
 
   if (!res.ok) {
     let detail = '';
-    try { detail = (await res.json())?.error?.message || ''; } catch { /* ignore */ }
-    if (res.status === 400 && /API key/i.test(detail)) throw new Error('Clé API Gemini invalide.');
-    if (res.status === 429) throw new Error('Quota Gemini atteint (free tier). Réessaie plus tard.');
-    throw new Error(`Erreur Gemini (${res.status})${detail ? ` : ${detail}` : ''}`);
+    let status = '';
+    try {
+      const body = (await res.json())?.error;
+      detail = body?.message || '';
+      status = body?.status || '';
+    } catch { /* corps non-JSON */ }
+    // Toujours remonter le message réel de Google : un 429 peut signifier
+    // débit/minute dépassé, quota/jour, modèle indisponible sur la clé, ou
+    // free tier non disponible dans la région — ce ne sont pas la même chose.
+    if (res.status === 400 && /API key/i.test(detail)) {
+      throw new Error('Clé API Gemini invalide. Vérifie VITE_GEMINI_API_KEY / la clé saisie.');
+    }
+    if (res.status === 404) {
+      throw new Error(`Modèle "${mdl}" introuvable pour cette clé. Essaie VITE_GEMINI_MODEL=gemini-1.5-flash.${detail ? ` (${detail})` : ''}`);
+    }
+    const label = res.status === 429 ? 'Limite Gemini (429)' : `Erreur Gemini (${res.status}${status ? ` ${status}` : ''})`;
+    throw new Error(detail ? `${label} : ${detail}` : label);
   }
 
   const data = await res.json();
