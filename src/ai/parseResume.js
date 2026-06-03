@@ -27,5 +27,14 @@ export async function parseResumeFromPdf(file, { apiKey, onProgress } = {}) {
   onProgress?.('structure');
   const cv = normalizeParsedCV(raw);
 
+  if (import.meta.env.DEV) {
+    console.groupCollapsed('[Profila AI] parsing debug');
+    console.log('Texte PDF extrait (longueur):', text.length, '| pages:', pages, '| lowText:', lowText);
+    console.log('Aperçu texte:', text.slice(0, 600));
+    console.log('JSON brut Gemini:', raw);
+    console.log('CV normalisé:', cv);
+    console.groupEnd();
+  }
+
   return { cv, meta: { pages, lowText } };
 }
