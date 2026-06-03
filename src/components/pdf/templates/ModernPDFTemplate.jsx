@@ -1,32 +1,58 @@
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import interRegular from '@fontsource/inter/files/inter-latin-400-normal.woff?url';
+import interMedium from '@fontsource/inter/files/inter-latin-500-normal.woff?url';
+import interSemiBold from '@fontsource/inter/files/inter-latin-600-normal.woff?url';
+import interBold from '@fontsource/inter/files/inter-latin-700-normal.woff?url';
 import { formatDateRange } from '@utils/cvHelpers';
 
-const styles = StyleSheet.create({
-  page:       { flexDirection: 'row', fontFamily: 'Helvetica', fontSize: 9 },
-  sidebar:    { width: '33%', minHeight: '100%', padding: 20, color: '#fff' },
-  main:       { flex: 1, padding: 24 },
-  name:       { fontSize: 14, fontFamily: 'Helvetica-Bold', marginBottom: 2, color: '#fff' },
-  title:      { fontSize: 8.5, marginBottom: 12, opacity: 0.8, color: '#fff' },
-  avatar:     { width: 70, height: 70, borderRadius: 35, marginBottom: 10, alignSelf: 'center', objectFit: 'cover' },
-  sectionLbl: { fontSize: 7, fontFamily: 'Helvetica-Bold', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 3, opacity: 0.9 },
-  divider:    { height: 0.5, backgroundColor: '#fff', opacity: 0.3, marginBottom: 6 },
-  contactRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 3 },
-  contactTxt: { fontSize: 7.5, color: '#fff', opacity: 0.85 },
-  skillRow:   { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
-  skillName:  { fontSize: 7.5, color: '#fff', fontFamily: 'Helvetica-Bold' },
-  skillBar:   { height: 3, borderRadius: 1.5, backgroundColor: 'rgba(255,255,255,0.2)', marginTop: 2, marginBottom: 5 },
-  skillFill:  { height: 3, borderRadius: 1.5, backgroundColor: '#fff' },
-  langName:   { fontSize: 8, fontFamily: 'Helvetica-Bold', color: '#fff', marginBottom: 1 },
-  langLevel:  { fontSize: 7, color: '#fff', opacity: 0.65, marginBottom: 6 },
-  mainTitle:  { fontSize: 7, fontFamily: 'Helvetica-Bold', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 2 },
-  mainDivider:{ height: 0.5, marginBottom: 8 },
-  expTitle:   { fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#111', marginBottom: 1 },
-  expCompany: { fontSize: 8, fontFamily: 'Helvetica-Bold', marginBottom: 1 },
-  expDate:    { fontSize: 7, color: '#888' },
-  expDesc:    { fontSize: 7.5, color: '#444', marginTop: 3, lineHeight: 1.5 },
-  expBlock:   { marginBottom: 10 },
-  summary:    { fontSize: 8, color: '#444', lineHeight: 1.6, marginBottom: 2 },
+// Police haute qualité (Inter) embarquée pour un PDF net et cohérent avec l'aperçu.
+Font.register({
+  family: 'Inter',
+  fonts: [
+    { src: interRegular, fontWeight: 'normal' },
+    { src: interMedium, fontWeight: 500 },
+    { src: interSemiBold, fontWeight: 600 },
+    { src: interBold, fontWeight: 'bold' },
+  ],
 });
+// Évite les césures hasardeuses des mots.
+Font.registerHyphenationCallback((word) => [word]);
+
+const styles = StyleSheet.create({
+  page:       { flexDirection: 'row', fontFamily: 'Inter', fontSize: 9, color: '#1f2430' },
+  sidebar:    { width: '34%', minHeight: '100%', padding: 22, color: '#fff' },
+  main:       { flex: 1, padding: 26 },
+  name:       { fontSize: 15, fontFamily: 'Inter', fontWeight: 700, marginBottom: 2, color: '#fff', letterSpacing: 0.3 },
+  title:      { fontSize: 8.5, marginBottom: 14, opacity: 0.85, color: '#fff' },
+  avatar:     { width: 74, height: 74, borderRadius: 37, marginBottom: 12, alignSelf: 'center', objectFit: 'cover' },
+  sectionLbl: { fontSize: 7.5, fontFamily: 'Inter', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4, opacity: 0.95 },
+  divider:    { height: 0.5, backgroundColor: '#fff', opacity: 0.3, marginBottom: 7 },
+  contactTxt: { fontSize: 7.5, color: '#fff', opacity: 0.9, marginBottom: 3, lineHeight: 1.4 },
+  skillCat:   { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, color: '#fff', opacity: 0.7, marginTop: 4, marginBottom: 2 },
+  skillName:  { fontSize: 8, color: '#fff', marginBottom: 2.5, lineHeight: 1.3 },
+  langName:   { fontSize: 8, fontFamily: 'Inter', fontWeight: 600, color: '#fff', marginBottom: 1 },
+  langLevel:  { fontSize: 7, color: '#fff', opacity: 0.7, marginBottom: 6 },
+  mainTitle:  { fontSize: 8, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.3, marginBottom: 3 },
+  mainDivider:{ height: 1, marginBottom: 9, borderRadius: 1 },
+  expTitle:   { fontSize: 9.5, fontFamily: 'Inter', fontWeight: 700, color: '#111', marginBottom: 1 },
+  expCompany: { fontSize: 8.5, fontFamily: 'Inter', fontWeight: 600, marginBottom: 1 },
+  expDate:    { fontSize: 7.5, color: '#888' },
+  expDesc:    { fontSize: 8, color: '#3a4150', marginTop: 3, lineHeight: 1.55 },
+  expBlock:   { marginBottom: 11 },
+  summary:    { fontSize: 8.5, color: '#3a4150', lineHeight: 1.6, marginBottom: 2 },
+});
+
+// Regroupe les compétences par catégorie (ordre d'apparition préservé).
+function groupSkills(skills) {
+  const groups = [];
+  const index = {};
+  skills.forEach((s) => {
+    const cat = (s.category || '').trim() || 'Autres';
+    if (!(cat in index)) { index[cat] = groups.length; groups.push({ cat, items: [] }); }
+    groups[index[cat]].items.push(s.name);
+  });
+  return groups;
+}
 
 export function ModernPDFTemplate({ cvData }) {
   const {
@@ -76,15 +102,10 @@ export function ModernPDFTemplate({ cvData }) {
 
           {skills.length > 0 && (
             <SideSection title="Compétences">
-              {skills.map((skill) => (
-                <View key={skill.id}>
-                  <View style={styles.skillRow}>
-                    <Text style={styles.skillName}>{skill.name}</Text>
-                    <Text style={[styles.contactTxt, { opacity: 0.65, fontSize: 7 }]}>{skill.level}/5</Text>
-                  </View>
-                  <View style={styles.skillBar}>
-                    <View style={[styles.skillFill, { width: `${(skill.level / 5) * 100}%` }]} />
-                  </View>
+              {groupSkills(skills).map((g) => (
+                <View key={g.cat} wrap={false}>
+                  {groupSkills(skills).length > 1 && <Text style={styles.skillCat}>{g.cat}</Text>}
+                  <Text style={styles.skillName}>{g.items.join('  ·  ')}</Text>
                 </View>
               ))}
             </SideSection>

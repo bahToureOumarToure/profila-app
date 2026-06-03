@@ -1,20 +1,19 @@
 import { useState, lazy, Suspense } from 'react';
 import {
   Box, Grid, Fab, Drawer, useTheme, useMediaQuery,
-  Tooltip, Typography, Paper, Divider, Stack, Button,
+  Tooltip, Typography, Paper, Divider, Stack, Button, Snackbar, Alert,
 } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import CloudDoneOutlinedIcon from '@mui/icons-material/CloudDoneOutlined';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 const ImportPdfDialog = lazy(() => import('@components/ai/ImportPdfDialog'));
-const JobAuditDialog = lazy(() => import('@components/ai/JobAuditDialog'));
-const OptimizeDialog = lazy(() => import('@components/ai/OptimizeDialog'));
+const JobCoachDialog = lazy(() => import('@components/ai/JobCoachDialog'));
 import EditorPanel from '@components/editor/EditorPanel';
 import CVPreview from '@components/preview/CVPreview';
 import PDFDownloadButton from '@components/pdf/CVPDFDocument';
@@ -27,10 +26,11 @@ export default function BuilderPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [previewOpen, setPreviewOpen] = useState(false);
   const [aiImportOpen, setAiImportOpen] = useState(false);
-  const [jobAuditOpen, setJobAuditOpen] = useState(false);
-  const [optimizeOpen, setOptimizeOpen] = useState(false);
-  const { cvData, loadCV, resetCV } = useCV();
+  const [coachOpen, setCoachOpen] = useState(false);
+  const [savedToast, setSavedToast] = useState(false);
+  const { cvData, loadCV, resetCV, saveCV } = useCV();
 
+  const handleSave = () => { saveCV(); setSavedToast(true); };
   const handleExportJSON = () => downloadJSON(cvData, 'profila-cv.json');
 
   const handleImportJSON = async (e) => {
@@ -80,27 +80,24 @@ export default function BuilderPage() {
               </Button>
             </Tooltip>
 
-            <Tooltip title="Analyser la compatibilité de ton CV avec une offre d'emploi">
+            <Tooltip title="Analyser la compatibilité avec une offre puis optimiser ton CV">
               <Button
                 size="small" startIcon={<GpsFixedIcon />} variant="outlined"
-                onClick={() => setJobAuditOpen(true)}
+                onClick={() => setCoachOpen(true)}
               >
-                Cibler une offre
+                Coach IA (offre)
               </Button>
             </Tooltip>
 
-            <Tooltip title="Optimiser ton CV pour une offre (réécriture ATS, non destructive)">
-              <Button
-                size="small" startIcon={<AutoFixHighIcon />} variant="outlined"
-                onClick={() => setOptimizeOpen(true)}
-              >
-                Optimiser ATS
-              </Button>
-            </Tooltip>
-
-            <Tooltip title="Sauvegarder en JSON">
-              <Button size="small" startIcon={<SaveAltIcon />} onClick={handleExportJSON} variant="outlined">
+            <Tooltip title="Enregistrer dans ce navigateur (sauvegarde automatique aussi active)">
+              <Button size="small" startIcon={<CloudDoneOutlinedIcon />} onClick={handleSave} variant="outlined">
                 Sauvegarder
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="Exporter une copie JSON (sauvegarde de secours)">
+              <Button size="small" startIcon={<SaveAltIcon />} onClick={handleExportJSON} variant="text">
+                Exporter
               </Button>
             </Tooltip>
 
@@ -185,17 +182,22 @@ export default function BuilderPage() {
         </Suspense>
       )}
 
-      {jobAuditOpen && (
+      {coachOpen && (
         <Suspense fallback={null}>
-          <JobAuditDialog open={jobAuditOpen} onClose={() => setJobAuditOpen(false)} />
+          <JobCoachDialog open={coachOpen} onClose={() => setCoachOpen(false)} />
         </Suspense>
       )}
 
-      {optimizeOpen && (
-        <Suspense fallback={null}>
-          <OptimizeDialog open={optimizeOpen} onClose={() => setOptimizeOpen(false)} />
-        </Suspense>
-      )}
+      <Snackbar
+        open={savedToast}
+        autoHideDuration={2500}
+        onClose={() => setSavedToast(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" variant="filled" onClose={() => setSavedToast(false)} sx={{ width: '100%' }}>
+          CV sauvegardé dans ce navigateur ✓
+        </Alert>
+      </Snackbar>
     </>
   );
 }

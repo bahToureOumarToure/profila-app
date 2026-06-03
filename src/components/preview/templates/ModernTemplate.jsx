@@ -1,4 +1,4 @@
-import { Box, Typography, Avatar, Chip, LinearProgress, Divider } from '@mui/material';
+import { Box, Typography, Avatar, Chip, Divider } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -19,6 +19,17 @@ const ContactItem = ({ icon, value }) => {
     </Box>
   );
 };
+
+function groupSkills(skills) {
+  const groups = [];
+  const index = {};
+  skills.forEach((s) => {
+    const cat = (s.category || '').trim() || 'Autres';
+    if (!(cat in index)) { index[cat] = groups.length; groups.push({ cat, items: [] }); }
+    groups[index[cat]].items.push(s.name);
+  });
+  return groups;
+}
 
 const SectionTitle = ({ children, color }) => (
   <Box sx={{ mb: 1.5 }}>
@@ -87,25 +98,32 @@ export default function ModernTemplate({ cvData }) {
         {skills.length > 0 && (
           <Box>
             <SectionTitle color="#fff">Compétences</SectionTitle>
-            {skills.map((skill) => (
-              <Box key={skill.id} sx={{ mb: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
-                  <Typography variant="caption" sx={{ color: '#fff', fontWeight: 500, fontSize: '0.7rem' }}>{skill.name}</Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.65rem' }}>
-                    {skill.level}/5
-                  </Typography>
+            {groupSkills(skills).map((g) => {
+              const showCat = groupSkills(skills).length > 1;
+              return (
+                <Box key={g.cat} sx={{ mb: 1 }}>
+                  {showCat && (
+                    <Typography
+                      variant="caption"
+                      sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.58rem', textTransform: 'uppercase',
+                        letterSpacing: '0.06em', display: 'block', mb: 0.5 }}
+                    >
+                      {g.cat}
+                    </Typography>
+                  )}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {g.items.map((name, i) => (
+                      <Chip
+                        key={i}
+                        label={name}
+                        size="small"
+                        sx={{ bgcolor: alpha('#fff', 0.18), color: '#fff', fontSize: '0.65rem', height: 20 }}
+                      />
+                    ))}
+                  </Box>
                 </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={(skill.level / 5) * 100}
-                  sx={{
-                    height: 4, borderRadius: 2,
-                    backgroundColor: alpha('#fff', 0.2),
-                    '& .MuiLinearProgress-bar': { backgroundColor: '#fff', borderRadius: 2 },
-                  }}
-                />
-              </Box>
-            ))}
+              );
+            })}
           </Box>
         )}
 
