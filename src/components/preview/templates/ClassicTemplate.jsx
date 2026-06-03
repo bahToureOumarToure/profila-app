@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { Box, Typography, Divider } from '@mui/material';
-import { formatDateRange, resolveSectionOrder } from '@utils/cvHelpers';
+import { formatDateRange, resolveSectionOrder, groupSkillsByCategory } from '@utils/cvHelpers';
 import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
 
 const SectionTitle = ({ children, color }) => (
@@ -78,9 +78,23 @@ export default function ClassicTemplate({ cvData }) {
     skills: skills.length > 0 && (
       <Box>
         <SectionTitle color={primary}>Compétences</SectionTitle>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-          {skills.map((skill) => <ChipBox key={skill.id} label={skill.name} />)}
-        </Box>
+        {(() => {
+          const groups = groupSkillsByCategory(skills);
+          const showCat = groups.length > 1;
+          return groups.map((g) => (
+            <Box key={g.cat} sx={{ mb: showCat ? 1 : 0 }}>
+              {showCat && (
+                <Typography sx={{ fontSize: '0.62rem', fontWeight: 600, color: '#888',
+                  textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+                  {g.cat}
+                </Typography>
+              )}
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                {g.items.map((name, i) => <ChipBox key={i} label={name} />)}
+              </Box>
+            </Box>
+          ));
+        })()}
       </Box>
     ),
     languages: languages.length > 0 && (

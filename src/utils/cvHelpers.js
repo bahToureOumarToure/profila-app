@@ -27,6 +27,20 @@ export function resolveSectionOrder(meta, defaultOrder) {
   return [...valid, ...missing];
 }
 
+// Regroupe les compétences par catégorie (ordre d'apparition préservé).
+export function groupSkillsByCategory(skills = []) {
+  const groups = [];
+  const index = {};
+  skills.forEach((s) => {
+    const name = (s.name || '').trim();
+    if (!name) return;
+    const cat = (s.category || '').trim() || 'Autres';
+    if (!(cat in index)) { index[cat] = groups.length; groups.push({ cat, items: [] }); }
+    groups[index[cat]].items.push(name);
+  });
+  return groups;
+}
+
 export function cvCompletionScore(cvData) {
   let score = 0;
   const {

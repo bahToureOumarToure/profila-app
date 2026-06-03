@@ -1,5 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { formatDateRange, resolveSectionOrder } from '@utils/cvHelpers';
+import { formatDateRange, resolveSectionOrder, groupSkillsByCategory } from '@utils/cvHelpers';
 import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
 import '../pdfFonts';
 
@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
   skillsWrap:  { flexDirection: 'row', flexWrap: 'wrap' },
   skillItem:   { fontSize: 8, color: '#444', marginRight: 12, marginBottom: 3 },
   skillLine:   { fontSize: 8, color: '#444', marginBottom: 2 },
+  skillCat:    { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2, opacity: 0.8 },
   langName:    { fontSize: 8, fontFamily: 'Inter', fontWeight: 600, color: '#333' },
   langLevel:   { fontSize: 7, color: '#999' },
 });
@@ -80,11 +81,18 @@ export function MinimalPDFTemplate({ cvData }) {
     ),
     skills: skills.length > 0 && (
       <Section title="Compétences">
-        <View style={styles.skillsWrap}>
-          {skills.filter((s) => (s.name || '').trim()).map((s) => (
-            <Text key={s.id} style={styles.skillItem}>{s.name}</Text>
-          ))}
-        </View>
+        {(() => {
+          const groups = groupSkillsByCategory(skills);
+          const showCat = groups.length > 1;
+          return groups.map((g) => (
+            <View key={g.cat} wrap={false} style={{ marginBottom: showCat ? 4 : 0 }}>
+              {showCat && <Text style={[styles.skillCat, { color: primary }]}>{g.cat}</Text>}
+              <View style={styles.skillsWrap}>
+                {g.items.map((name, i) => <Text key={i} style={styles.skillItem}>{name}</Text>)}
+              </View>
+            </View>
+          ));
+        })()}
       </Section>
     ),
     languages: languages.length > 0 && (

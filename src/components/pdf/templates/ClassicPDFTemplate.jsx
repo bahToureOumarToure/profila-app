@@ -1,5 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { formatDateRange, resolveSectionOrder } from '@utils/cvHelpers';
+import { formatDateRange, resolveSectionOrder, groupSkillsByCategory } from '@utils/cvHelpers';
 import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
 import '../pdfFonts';
 
@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
   chipsWrap:   { flexDirection: 'row', flexWrap: 'wrap' },
   chip:        { borderWidth: 1, borderRadius: 3, paddingVertical: 2, paddingHorizontal: 5, marginRight: 4, marginBottom: 4 },
   chipTx:      { fontSize: 8 },
+  skillCat:    { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2, opacity: 0.8 },
   langName:    { fontSize: 8.5, fontFamily: 'Inter', fontWeight: 600, color: '#111' },
   langLevel:   { fontSize: 7.5, color: '#777' },
 });
@@ -88,7 +89,18 @@ export function ClassicPDFTemplate({ cvData }) {
       </Section>
     ),
     skills: skills.length > 0 && (
-      <Section title="Compétences"><Chips items={skills.map((s) => s.name).filter(Boolean)} /></Section>
+      <Section title="Compétences">
+        {(() => {
+          const groups = groupSkillsByCategory(skills);
+          const showCat = groups.length > 1;
+          return groups.map((g) => (
+            <View key={g.cat} wrap={false} style={{ marginBottom: showCat ? 4 : 0 }}>
+              {showCat && <Text style={[styles.skillCat, { color: primary }]}>{g.cat}</Text>}
+              <Chips items={g.items} />
+            </View>
+          ));
+        })()}
+      </Section>
     ),
     languages: languages.length > 0 && (
       <Section title="Langues">

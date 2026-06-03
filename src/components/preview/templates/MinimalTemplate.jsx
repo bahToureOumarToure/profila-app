@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { Box, Typography } from '@mui/material';
-import { formatDateRange, resolveSectionOrder } from '@utils/cvHelpers';
+import { formatDateRange, resolveSectionOrder, groupSkillsByCategory } from '@utils/cvHelpers';
 import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
 
 export default function MinimalTemplate({ cvData }) {
@@ -64,11 +64,25 @@ export default function MinimalTemplate({ cvData }) {
     ),
     skills: skills.length > 0 && (
       <Section title="Compétences">
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 2, rowGap: 0.5 }}>
-          {skills.map((skill) => (
-            <Typography key={skill.id} sx={{ fontSize: '0.78rem', color: '#444' }}>{skill.name}</Typography>
-          ))}
-        </Box>
+        {(() => {
+          const groups = groupSkillsByCategory(skills);
+          const showCat = groups.length > 1;
+          return groups.map((g) => (
+            <Box key={g.cat} sx={{ mb: showCat ? 1 : 0 }}>
+              {showCat && (
+                <Typography sx={{ fontSize: '0.62rem', fontWeight: 600, color: '#999',
+                  textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.3 }}>
+                  {g.cat}
+                </Typography>
+              )}
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 2, rowGap: 0.5 }}>
+                {g.items.map((name, i) => (
+                  <Typography key={i} sx={{ fontSize: '0.78rem', color: '#444' }}>{name}</Typography>
+                ))}
+              </Box>
+            </Box>
+          ));
+        })()}
       </Section>
     ),
     languages: languages.length > 0 && (
