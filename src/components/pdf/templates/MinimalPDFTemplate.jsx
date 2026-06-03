@@ -19,7 +19,9 @@ const styles = StyleSheet.create({
   itemDesc:    { fontSize: 8, color: '#555', lineHeight: 1.6 },
   block:       { marginBottom: 8 },
   summary:     { fontSize: 8.5, color: '#444', lineHeight: 1.7 },
-  twoCol:      { flexDirection: 'row' },
+  langRow:     { flexDirection: 'row', flexWrap: 'wrap' },
+  skillsWrap:  { flexDirection: 'row', flexWrap: 'wrap' },
+  skillItem:   { fontSize: 8, color: '#444', marginRight: 12, marginBottom: 3 },
   skillLine:   { fontSize: 8, color: '#444', marginBottom: 2 },
   langName:    { fontSize: 8, fontFamily: 'Inter', fontWeight: 600, color: '#333' },
   langLevel:   { fontSize: 7, color: '#999', marginBottom: 4 },
@@ -87,29 +89,28 @@ export function MinimalPDFTemplate({ cvData }) {
           </Section>
         )}
 
-        <View style={styles.twoCol}>
-          {skills.length > 0 && (
-            <View style={{ flex: 1, marginRight: 12 }}>
-              <Section title="Compétences">
-                {skills.filter((s) => (s.name || '').trim()).map((s) => (
-                  <Text key={s.id} style={styles.skillLine}>{s.name}</Text>
-                ))}
-              </Section>
+        {skills.length > 0 && (
+          <Section title="Compétences">
+            <View style={styles.skillsWrap}>
+              {skills.filter((s) => (s.name || '').trim()).map((s) => (
+                <Text key={s.id} style={styles.skillItem}>{s.name}</Text>
+              ))}
             </View>
-          )}
-          {languages.length > 0 && (
-            <View style={{ width: '32%' }}>
-              <Section title="Langues">
-                {languages.map((l) => (
-                  <View key={l.id}>
-                    <Text style={styles.langName}>{l.name}</Text>
-                    <Text style={styles.langLevel}>{l.level}</Text>
-                  </View>
-                ))}
-              </Section>
+          </Section>
+        )}
+
+        {languages.length > 0 && (
+          <Section title="Langues">
+            <View style={styles.langRow}>
+              {languages.map((l) => (
+                <View key={l.id} style={{ marginRight: 18, marginBottom: 3 }}>
+                  <Text style={styles.langName}>{l.name}</Text>
+                  <Text style={styles.langLevel}>{l.level}</Text>
+                </View>
+              ))}
             </View>
-          )}
-        </View>
+          </Section>
+        )}
 
         {projects.length > 0 && (
           <Section title="Projets">

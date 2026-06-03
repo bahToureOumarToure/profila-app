@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   itemDesc:    { fontSize: 8, color: '#555', marginTop: 2, lineHeight: 1.55 },
   block:       { marginBottom: 9 },
   summary:     { fontSize: 8.5, color: '#444', lineHeight: 1.6 },
-  twoCol:      { flexDirection: 'row' },
+  langRow:     { flexDirection: 'row', flexWrap: 'wrap' },
   chipsWrap:   { flexDirection: 'row', flexWrap: 'wrap' },
   chip:        { borderWidth: 1, borderRadius: 3, paddingVertical: 2, paddingHorizontal: 5, marginRight: 4, marginBottom: 4 },
   chipTx:      { fontSize: 8 },
@@ -100,27 +100,24 @@ export function ClassicPDFTemplate({ cvData }) {
           </Section>
         )}
 
-        <View style={styles.twoCol}>
-          {skills.length > 0 && (
-            <View style={{ flex: 1, marginRight: 12 }}>
-              <Section title="Compétences">
-                <Chips items={skills.map((s) => s.name).filter(Boolean)} />
-              </Section>
+        {skills.length > 0 && (
+          <Section title="Compétences">
+            <Chips items={skills.map((s) => s.name).filter(Boolean)} />
+          </Section>
+        )}
+
+        {languages.length > 0 && (
+          <Section title="Langues">
+            <View style={styles.langRow}>
+              {languages.map((l) => (
+                <View key={l.id} style={{ marginRight: 18, marginBottom: 3 }}>
+                  <Text style={styles.langName}>{l.name}</Text>
+                  <Text style={styles.langLevel}>{l.level}</Text>
+                </View>
+              ))}
             </View>
-          )}
-          {languages.length > 0 && (
-            <View style={{ width: '32%' }}>
-              <Section title="Langues">
-                {languages.map((l) => (
-                  <View key={l.id}>
-                    <Text style={styles.langName}>{l.name}</Text>
-                    <Text style={styles.langLevel}>{l.level}</Text>
-                  </View>
-                ))}
-              </Section>
-            </View>
-          )}
-        </View>
+          </Section>
+        )}
 
         {projects.length > 0 && (
           <Section title="Projets">

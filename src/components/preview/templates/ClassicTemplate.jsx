@@ -88,35 +88,35 @@ export default function ClassicTemplate({ cvData }) {
         </>
       )}
 
-      <Box sx={{ display: 'flex', gap: 4 }}>
-        {skills.length > 0 && (
-          <Box sx={{ flex: 1 }}>
-            <SectionTitle color={primary}>Compétences</SectionTitle>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-              {skills.map((skill) => (
-                <Box key={skill.id} sx={{
-                  px: 1.25, py: 0.25, borderRadius: 1,
-                  border: `1px solid ${primary}`, display: 'inline-block',
-                }}>
-                  <Typography sx={{ fontSize: '0.7rem', color: primary, fontWeight: 500 }}>{skill.name}</Typography>
-                </Box>
-              ))}
-            </Box>
+      {skills.length > 0 && (
+        <>
+          <SectionTitle color={primary}>Compétences</SectionTitle>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+            {skills.map((skill) => (
+              <Box key={skill.id} sx={{
+                px: 1.25, py: 0.25, borderRadius: 1,
+                border: `1px solid ${primary}`, display: 'inline-block',
+              }}>
+                <Typography sx={{ fontSize: '0.7rem', color: primary, fontWeight: 500 }}>{skill.name}</Typography>
+              </Box>
+            ))}
           </Box>
-        )}
+        </>
+      )}
 
-        {languages.length > 0 && (
-          <Box>
-            <SectionTitle color={primary}>Langues</SectionTitle>
+      {languages.length > 0 && (
+        <>
+          <SectionTitle color={primary}>Langues</SectionTitle>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
             {languages.map((lang) => (
-              <Box key={lang.id} sx={{ mb: 0.5 }}>
+              <Box key={lang.id}>
                 <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#111' }}>{lang.name}</Typography>
                 <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>{lang.level}</Typography>
               </Box>
             ))}
           </Box>
-        )}
-      </Box>
+        </>
+      )}
 
       {projects.length > 0 && (
         <>
