@@ -89,7 +89,7 @@ const STEPS = ['Offre', 'Audit', 'Optimisation'];
 const STEP_INDEX = { input: 0, auditing: 0, audit: 1, optimizing: 1, review: 2, done: 2 };
 
 export default function JobCoachDialog({ open, onClose }) {
-  const { cvData, updatePersonalInfo, updateItem } = useCV();
+  const { cvData, updatePersonalInfo, updateItem, addItem } = useCV();
   const [phase, setPhase] = useState('input');
   const [error, setError] = useState('');
   const [jobText, setJobText] = useState('');
@@ -131,6 +131,7 @@ export default function JobCoachDialog({ open, onClose }) {
       if (!accepted[s.id]) return;
       if (s.target === 'summary') updatePersonalInfo({ summary: s.after });
       else if (s.target === 'experience') updateItem('experiences', s.expId, { description: s.after });
+      else if (s.target === 'skillAdd') addItem('skills', { name: s.skillName, category: s.skillCategory, level: 4 });
       n += 1;
     });
     setAppliedCount(n); setPhase('done');

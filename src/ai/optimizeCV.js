@@ -7,13 +7,17 @@ const str = (v) => (typeof v === 'string' ? v.trim() : v == null ? '' : String(v
 
 function buildInput(cv) {
   return JSON.stringify({
+    title: cv.personalInfo?.title || '',
     summary: cv.personalInfo?.summary || '',
+    currentSkills: (cv.skills || []).map((s) => s.name),
     experiences: (cv.experiences || []).map((e, i) => ({
       index: i,
       position: e.position,
       company: e.company,
       description: e.description,
     })),
+    projects: (cv.projects || []).map((p) => ({ name: p.name, technologies: p.technologies })),
+    education: (cv.education || []).map((ed) => ({ degree: ed.degree, field: ed.field })),
   });
 }
 
@@ -46,6 +50,23 @@ export function normalizeOptimizations(raw, cv) {
         id: `exp-${exp.id}`, target: 'experience', expId: exp.id,
         label: `Expérience : ${exp.position || '?'}${exp.company ? ` @ ${exp.company}` : ''}`,
         before, after, rationale: str(e.rationale),
+      });
+    });
+  }
+
+  if (Array.isArray(raw?.skillsToAdd)) {
+    const existing = new Set((cv.skills || []).map((s) => str(s.name).toLowerCase()));
+    raw.skillsToAdd.forEach((s) => {
+      const name = str(s.name);
+      const key = name.toLowerCase();
+      if (!name || existing.has(key)) return;
+      existing.add(key);
+      const category = str(s.category) || 'Autres';
+      suggestions.push({
+        id: `skill-${key}`, target: 'skillAdd', skillName: name, skillCategory: category,
+        label: `Compétence à ajouter : ${name}`,
+        before: '—', after: `${name}${category ? `  ·  ${category}` : ''}`,
+        rationale: str(s.rationale),
       });
     });
   }

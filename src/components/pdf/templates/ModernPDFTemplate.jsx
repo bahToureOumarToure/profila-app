@@ -28,8 +28,10 @@ const styles = StyleSheet.create({
   sectionLbl: { fontSize: 7.5, fontFamily: 'Inter', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4, opacity: 0.95 },
   divider:    { height: 0.5, backgroundColor: '#fff', opacity: 0.3, marginBottom: 7 },
   contactTxt: { fontSize: 7.5, color: '#fff', opacity: 0.9, marginBottom: 3, lineHeight: 1.4 },
-  skillCat:   { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, color: '#fff', opacity: 0.7, marginTop: 4, marginBottom: 2 },
-  skillName:  { fontSize: 8, color: '#fff', marginBottom: 2.5, lineHeight: 1.3 },
+  skillCat:   { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, color: '#fff', opacity: 0.7, marginTop: 5, marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.5 },
+  skillsWrap: { flexDirection: 'row', flexWrap: 'wrap' },
+  skillChip:  { backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 3, paddingVertical: 2, paddingHorizontal: 5, marginRight: 4, marginBottom: 4 },
+  skillChipTx:{ fontSize: 7.5, color: '#fff' },
   langName:   { fontSize: 8, fontFamily: 'Inter', fontWeight: 600, color: '#fff', marginBottom: 1 },
   langLevel:  { fontSize: 7, color: '#fff', opacity: 0.7, marginBottom: 6 },
   mainTitle:  { fontSize: 8, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.3, marginBottom: 3 },
@@ -47,9 +49,11 @@ function groupSkills(skills) {
   const groups = [];
   const index = {};
   skills.forEach((s) => {
+    const nm = (s.name || '').trim();
+    if (!nm) return;
     const cat = (s.category || '').trim() || 'Autres';
     if (!(cat in index)) { index[cat] = groups.length; groups.push({ cat, items: [] }); }
-    groups[index[cat]].items.push(s.name);
+    groups[index[cat]].items.push(nm);
   });
   return groups;
 }
@@ -61,6 +65,7 @@ export function ModernPDFTemplate({ cvData }) {
     meta,
   } = cvData;
   const primary = meta?.colorScheme?.primary || '#1a237e';
+  const skillGroups = groupSkills(skills);
 
   const SideSection = ({ title, children }) => (
     <View style={{ marginBottom: 12 }}>
@@ -100,12 +105,18 @@ export function ModernPDFTemplate({ cvData }) {
             </SideSection>
           )}
 
-          {skills.length > 0 && (
+          {skillGroups.length > 0 && (
             <SideSection title="Compétences">
-              {groupSkills(skills).map((g) => (
-                <View key={g.cat} wrap={false}>
-                  {groupSkills(skills).length > 1 && <Text style={styles.skillCat}>{g.cat}</Text>}
-                  <Text style={styles.skillName}>{g.items.join('  ·  ')}</Text>
+              {skillGroups.map((g) => (
+                <View key={g.cat} wrap={false} style={{ marginBottom: 3 }}>
+                  {skillGroups.length > 1 && <Text style={styles.skillCat}>{g.cat}</Text>}
+                  <View style={styles.skillsWrap}>
+                    {g.items.map((name, i) => (
+                      <View key={i} style={styles.skillChip}>
+                        <Text style={styles.skillChipTx}>{name}</Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
               ))}
             </SideSection>

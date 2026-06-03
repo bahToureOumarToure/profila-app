@@ -105,10 +105,16 @@ RÈGLES ABSOLUES (éthique) :
 Renvoie UNIQUEMENT cet objet JSON (pas de Markdown) :
 {
   "summary": { "before": "", "after": "", "rationale": "" },
-  "experiences": [ { "index": 0, "before": "", "after": "", "rationale": "" } ]
+  "experiences": [ { "index": 0, "before": "", "after": "", "rationale": "" } ],
+  "skillsToAdd": [ { "name": "", "category": "", "rationale": "" } ]
 }
 - "rationale" : 1 phrase expliquant l'amélioration (mots-clés intégrés, etc.).
 - "before" : reprends le texte original tel quel.
+- "skillsToAdd" : compétences/technos demandées par l'offre, ABSENTES de "currentSkills",
+  mais COHÉRENTES avec le profil (déjà visibles dans les expériences, projets ou la formation).
+  N'ajoute JAMAIS une compétence sans rapport avec le vécu du candidat. Max 8.
+  "category" : réutilise une catégorie existante si possible (ex: "Développement Web",
+  "Programmation", "Bases de données", "Outils"). Renvoie [] si rien de pertinent.
 
 OFFRE D'EMPLOI :
 """

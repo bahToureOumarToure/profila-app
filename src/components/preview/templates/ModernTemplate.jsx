@@ -24,9 +24,11 @@ function groupSkills(skills) {
   const groups = [];
   const index = {};
   skills.forEach((s) => {
+    const name = (s.name || '').trim();
+    if (!name) return;
     const cat = (s.category || '').trim() || 'Autres';
     if (!(cat in index)) { index[cat] = groups.length; groups.push({ cat, items: [] }); }
-    groups[index[cat]].items.push(s.name);
+    groups[index[cat]].items.push(name);
   });
   return groups;
 }
