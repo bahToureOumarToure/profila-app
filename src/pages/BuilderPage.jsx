@@ -8,9 +8,11 @@ import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 const ImportPdfDialog = lazy(() => import('@components/ai/ImportPdfDialog'));
+const JobAuditDialog = lazy(() => import('@components/ai/JobAuditDialog'));
 import EditorPanel from '@components/editor/EditorPanel';
 import CVPreview from '@components/preview/CVPreview';
 import PDFDownloadButton from '@components/pdf/CVPDFDocument';
@@ -23,6 +25,7 @@ export default function BuilderPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [previewOpen, setPreviewOpen] = useState(false);
   const [aiImportOpen, setAiImportOpen] = useState(false);
+  const [jobAuditOpen, setJobAuditOpen] = useState(false);
   const { cvData, loadCV, resetCV } = useCV();
 
   const handleExportJSON = () => downloadJSON(cvData, 'profila-cv.json');
@@ -71,6 +74,15 @@ export default function BuilderPage() {
                 onClick={() => setAiImportOpen(true)}
               >
                 Importer PDF (IA)
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="Analyser la compatibilité de ton CV avec une offre d'emploi">
+              <Button
+                size="small" startIcon={<GpsFixedIcon />} variant="outlined"
+                onClick={() => setJobAuditOpen(true)}
+              >
+                Cibler une offre
               </Button>
             </Tooltip>
 
@@ -158,6 +170,12 @@ export default function BuilderPage() {
       {aiImportOpen && (
         <Suspense fallback={null}>
           <ImportPdfDialog open={aiImportOpen} onClose={() => setAiImportOpen(false)} />
+        </Suspense>
+      )}
+
+      {jobAuditOpen && (
+        <Suspense fallback={null}>
+          <JobAuditDialog open={jobAuditOpen} onClose={() => setJobAuditOpen(false)} />
         </Suspense>
       )}
     </>
