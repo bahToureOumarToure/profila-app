@@ -5,20 +5,7 @@ const clamp100 = (v) => {
   const n = Math.round(Number(v));
   return Number.isNaN(n) ? 0 : Math.min(100, Math.max(0, n));
 };
-// Robuste : le LLM renvoie parfois des objets ({conseil, priorité} ou {name})
-// au lieu de chaînes. On en extrait toujours un texte lisible.
-const toText = (v) => {
-  if (typeof v === 'string') return v.trim();
-  if (typeof v === 'number') return String(v);
-  if (v && typeof v === 'object') {
-    const k = v.text ?? v.name ?? v.keyword ?? v.skill ?? v.recommendation
-      ?? v.advice ?? v.conseil ?? v.suggestion ?? v.label
-      ?? Object.values(v).find((x) => typeof x === 'string');
-    return str(k);
-  }
-  return '';
-};
-const arrStr = (v) => (Array.isArray(v) ? v.map(toText).filter(Boolean) : []);
+const arrStr = (v) => (Array.isArray(v) ? v.map(str).filter(Boolean) : []);
 
 export function normalizeJobAudit(raw) {
   if (!raw || typeof raw !== 'object') throw new Error('Format de données IA inattendu.');
