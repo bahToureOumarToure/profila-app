@@ -86,3 +86,37 @@ CV (JSON) :
 ${cvJson}
 """`;
 }
+
+// Prompt d'optimisation ATS : réécrit résumé + descriptions d'expériences pour
+// coller à l'offre, SANS jamais inventer. Reformule l'existant uniquement.
+export function buildOptimizePrompt(cvJson, jobText) {
+  return `Tu es un expert ATS et rédaction de CV. On te donne le RÉSUMÉ et les
+EXPÉRIENCES d'un CV (avec leur index), plus une OFFRE D'EMPLOI. Réécris ces textes
+pour MAXIMISER la pertinence vis-à-vis de l'offre.
+
+RÈGLES ABSOLUES (éthique) :
+- N'invente JAMAIS d'expérience, de compétence, de technologie ou de chiffre absent du CV.
+- Reformule, clarifie et fais remonter l'EXISTANT ; intègre les mots-clés de l'offre
+  uniquement s'ils correspondent réellement au vécu décrit.
+- Conserve tous les résultats quantifiables déjà présents.
+- Ton authentique et professionnel, en français. Phrases orientées résultats/impact.
+- Si un texte est déjà optimal, renvoie "after" identique à "before" (il sera ignoré).
+
+Renvoie UNIQUEMENT cet objet JSON (pas de Markdown) :
+{
+  "summary": { "before": "", "after": "", "rationale": "" },
+  "experiences": [ { "index": 0, "before": "", "after": "", "rationale": "" } ]
+}
+- "rationale" : 1 phrase expliquant l'amélioration (mots-clés intégrés, etc.).
+- "before" : reprends le texte original tel quel.
+
+OFFRE D'EMPLOI :
+"""
+${jobText}
+"""
+
+CV (résumé + expériences indexées) :
+"""
+${cvJson}
+"""`;
+}
