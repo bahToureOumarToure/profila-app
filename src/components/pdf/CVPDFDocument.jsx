@@ -3,12 +3,14 @@ import { pdf } from '@react-pdf/renderer';
 import { Button, CircularProgress } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import { ModernPDFTemplate } from './templates/ModernPDFTemplate';
+import { ClassicPDFTemplate } from './templates/ClassicPDFTemplate';
+import { MinimalPDFTemplate } from './templates/MinimalPDFTemplate';
 import { useCV } from '@context/CVContext';
 
 const TEMPLATE_MAP = {
   modern:  ModernPDFTemplate,
-  classic: ModernPDFTemplate, // Uses same structure, can be specialized later
-  minimal: ModernPDFTemplate,
+  classic: ClassicPDFTemplate,
+  minimal: MinimalPDFTemplate,
 };
 
 function getPDFFileName(personalInfo) {
