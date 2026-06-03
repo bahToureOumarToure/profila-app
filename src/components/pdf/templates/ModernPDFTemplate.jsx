@@ -135,11 +135,13 @@ export function ModernPDFTemplate({ cvData }) {
 
           {interests.length > 0 && (
             <SideSection title="Centres d'intérêt">
-              {interests.map((it) => (
-                <Text key={it.id} style={[styles.contactTxt, { marginTop: 2 }]}>
-                  {it.name}{it.category ? ` — ${it.category}` : ''}
-                </Text>
-              ))}
+              <View style={styles.skillsWrap}>
+                {interests.filter((it) => (it.name || '').trim()).map((it) => (
+                  <View key={it.id} style={styles.skillChip}>
+                    <Text style={styles.skillChipTx}>{it.name}</Text>
+                  </View>
+                ))}
+              </View>
             </SideSection>
           )}
         </View>

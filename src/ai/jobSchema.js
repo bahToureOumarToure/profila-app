@@ -5,7 +5,26 @@ const clamp100 = (v) => {
   const n = Math.round(Number(v));
   return Number.isNaN(n) ? 0 : Math.min(100, Math.max(0, n));
 };
-const arrStr = (v) => (Array.isArray(v) ? v.map(str).filter(Boolean) : []);
+// Robuste & récursif : le LLM renvoie parfois des objets imbriqués
+// ({conseil, priorité}, {recommandation:{texte}}…). On en extrait TOUJOURS un
+// texte lisible — jamais "[object Object]".
+const toText = (v) => {
+  if (v == null) return '';
+  if (typeof v === 'string') return v.trim();
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  if (Array.isArray(v)) return v.map(toText).filter(Boolean).join(' ');
+  if (typeof v === 'object') {
+    const keys = ['text', 'recommendation', 'recommandation', 'conseil', 'advice',
+      'suggestion', 'action', 'description', 'message', 'label', 'name', 'keyword',
+      'skill', 'titre', 'title'];
+    for (const key of keys) {
+      if (typeof v[key] === 'string' && v[key].trim()) return v[key].trim();
+    }
+    return Object.values(v).map(toText).filter(Boolean).join(' — ');
+  }
+  return '';
+};
+const arrStr = (v) => (Array.isArray(v) ? v.map(toText).filter(Boolean) : []);
 
 export function normalizeJobAudit(raw) {
   if (!raw || typeof raw !== 'object') throw new Error('Format de données IA inattendu.');

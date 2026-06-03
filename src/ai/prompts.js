@@ -100,7 +100,17 @@ RÈGLES ABSOLUES (éthique) :
   uniquement s'ils correspondent réellement au vécu décrit.
 - Conserve tous les résultats quantifiables déjà présents.
 - Ton authentique et professionnel, en français. Phrases orientées résultats/impact.
-- Si un texte est déjà optimal, renvoie "after" identique à "before" (il sera ignoré).
+
+RÉSUMÉ DE PROFIL (priorité) :
+- Réécris-le pour qu'il CIBLE explicitement ce poste : 2 à 4 phrases percutantes.
+- Commence par le positionnement (intitulé visé / profil) + technologies-clés communes
+  à l'offre et au CV, puis la valeur ajoutée concrète.
+- Intègre les mots-clés majeurs de l'offre qui correspondent au candidat.
+- Adapte-le toujours à l'offre (ne renvoie "after" = "before" que s'il cible DÉJÀ
+  parfaitement ce poste).
+
+- Pour les expériences : si une description est déjà optimale, renvoie "after" identique
+  à "before" (elle sera ignorée).
 
 Renvoie UNIQUEMENT cet objet JSON (pas de Markdown) :
 {

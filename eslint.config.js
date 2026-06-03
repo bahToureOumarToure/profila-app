@@ -28,6 +28,7 @@ export default [
         FileReader: 'readonly',
         localStorage: 'readonly',
         navigator: 'readonly',
+        setTimeout: 'readonly',
         URL: 'readonly',
         window: 'readonly',
         __dirname: 'readonly',
