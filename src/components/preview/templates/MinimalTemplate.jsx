@@ -86,34 +86,30 @@ export default function MinimalTemplate({ cvData }) {
         </Section>
       )}
 
-      <Box sx={{ display: 'flex', gap: 4 }}>
-        {skills.length > 0 && (
-          <Box sx={{ flex: 1 }}>
-            <Section title="Compétences">
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                {skills.map((skill) => (
-                  <Typography key={skill.id} sx={{ fontSize: '0.78rem', color: '#444' }}>
-                    {skill.name}
-                  </Typography>
-                ))}
-              </Box>
-            </Section>
+      {skills.length > 0 && (
+        <Section title="Compétences">
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 2, rowGap: 0.5 }}>
+            {skills.map((skill) => (
+              <Typography key={skill.id} sx={{ fontSize: '0.78rem', color: '#444' }}>
+                {skill.name}
+              </Typography>
+            ))}
           </Box>
-        )}
+        </Section>
+      )}
 
-        {languages.length > 0 && (
-          <Box>
-            <Section title="Langues">
-              {languages.map((lang) => (
-                <Box key={lang.id} sx={{ mb: 0.5 }}>
-                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#333' }}>{lang.name}</Typography>
-                  <Typography sx={{ fontSize: '0.7rem', color: '#999' }}>{lang.level}</Typography>
-                </Box>
-              ))}
-            </Section>
+      {languages.length > 0 && (
+        <Section title="Langues">
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+            {languages.map((lang) => (
+              <Box key={lang.id}>
+                <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#333' }}>{lang.name}</Typography>
+                <Typography sx={{ fontSize: '0.7rem', color: '#999' }}>{lang.level}</Typography>
+              </Box>
+            ))}
           </Box>
-        )}
-      </Box>
+        </Section>
+      )}
 
       {projects.length > 0 && (
         <Section title="Projets">
