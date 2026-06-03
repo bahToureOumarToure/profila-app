@@ -2,7 +2,7 @@
 // La clé peut venir de .env.local (dev) ou être saisie par l'utilisateur (stockée
 // localement). Pour un projet perso sur le free tier, c'est suffisant.
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
-const DEFAULT_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash';
+const DEFAULT_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
 const KEY_STORAGE = 'profila_gemini_key';
 
 export function getApiKey() {
@@ -32,6 +32,11 @@ export async function generateJSON({ prompt, apiKey, model, temperature = 0.2 })
   }
   const mdl = model || DEFAULT_MODEL;
 
+  const generationConfig = { responseMimeType: 'application/json', temperature };
+  // Les modèles 2.5 activent le "thinking" par défaut : inutile pour de
+  // l'extraction structurée, et ça consomme des tokens + de la latence.
+  if (/2\.5/.test(mdl)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
+
   let res;
   try {
     res = await fetch(`${ENDPOINT}/${mdl}:generateContent?key=${encodeURIComponent(key)}`, {
@@ -39,7 +44,7 @@ export async function generateJSON({ prompt, apiKey, model, temperature = 0.2 })
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: 'application/json', temperature },
+        generationConfig,
       }),
     });
   } catch (e) {
