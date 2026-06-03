@@ -1,6 +1,9 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-import { formatDateRange } from '@utils/cvHelpers';
+import { formatDateRange, resolveSectionOrder } from '@utils/cvHelpers';
+import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
 import { groupSkills } from '../pdfFonts';
+
+const SIDEBAR_KEYS = ['skills', 'languages', 'interests'];
 
 const styles = StyleSheet.create({
   page:       { flexDirection: 'row', fontFamily: 'Inter', fontSize: 9, color: '#1f2430' },
@@ -53,6 +56,136 @@ export function ModernPDFTemplate({ cvData }) {
     </View>
   );
 
+  const sidebar = {
+    skills: skillGroups.length > 0 && (
+      <SideSection title="Compétences">
+        {skillGroups.map((g) => (
+          <View key={g.cat} wrap={false} style={{ marginBottom: 3 }}>
+            {skillGroups.length > 1 && <Text style={styles.skillCat}>{g.cat}</Text>}
+            <View style={styles.skillsWrap}>
+              {g.items.map((name, i) => (
+                <View key={i} style={styles.skillChip}><Text style={styles.skillChipTx}>{name}</Text></View>
+              ))}
+            </View>
+          </View>
+        ))}
+      </SideSection>
+    ),
+    languages: languages.length > 0 && (
+      <SideSection title="Langues">
+        {languages.map((lang) => (
+          <View key={lang.id}>
+            <Text style={styles.langName}>{lang.name}</Text>
+            <Text style={styles.langLevel}>{lang.level}</Text>
+          </View>
+        ))}
+      </SideSection>
+    ),
+    interests: interests.length > 0 && (
+      <SideSection title="Centres d'intérêt">
+        <View style={styles.skillsWrap}>
+          {interests.filter((it) => (it.name || '').trim()).map((it) => (
+            <View key={it.id} style={styles.skillChip}><Text style={styles.skillChipTx}>{it.name}</Text></View>
+          ))}
+        </View>
+      </SideSection>
+    ),
+  };
+
+  const main = {
+    summary: p.summary && (
+      <MainSection title="Profil"><Text style={styles.summary}>{p.summary}</Text></MainSection>
+    ),
+    experiences: experiences.length > 0 && (
+      <MainSection title="Expérience professionnelle">
+        {experiences.map((exp) => (
+          <View key={exp.id} style={styles.expBlock}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={styles.expTitle}>{exp.position}</Text>
+              <Text style={styles.expDate}>{formatDateRange(exp.startDate, exp.endDate, exp.current)}</Text>
+            </View>
+            <Text style={[styles.expCompany, { color: primary }]}>{exp.company}{exp.location ? ` · ${exp.location}` : ''}</Text>
+            {exp.description && <Text style={styles.expDesc}>{exp.description}</Text>}
+          </View>
+        ))}
+      </MainSection>
+    ),
+    education: education.length > 0 && (
+      <MainSection title="Formation">
+        {education.map((edu) => (
+          <View key={edu.id} style={[styles.expBlock, { marginBottom: 8 }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={styles.expTitle}>{edu.degree}</Text>
+              <Text style={styles.expDate}>{formatDateRange(edu.startDate, edu.endDate, false)}</Text>
+            </View>
+            <Text style={[styles.expCompany, { color: primary }]}>{edu.school}</Text>
+            {edu.field && <Text style={[styles.expDate, { marginTop: 1 }]}>{edu.field}</Text>}
+          </View>
+        ))}
+      </MainSection>
+    ),
+    projects: projects.length > 0 && (
+      <MainSection title="Projets">
+        {projects.map((proj) => (
+          <View key={proj.id} style={[styles.expBlock, { marginBottom: 8 }]}>
+            <Text style={styles.expTitle}>{proj.name}</Text>
+            {proj.technologies && <Text style={[styles.expCompany, { color: primary }]}>{proj.technologies}</Text>}
+            {proj.description && <Text style={styles.expDesc}>{proj.description}</Text>}
+          </View>
+        ))}
+      </MainSection>
+    ),
+    certifications: certifications.length > 0 && (
+      <MainSection title="Certifications">
+        {certifications.map((c) => (
+          <View key={c.id} style={[styles.expBlock, { marginBottom: 8 }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={styles.expTitle}>{c.name}</Text>
+              <Text style={styles.expDate}>{formatDateRange(c.date, c.expiryDate, false)}</Text>
+            </View>
+            {c.issuer && (
+              <Text style={[styles.expCompany, { color: primary }]}>{c.issuer}{c.credentialId ? ` · N° ${c.credentialId}` : ''}</Text>
+            )}
+          </View>
+        ))}
+      </MainSection>
+    ),
+    achievements: achievements.length > 0 && (
+      <MainSection title="Palmarès sportif">
+        {achievements.map((a) => (
+          <View key={a.id} style={[styles.expBlock, { marginBottom: 8 }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={styles.expTitle}>{a.rank ? `${a.rank} — ` : ''}{a.title}</Text>
+              <Text style={styles.expDate}>{formatDateRange(a.date, '', false)}</Text>
+            </View>
+            {(a.competition || a.location) && (
+              <Text style={[styles.expCompany, { color: primary }]}>{[a.competition, a.location].filter(Boolean).join(' · ')}</Text>
+            )}
+            {a.description && <Text style={styles.expDesc}>{a.description}</Text>}
+          </View>
+        ))}
+      </MainSection>
+    ),
+    distinctions: distinctions.length > 0 && (
+      <MainSection title="Distinctions & publications">
+        {distinctions.map((d) => (
+          <View key={d.id} style={[styles.expBlock, { marginBottom: 8 }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={styles.expTitle}>{d.title}</Text>
+              <Text style={styles.expDate}>{formatDateRange(d.date, '', false)}</Text>
+            </View>
+            <Text style={[styles.expCompany, { color: primary }]}>{[d.type, d.issuer].filter(Boolean).join(' · ')}</Text>
+            {d.description && <Text style={styles.expDesc}>{d.description}</Text>}
+          </View>
+        ))}
+      </MainSection>
+    ),
+  };
+
+  const order = resolveSectionOrder(meta, DEFAULT_SECTION_ORDER);
+  const sidebarKeys = order.filter((k) => SIDEBAR_KEYS.includes(k));
+  const mainKeys = order.filter((k) => !SIDEBAR_KEYS.includes(k));
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -75,152 +208,12 @@ export function ModernPDFTemplate({ cvData }) {
             </SideSection>
           )}
 
-          {skillGroups.length > 0 && (
-            <SideSection title="Compétences">
-              {skillGroups.map((g) => (
-                <View key={g.cat} wrap={false} style={{ marginBottom: 3 }}>
-                  {skillGroups.length > 1 && <Text style={styles.skillCat}>{g.cat}</Text>}
-                  <View style={styles.skillsWrap}>
-                    {g.items.map((name, i) => (
-                      <View key={i} style={styles.skillChip}>
-                        <Text style={styles.skillChipTx}>{name}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              ))}
-            </SideSection>
-          )}
-
-          {languages.length > 0 && (
-            <SideSection title="Langues">
-              {languages.map((lang) => (
-                <View key={lang.id}>
-                  <Text style={styles.langName}>{lang.name}</Text>
-                  <Text style={styles.langLevel}>{lang.level}</Text>
-                </View>
-              ))}
-            </SideSection>
-          )}
-
-          {interests.length > 0 && (
-            <SideSection title="Centres d'intérêt">
-              <View style={styles.skillsWrap}>
-                {interests.filter((it) => (it.name || '').trim()).map((it) => (
-                  <View key={it.id} style={styles.skillChip}>
-                    <Text style={styles.skillChipTx}>{it.name}</Text>
-                  </View>
-                ))}
-              </View>
-            </SideSection>
-          )}
+          {sidebarKeys.map((k) => (sidebar[k] ? <View key={k}>{sidebar[k]}</View> : null))}
         </View>
 
         {/* Main */}
         <View style={styles.main}>
-          {p.summary && (
-            <MainSection title="Profil">
-              <Text style={styles.summary}>{p.summary}</Text>
-            </MainSection>
-          )}
-
-          {experiences.length > 0 && (
-            <MainSection title="Expérience professionnelle">
-              {experiences.map((exp) => (
-                <View key={exp.id} style={styles.expBlock}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={styles.expTitle}>{exp.position}</Text>
-                    <Text style={styles.expDate}>{formatDateRange(exp.startDate, exp.endDate, exp.current)}</Text>
-                  </View>
-                  <Text style={[styles.expCompany, { color: primary }]}>{exp.company}{exp.location ? ` · ${exp.location}` : ''}</Text>
-                  {exp.description && <Text style={styles.expDesc}>{exp.description}</Text>}
-                </View>
-              ))}
-            </MainSection>
-          )}
-
-          {education.length > 0 && (
-            <MainSection title="Formation">
-              {education.map((edu) => (
-                <View key={edu.id} style={[styles.expBlock, { marginBottom: 8 }]}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={styles.expTitle}>{edu.degree}</Text>
-                    <Text style={styles.expDate}>{formatDateRange(edu.startDate, edu.endDate, false)}</Text>
-                  </View>
-                  <Text style={[styles.expCompany, { color: primary }]}>{edu.school}</Text>
-                  {edu.field && <Text style={[styles.expDate, { marginTop: 1 }]}>{edu.field}</Text>}
-                </View>
-              ))}
-            </MainSection>
-          )}
-
-          {projects.length > 0 && (
-            <MainSection title="Projets">
-              {projects.map((proj) => (
-                <View key={proj.id} style={[styles.expBlock, { marginBottom: 8 }]}>
-                  <Text style={styles.expTitle}>{proj.name}</Text>
-                  {proj.technologies && <Text style={[styles.expCompany, { color: primary }]}>{proj.technologies}</Text>}
-                  {proj.description && <Text style={styles.expDesc}>{proj.description}</Text>}
-                </View>
-              ))}
-            </MainSection>
-          )}
-
-          {certifications.length > 0 && (
-            <MainSection title="Certifications">
-              {certifications.map((c) => (
-                <View key={c.id} style={[styles.expBlock, { marginBottom: 8 }]}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={styles.expTitle}>{c.name}</Text>
-                    <Text style={styles.expDate}>{formatDateRange(c.date, c.expiryDate, false)}</Text>
-                  </View>
-                  {c.issuer && (
-                    <Text style={[styles.expCompany, { color: primary }]}>
-                      {c.issuer}{c.credentialId ? ` · N° ${c.credentialId}` : ''}
-                    </Text>
-                  )}
-                </View>
-              ))}
-            </MainSection>
-          )}
-
-          {achievements.length > 0 && (
-            <MainSection title="Palmarès sportif">
-              {achievements.map((a) => (
-                <View key={a.id} style={[styles.expBlock, { marginBottom: 8 }]}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={styles.expTitle}>
-                      {a.rank ? `${a.rank} — ` : ''}{a.title}
-                    </Text>
-                    <Text style={styles.expDate}>{formatDateRange(a.date, '', false)}</Text>
-                  </View>
-                  {(a.competition || a.location) && (
-                    <Text style={[styles.expCompany, { color: primary }]}>
-                      {[a.competition, a.location].filter(Boolean).join(' · ')}
-                    </Text>
-                  )}
-                  {a.description && <Text style={styles.expDesc}>{a.description}</Text>}
-                </View>
-              ))}
-            </MainSection>
-          )}
-
-          {distinctions.length > 0 && (
-            <MainSection title="Distinctions & publications">
-              {distinctions.map((d) => (
-                <View key={d.id} style={[styles.expBlock, { marginBottom: 8 }]}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={styles.expTitle}>{d.title}</Text>
-                    <Text style={styles.expDate}>{formatDateRange(d.date, '', false)}</Text>
-                  </View>
-                  <Text style={[styles.expCompany, { color: primary }]}>
-                    {[d.type, d.issuer].filter(Boolean).join(' · ')}
-                  </Text>
-                  {d.description && <Text style={styles.expDesc}>{d.description}</Text>}
-                </View>
-              ))}
-            </MainSection>
-          )}
+          {mainKeys.map((k) => (main[k] ? <View key={k}>{main[k]}</View> : null))}
         </View>
       </Page>
     </Document>

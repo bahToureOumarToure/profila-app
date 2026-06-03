@@ -35,11 +35,31 @@ export const FONT_OPTIONS = [
   { value: 'Playfair Display',  label: 'Playfair Display (Élégant)' },
 ];
 
+// Ordre des sections du CV (réordonnable par l'utilisateur dans l'onglet Design).
+export const DEFAULT_SECTION_ORDER = [
+  'summary', 'experiences', 'education', 'skills', 'languages',
+  'projects', 'certifications', 'achievements', 'distinctions', 'interests',
+];
+
+export const SECTION_LABELS = {
+  summary:        'Résumé / Profil',
+  experiences:    'Expériences',
+  education:      'Formation',
+  skills:         'Compétences',
+  languages:      'Langues',
+  projects:       'Projets',
+  certifications: 'Certifications',
+  achievements:   'Palmarès',
+  distinctions:   'Distinctions',
+  interests:      "Centres d'intérêt",
+};
+
 const initialCVData = {
   meta: {
-    template:    'modern',
-    colorScheme: { primary: '#1a237e', secondary: '#7986cb' },
-    fontFamily:  'Inter',
+    template:     'modern',
+    colorScheme:  { primary: '#1a237e', secondary: '#7986cb' },
+    fontFamily:   'Inter',
+    sectionOrder: [...DEFAULT_SECTION_ORDER],
   },
   personalInfo: {
     firstName:  '',

@@ -3,14 +3,28 @@ import {
   Stack, Select, MenuItem, FormControl, InputLabel, Tooltip,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useCV } from '@context/CVContext';
-import { CV_TEMPLATES, COLOR_PRESETS, FONT_OPTIONS } from '@data/initialCVData';
+import {
+  CV_TEMPLATES, COLOR_PRESETS, FONT_OPTIONS, SECTION_LABELS, DEFAULT_SECTION_ORDER,
+} from '@data/initialCVData';
+import { resolveSectionOrder } from '@utils/cvHelpers';
 import { alpha } from '@mui/material/styles';
 import { tokens } from '@theme/tokens';
 
 export default function CustomizationSection() {
   const { cvData, updateMeta } = useCV();
   const { meta } = cvData;
+  const sectionOrder = resolveSectionOrder(meta, DEFAULT_SECTION_ORDER);
+
+  const onSectionDragEnd = ({ source, destination }) => {
+    if (!destination || destination.index === source.index) return;
+    const next = Array.from(sectionOrder);
+    const [moved] = next.splice(source.index, 1);
+    next.splice(destination.index, 0, moved);
+    updateMeta({ sectionOrder: next });
+  };
 
   return (
     <Box>
@@ -91,6 +105,45 @@ export default function CustomizationSection() {
           ))}
         </Select>
       </FormControl>
+
+      {/* Section order */}
+      <Typography variant="subtitle2" fontWeight={600} mb={0.5} mt={3}>
+        Ordre des sections
+      </Typography>
+      <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
+        Glissez pour réordonner les sections de votre CV (ex. Formation avant Expérience).
+      </Typography>
+      <DragDropContext onDragEnd={onSectionDragEnd}>
+        <Droppable droppableId="section-order">
+          {(provided) => (
+            <Box ref={provided.innerRef} {...provided.droppableProps}>
+              {sectionOrder.map((key, idx) => (
+                <Draggable key={key} draggableId={key} index={idx}>
+                  {(drag, snapshot) => (
+                    <Box
+                      ref={drag.innerRef}
+                      {...drag.draggableProps}
+                      {...drag.dragHandleProps}
+                      sx={{
+                        display: 'flex', alignItems: 'center', gap: 1,
+                        px: 1.25, py: 0.9, mb: 0.6,
+                        border: '1px solid', borderColor: 'divider', borderRadius: 1,
+                        bgcolor: snapshot.isDragging ? alpha(tokens.colors.primary[900], 0.06) : 'background.paper',
+                        cursor: 'grab', userSelect: 'none',
+                        ...drag.draggableProps.style,
+                      }}
+                    >
+                      <DragIndicatorIcon fontSize="small" sx={{ color: 'text.disabled' }} />
+                      <Typography variant="body2">{SECTION_LABELS[key] || key}</Typography>
+                    </Box>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </Box>
+          )}
+        </Droppable>
+      </DragDropContext>
     </Box>
   );
 }
