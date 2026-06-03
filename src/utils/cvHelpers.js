@@ -18,6 +18,15 @@ export function getInitials(firstName, lastName) {
   return `${(firstName || '').charAt(0)}${(lastName || '').charAt(0)}`.toUpperCase();
 }
 
+// Ordre effectif des sections : la préférence utilisateur, complétée par les
+// sections manquantes dans l'ordre par défaut (rétro-compatible avec d'anciens CV).
+export function resolveSectionOrder(meta, defaultOrder) {
+  const saved = Array.isArray(meta?.sectionOrder) ? meta.sectionOrder : [];
+  const valid = saved.filter((k) => defaultOrder.includes(k));
+  const missing = defaultOrder.filter((k) => !valid.includes(k));
+  return [...valid, ...missing];
+}
+
 export function cvCompletionScore(cvData) {
   let score = 0;
   const {

@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { formatDateRange } from '@utils/cvHelpers';
+import { formatDateRange, resolveSectionOrder } from '@utils/cvHelpers';
+import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
 import '../pdfFonts';
 
 const styles = StyleSheet.create({
@@ -24,7 +25,7 @@ const styles = StyleSheet.create({
   chip:        { borderWidth: 1, borderRadius: 3, paddingVertical: 2, paddingHorizontal: 5, marginRight: 4, marginBottom: 4 },
   chipTx:      { fontSize: 8 },
   langName:    { fontSize: 8.5, fontFamily: 'Inter', fontWeight: 600, color: '#111' },
-  langLevel:   { fontSize: 7.5, color: '#777', marginBottom: 4 },
+  langLevel:   { fontSize: 7.5, color: '#777' },
 });
 
 export function ClassicPDFTemplate({ cvData }) {
@@ -34,9 +35,10 @@ export function ClassicPDFTemplate({ cvData }) {
     meta,
   } = cvData;
   const primary = meta?.colorScheme?.primary || '#1a237e';
+  const order = resolveSectionOrder(meta, DEFAULT_SECTION_ORDER);
 
   const Section = ({ title, children }) => (
-    <View>
+    <View wrap={false}>
       <Text style={[styles.secTitle, { color: primary }]}>{title}</Text>
       <View style={[styles.secRule, { borderBottomColor: primary }]} />
       {children}
@@ -53,6 +55,112 @@ export function ClassicPDFTemplate({ cvData }) {
     </View>
   );
 
+  const sections = {
+    summary: p.summary && (
+      <Section title="Résumé"><Text style={styles.summary}>{p.summary}</Text></Section>
+    ),
+    experiences: experiences.length > 0 && (
+      <Section title="Expérience professionnelle">
+        {experiences.map((exp) => (
+          <View key={exp.id} style={styles.block}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.itemTitle}>{exp.position}</Text>
+              <Text style={styles.itemDate}>{formatDateRange(exp.startDate, exp.endDate, exp.current)}</Text>
+            </View>
+            <Text style={[styles.itemSub, { color: primary }]}>{exp.company}{exp.location ? ` · ${exp.location}` : ''}</Text>
+            {exp.description && <Text style={styles.itemDesc}>{exp.description}</Text>}
+          </View>
+        ))}
+      </Section>
+    ),
+    education: education.length > 0 && (
+      <Section title="Formation">
+        {education.map((edu) => (
+          <View key={edu.id} style={styles.block}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.itemTitle}>{edu.degree}</Text>
+              <Text style={styles.itemDate}>{formatDateRange(edu.startDate, edu.endDate, false)}</Text>
+            </View>
+            <Text style={[styles.itemSub, { color: primary }]}>{edu.school}</Text>
+            {edu.field && <Text style={styles.itemField}>{edu.field}</Text>}
+          </View>
+        ))}
+      </Section>
+    ),
+    skills: skills.length > 0 && (
+      <Section title="Compétences"><Chips items={skills.map((s) => s.name).filter(Boolean)} /></Section>
+    ),
+    languages: languages.length > 0 && (
+      <Section title="Langues">
+        <View style={styles.langRow}>
+          {languages.map((l) => (
+            <View key={l.id} style={{ marginRight: 18, marginBottom: 3 }}>
+              <Text style={styles.langName}>{l.name}</Text>
+              <Text style={styles.langLevel}>{l.level}</Text>
+            </View>
+          ))}
+        </View>
+      </Section>
+    ),
+    projects: projects.length > 0 && (
+      <Section title="Projets">
+        {projects.map((proj) => (
+          <View key={proj.id} style={styles.block}>
+            <Text style={styles.itemTitle}>{proj.name}</Text>
+            {proj.technologies && <Text style={[styles.itemSub, { color: primary }]}>{proj.technologies}</Text>}
+            {proj.description && <Text style={styles.itemDesc}>{proj.description}</Text>}
+          </View>
+        ))}
+      </Section>
+    ),
+    certifications: certifications.length > 0 && (
+      <Section title="Certifications">
+        {certifications.map((c) => (
+          <View key={c.id} style={styles.block}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.itemTitle}>{c.name}</Text>
+              <Text style={styles.itemDate}>{formatDateRange(c.date, c.expiryDate, false)}</Text>
+            </View>
+            {c.issuer && <Text style={[styles.itemSub, { color: primary }]}>{c.issuer}{c.credentialId ? ` · N° ${c.credentialId}` : ''}</Text>}
+          </View>
+        ))}
+      </Section>
+    ),
+    achievements: achievements.length > 0 && (
+      <Section title="Palmarès sportif">
+        {achievements.map((a) => (
+          <View key={a.id} style={styles.block}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.itemTitle}>{a.rank ? `${a.rank} — ` : ''}{a.title}</Text>
+              <Text style={styles.itemDate}>{formatDateRange(a.date, '', false)}</Text>
+            </View>
+            {(a.competition || a.location) && (
+              <Text style={[styles.itemSub, { color: primary }]}>{[a.competition, a.location].filter(Boolean).join(' · ')}</Text>
+            )}
+            {a.description && <Text style={styles.itemDesc}>{a.description}</Text>}
+          </View>
+        ))}
+      </Section>
+    ),
+    distinctions: distinctions.length > 0 && (
+      <Section title="Distinctions & publications">
+        {distinctions.map((d) => (
+          <View key={d.id} style={styles.block}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.itemTitle}>{d.title}</Text>
+              <Text style={styles.itemDate}>{formatDateRange(d.date, '', false)}</Text>
+            </View>
+            <Text style={[styles.itemSub, { color: primary }]}>{[d.type, d.issuer].filter(Boolean).join(' · ')}</Text>
+            {d.description && <Text style={styles.itemDesc}>{d.description}</Text>}
+          </View>
+        ))}
+      </Section>
+    ),
+    interests: interests.length > 0 && (
+      <Section title="Centres d'intérêt"><Chips items={interests.map((it) => it.name).filter(Boolean)} /></Section>
+    ),
+  };
+
   const contacts = [p.email, p.phone, p.location, p.website, p.linkedin].filter(Boolean);
 
   return (
@@ -66,122 +174,7 @@ export function ClassicPDFTemplate({ cvData }) {
           </View>
         </View>
 
-        {p.summary && (
-          <Section title="Résumé"><Text style={styles.summary}>{p.summary}</Text></Section>
-        )}
-
-        {experiences.length > 0 && (
-          <Section title="Expérience professionnelle">
-            {experiences.map((exp) => (
-              <View key={exp.id} style={styles.block}>
-                <View style={styles.rowBetween}>
-                  <Text style={styles.itemTitle}>{exp.position}</Text>
-                  <Text style={styles.itemDate}>{formatDateRange(exp.startDate, exp.endDate, exp.current)}</Text>
-                </View>
-                <Text style={[styles.itemSub, { color: primary }]}>{exp.company}{exp.location ? ` · ${exp.location}` : ''}</Text>
-                {exp.description && <Text style={styles.itemDesc}>{exp.description}</Text>}
-              </View>
-            ))}
-          </Section>
-        )}
-
-        {education.length > 0 && (
-          <Section title="Formation">
-            {education.map((edu) => (
-              <View key={edu.id} style={styles.block}>
-                <View style={styles.rowBetween}>
-                  <Text style={styles.itemTitle}>{edu.degree}</Text>
-                  <Text style={styles.itemDate}>{formatDateRange(edu.startDate, edu.endDate, false)}</Text>
-                </View>
-                <Text style={[styles.itemSub, { color: primary }]}>{edu.school}</Text>
-                {edu.field && <Text style={styles.itemField}>{edu.field}</Text>}
-              </View>
-            ))}
-          </Section>
-        )}
-
-        {skills.length > 0 && (
-          <Section title="Compétences">
-            <Chips items={skills.map((s) => s.name).filter(Boolean)} />
-          </Section>
-        )}
-
-        {languages.length > 0 && (
-          <Section title="Langues">
-            <View style={styles.langRow}>
-              {languages.map((l) => (
-                <View key={l.id} style={{ marginRight: 18, marginBottom: 3 }}>
-                  <Text style={styles.langName}>{l.name}</Text>
-                  <Text style={styles.langLevel}>{l.level}</Text>
-                </View>
-              ))}
-            </View>
-          </Section>
-        )}
-
-        {projects.length > 0 && (
-          <Section title="Projets">
-            {projects.map((proj) => (
-              <View key={proj.id} style={styles.block}>
-                <Text style={styles.itemTitle}>{proj.name}</Text>
-                {proj.technologies && <Text style={[styles.itemSub, { color: primary }]}>{proj.technologies}</Text>}
-                {proj.description && <Text style={styles.itemDesc}>{proj.description}</Text>}
-              </View>
-            ))}
-          </Section>
-        )}
-
-        {certifications.length > 0 && (
-          <Section title="Certifications">
-            {certifications.map((c) => (
-              <View key={c.id} style={styles.block}>
-                <View style={styles.rowBetween}>
-                  <Text style={styles.itemTitle}>{c.name}</Text>
-                  <Text style={styles.itemDate}>{formatDateRange(c.date, c.expiryDate, false)}</Text>
-                </View>
-                {c.issuer && <Text style={[styles.itemSub, { color: primary }]}>{c.issuer}{c.credentialId ? ` · N° ${c.credentialId}` : ''}</Text>}
-              </View>
-            ))}
-          </Section>
-        )}
-
-        {achievements.length > 0 && (
-          <Section title="Palmarès sportif">
-            {achievements.map((a) => (
-              <View key={a.id} style={styles.block}>
-                <View style={styles.rowBetween}>
-                  <Text style={styles.itemTitle}>{a.rank ? `${a.rank} — ` : ''}{a.title}</Text>
-                  <Text style={styles.itemDate}>{formatDateRange(a.date, '', false)}</Text>
-                </View>
-                {(a.competition || a.location) && (
-                  <Text style={[styles.itemSub, { color: primary }]}>{[a.competition, a.location].filter(Boolean).join(' · ')}</Text>
-                )}
-                {a.description && <Text style={styles.itemDesc}>{a.description}</Text>}
-              </View>
-            ))}
-          </Section>
-        )}
-
-        {distinctions.length > 0 && (
-          <Section title="Distinctions & publications">
-            {distinctions.map((d) => (
-              <View key={d.id} style={styles.block}>
-                <View style={styles.rowBetween}>
-                  <Text style={styles.itemTitle}>{d.title}</Text>
-                  <Text style={styles.itemDate}>{formatDateRange(d.date, '', false)}</Text>
-                </View>
-                <Text style={[styles.itemSub, { color: primary }]}>{[d.type, d.issuer].filter(Boolean).join(' · ')}</Text>
-                {d.description && <Text style={styles.itemDesc}>{d.description}</Text>}
-              </View>
-            ))}
-          </Section>
-        )}
-
-        {interests.length > 0 && (
-          <Section title="Centres d'intérêt">
-            <Chips items={interests.map((it) => it.name).filter(Boolean)} />
-          </Section>
-        )}
+        {order.map((k) => (sections[k] ? <View key={k}>{sections[k]}</View> : null))}
       </Page>
     </Document>
   );
