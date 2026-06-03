@@ -73,8 +73,22 @@ export async function generateJSON({ prompt, apiKey, model, temperature = 0.2 })
   }
 
   const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Réponse vide de Gemini.');
+  const candidate = data?.candidates?.[0];
+  // Concatène TOUS les parts texte : un modèle 2.5 peut répartir la réponse
+  // sur plusieurs parts (et la 1ʳᵉ n'est pas toujours la bonne).
+  const parts = candidate?.content?.parts || [];
+  let text = parts.map((p) => (typeof p?.text === 'string' ? p.text : '')).join('').trim();
+
+  if (!text) {
+    const reason = candidate?.finishReason;
+    const hint = reason === 'MAX_TOKENS'
+      ? ' (réponse tronquée : MAX_TOKENS — réessaie, le CV est peut-être trop long)'
+      : reason && reason !== 'STOP' ? ` (finishReason: ${reason})` : '';
+    throw new Error(`Réponse vide de Gemini${hint}.`);
+  }
+
+  // En cas de fence Markdown résiduelle (```json … ```), on nettoie.
+  text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
 
   try {
     return JSON.parse(text);
