@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@fontsource/inter": "^5.2.8",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
     "@react-pdf/renderer": "^3.4.4",
