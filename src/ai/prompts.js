@@ -44,3 +44,45 @@ TEXTE BRUT DU CV :
 ${resumeText}
 """`;
 }
+
+// Prompt d'analyse d'offre + audit de compatibilité (un seul appel).
+export function buildJobAuditPrompt(cvJson, jobText) {
+  return `Tu es un expert ATS et recrutement tech. On te donne (1) le texte d'une OFFRE
+D'EMPLOI et (2) un CV au format JSON. Analyse l'offre, puis compare-la au CV.
+Renvoie UNIQUEMENT un objet JSON valide (aucun texte autour, pas de Markdown) :
+
+{
+  "job": {
+    "title": "", "company": "", "seniority": "",
+    "hardSkills": [], "softSkills": [], "keywords": []
+  },
+  "audit": {
+    "score": 0,
+    "breakdown": { "hardSkills": 0, "softSkills": 0, "keywords": 0, "seniority": 0 },
+    "matched": [],
+    "reformulate": [ { "keyword": "", "found_in": "", "suggestion": "" } ],
+    "missing": [ { "keyword": "", "severity": "high", "advice": "" } ],
+    "recommendations": []
+  }
+}
+
+RÈGLES STRICTES :
+- "score" et chaque valeur de "breakdown" : entier de 0 à 100.
+- "seniority" : niveau d'expérience attendu par l'offre (ex: "Junior", "Confirmé (3-5 ans)", "Senior").
+- "matched" : compétences/mots-clés de l'offre DÉJÀ présents dans le CV.
+- "reformulate" : présents mais mal exprimés ("found_in" = section du CV, "suggestion" = reformulation).
+- "missing" : exigés par l'offre et ABSENTS du CV. "severity" ∈ {"high","medium","low"}.
+  "advice" = conseil HONNÊTE — ne JAMAIS inciter à inventer une compétence non possédée.
+- "recommendations" : 3 à 6 conseils concrets et priorisés pour améliorer la pertinence.
+- Réponds en français. Aucune valeur null ; tableaux vides [] si rien.
+
+OFFRE D'EMPLOI :
+"""
+${jobText}
+"""
+
+CV (JSON) :
+"""
+${cvJson}
+"""`;
+}
