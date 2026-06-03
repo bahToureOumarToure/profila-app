@@ -9,10 +9,12 @@ import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 const ImportPdfDialog = lazy(() => import('@components/ai/ImportPdfDialog'));
 const JobAuditDialog = lazy(() => import('@components/ai/JobAuditDialog'));
+const OptimizeDialog = lazy(() => import('@components/ai/OptimizeDialog'));
 import EditorPanel from '@components/editor/EditorPanel';
 import CVPreview from '@components/preview/CVPreview';
 import PDFDownloadButton from '@components/pdf/CVPDFDocument';
@@ -26,6 +28,7 @@ export default function BuilderPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [aiImportOpen, setAiImportOpen] = useState(false);
   const [jobAuditOpen, setJobAuditOpen] = useState(false);
+  const [optimizeOpen, setOptimizeOpen] = useState(false);
   const { cvData, loadCV, resetCV } = useCV();
 
   const handleExportJSON = () => downloadJSON(cvData, 'profila-cv.json');
@@ -83,6 +86,15 @@ export default function BuilderPage() {
                 onClick={() => setJobAuditOpen(true)}
               >
                 Cibler une offre
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="Optimiser ton CV pour une offre (réécriture ATS, non destructive)">
+              <Button
+                size="small" startIcon={<AutoFixHighIcon />} variant="outlined"
+                onClick={() => setOptimizeOpen(true)}
+              >
+                Optimiser ATS
               </Button>
             </Tooltip>
 
@@ -176,6 +188,12 @@ export default function BuilderPage() {
       {jobAuditOpen && (
         <Suspense fallback={null}>
           <JobAuditDialog open={jobAuditOpen} onClose={() => setJobAuditOpen(false)} />
+        </Suspense>
+      )}
+
+      {optimizeOpen && (
+        <Suspense fallback={null}>
+          <OptimizeDialog open={optimizeOpen} onClose={() => setOptimizeOpen(false)} />
         </Suspense>
       )}
     </>
