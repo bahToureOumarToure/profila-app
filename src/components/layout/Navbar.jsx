@@ -7,10 +7,8 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
-import { tokens } from '@theme/tokens';
 import { useAppTheme } from '@context/ThemeContext';
 
 function HideOnScroll({ children }) {
@@ -48,14 +46,11 @@ export default function Navbar() {
               }}
             >
               <Box
-                sx={{
-                  width: 32, height: 32, borderRadius: '8px',
-                  background: `linear-gradient(135deg, ${tokens.colors.primary[700]}, ${tokens.colors.primary[900]})`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                <DescriptionOutlinedIcon sx={{ color: '#fff', fontSize: 18 }} />
-              </Box>
+                component="img"
+                src="/icone_perso/profila.png"
+                alt="Logo Profila"
+                sx={{ width: 34, height: 34, objectFit: 'contain' }}
+              />
               <Typography
                 variant="h6"
                 fontWeight={700}
@@ -130,7 +125,10 @@ export default function Navbar() {
         PaperProps={{ sx: { width: 260 } }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
-          <Typography variant="h6" fontWeight={700} color="primary">Profila</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box component="img" src="/icone_perso/profila.png" alt="Logo Profila" sx={{ width: 28, height: 28, objectFit: 'contain' }} />
+            <Typography variant="h6" fontWeight={700} color="primary">Profila</Typography>
+          </Box>
           <IconButton onClick={() => setMobileOpen(false)}><CloseIcon /></IconButton>
         </Box>
         <Divider />

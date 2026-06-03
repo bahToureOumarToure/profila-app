@@ -125,6 +125,17 @@ export function CVProvider({ children }) {
   const loadCV = useCallback((data) =>
     dispatch({ type: CV_ACTIONS.LOAD_CV, payload: data }), []);
 
+  // Écriture explicite dans le navigateur (le CV est déjà auto-sauvegardé en
+  // continu ; ce helper sert au bouton « Sauvegarder » pour une confirmation).
+  const saveCV = useCallback(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cvData));
+      return true;
+    } catch {
+      return false;
+    }
+  }, [cvData]);
+
   const value = {
     cvData,
     updatePersonalInfo,
@@ -135,6 +146,7 @@ export function CVProvider({ children }) {
     reorderItems,
     resetCV,
     loadCV,
+    saveCV,
   };
 
   return <CVContext.Provider value={value}>{children}</CVContext.Provider>;

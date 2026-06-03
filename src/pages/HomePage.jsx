@@ -11,9 +11,74 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import DevicesOutlinedIcon from '@mui/icons-material/DevicesOutlined';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import SEOHead from '@components/common/SEOHead';
 import { tokens } from '@theme/tokens';
 import { alpha } from '@mui/material/styles';
+
+// ── Moteur IA : étapes mises en avant sur l'accueil ──────────────────────────
+const AI_STEPS = [
+  {
+    icon: <UploadFileOutlinedIcon />,
+    title: 'Importez votre ancien CV (PDF)',
+    description: "L'IA lit votre PDF et pré-remplit automatiquement l'éditeur. Plus besoin de tout retaper.",
+  },
+  {
+    icon: <GpsFixedIcon />,
+    title: 'Ciblez une offre d\'emploi',
+    description: 'Collez une annonce : l\'IA calcule un score de compatibilité ATS (0-100) et liste les mots-clés manquants.',
+  },
+  {
+    icon: <AutoFixHighIcon />,
+    title: 'Optimisez en un clic',
+    description: 'L\'IA réécrit votre résumé et vos expériences et ajoute les compétences pertinentes-vous validez chaque suggestion.',
+  },
+];
+
+// ── Templates présentés (mock visuel léger, sans image) ──────────────────────
+const TEMPLATES = [
+  { id: 'modern',  label: 'Moderne',      accent: tokens.colors.primary[900],  desc: 'Sidebar colorée, contemporain.' },
+  { id: 'classic', label: 'Classique',    accent: '#0d47a1',                   desc: 'Sobre et élégant, secteurs traditionnels.' },
+  { id: 'minimal', label: 'Minimaliste',  accent: '#212121',                   desc: 'Épuré, typographique, très lisible.' },
+];
+
+function TemplateThumb({ id, accent }) {
+  const line = (w, key, o = 0.5) => (
+    <Box key={key} sx={{ height: 5, borderRadius: 1, bgcolor: alpha('#000', o * 0.25), width: w, mb: 0.8 }} />
+  );
+  return (
+    <Box sx={{ aspectRatio: '1 / 1.414', bgcolor: '#fff', borderRadius: 1.5, overflow: 'hidden',
+      border: '1px solid', borderColor: 'divider', display: 'flex',
+      flexDirection: id === 'classic' ? 'column' : 'row' }}>
+      {id === 'modern' && (
+        <>
+          <Box sx={{ width: '34%', bgcolor: accent, p: 1.2 }}>
+            <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: alpha('#fff', 0.3), mx: 'auto', mb: 1.2 }} />
+            {[0.8, 0.6, 0.7, 0.5].map((w, i) => <Box key={i} sx={{ height: 4, borderRadius: 1, bgcolor: alpha('#fff', 0.4), width: `${w * 100}%`, mb: 0.7 }} />)}
+          </Box>
+          <Box sx={{ flex: 1, p: 1.4 }}>{[0.9, 0.7, 0.85, 0.6, 0.8, 0.5, 0.75].map((w, i) => line(`${w * 100}%`, i))}</Box>
+        </>
+      )}
+      {id === 'classic' && (
+        <>
+          <Box sx={{ bgcolor: accent, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Box sx={{ height: 7, width: '45%', borderRadius: 1, bgcolor: alpha('#fff', 0.6) }} />
+          </Box>
+          <Box sx={{ p: 1.6 }}>{[0.95, 0.7, 0.85, 0.6, 0.8, 0.55, 0.78, 0.5].map((w, i) => line(`${w * 100}%`, i))}</Box>
+        </>
+      )}
+      {id === 'minimal' && (
+        <Box sx={{ p: 1.8, width: '100%' }}>
+          <Box sx={{ height: 8, width: '50%', borderRadius: 1, bgcolor: alpha('#000', 0.7), mb: 0.6 }} />
+          <Box sx={{ height: 4, width: '32%', borderRadius: 1, bgcolor: accent, mb: 1.6 }} />
+          {[0.92, 0.7, 0.85, 0.6, 0.8, 0.55, 0.75, 0.5].map((w, i) => line(`${w * 100}%`, i, 0.45))}
+        </Box>
+      )}
+    </Box>
+  );
+}
 
 const FEATURES = [
   {
@@ -86,6 +151,16 @@ export default function HomePage() {
         }} />
 
         <Container maxWidth="md" sx={{ position: 'relative', textAlign: 'center' }}>
+          <Box
+            sx={{
+              width: 76, height: 76, borderRadius: '22px', mx: 'auto', mb: 3,
+              bgcolor: 'rgba(255,255,255,0.95)', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+            }}
+          >
+            <Box component="img" src="/icone_perso/profila.png" alt="Logo Profila"
+              sx={{ width: 54, height: 54, objectFit: 'contain' }} />
+          </Box>
           <Chip
             label="100% Gratuit · Aucune inscription"
             size="small"
@@ -128,7 +203,7 @@ export default function HomePage() {
             <Button
               variant="outlined"
               size="large"
-              onClick={() => navigate('/builder')}
+              onClick={() => document.getElementById('templates')?.scrollIntoView({ behavior: 'smooth' })}
               sx={{ borderColor: 'rgba(255,255,255,0.5)', color: '#fff', px: 4,
                 '&:hover': { borderColor: '#fff', backgroundColor: alpha('#fff', 0.08) } }}
             >
@@ -149,6 +224,64 @@ export default function HomePage() {
               Rejoignez des milliers d'utilisateurs satisfaits
             </Typography>
           </Stack>
+        </Container>
+      </Box>
+
+      {/* ── Moteur IA ──────────────────────────────────────────────────────── */}
+      <Box component="section" sx={{ py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="lg">
+          <Box textAlign="center" mb={7}>
+            <Chip
+              label="Nouveau · Propulsé par l'IA"
+              size="small"
+              icon={<AutoAwesomeIcon sx={{ fontSize: '14px !important' }} />}
+              color="primary"
+              sx={{ mb: 2, fontWeight: 600 }}
+            />
+            <Typography variant="h2" component="h2">
+              Un assistant IA pour décrocher l'entretien
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 1.5, maxWidth: 640, mx: 'auto' }}>
+              Profila ne se contente pas de mettre en forme : il adapte votre CV à chaque offre
+              pour passer les filtres ATS-en gardant le contrôle sur chaque modification.
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 4, md: 6 } }}>
+            <Box
+              component="img"
+              src="/icone_perso/experience.png"
+              alt="Assistant IA Profila"
+              sx={{ width: { xs: 200, md: 260 }, height: 'auto' }}
+            />
+          </Box>
+
+          <Grid container spacing={3}>
+            {AI_STEPS.map((s, idx) => (
+              <Grid item xs={12} md={4} key={idx}>
+                <Card sx={{ height: '100%', p: 1, position: 'relative', overflow: 'visible',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': { transform: 'translateY(-4px)', boxShadow: tokens.shadows.cardHover } }}>
+                  <CardContent>
+                    <Stack direction="row" spacing={1.5} alignItems="center" mb={1.5}>
+                      <Avatar sx={{ bgcolor: tokens.colors.primary[900], color: '#fff', width: 44, height: 44 }}>
+                        {s.icon}
+                      </Avatar>
+                      <Typography variant="overline" color="primary" fontWeight={700}>Étape {idx + 1}</Typography>
+                    </Stack>
+                    <Typography variant="h6" fontWeight={600} gutterBottom>{s.title}</Typography>
+                    <Typography variant="body2" color="text.secondary" lineHeight={1.7}>{s.description}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          <Box textAlign="center" mt={5}>
+            <Button variant="contained" size="large" onClick={() => navigate('/builder')} endIcon={<ArrowForwardIcon />}>
+              Essayer l'assistant IA
+            </Button>
+          </Box>
         </Container>
       </Box>
 
@@ -192,8 +325,50 @@ export default function HomePage() {
         </Container>
       </Box>
 
+      {/* ── Templates ──────────────────────────────────────────────────────── */}
+      <Box component="section" id="templates" sx={{ py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="lg">
+          <Box textAlign="center" mb={7}>
+            <Typography variant="overline" color="primary" fontWeight={700} letterSpacing="0.1em">
+              Templates
+            </Typography>
+            <Typography variant="h2" component="h2" mt={1}>
+              Des modèles prêts à l'emploi
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 1.5, maxWidth: 560, mx: 'auto' }}>
+              Choisissez un design, l'IA s'occupe du contenu. Vous changez de template à tout moment,
+              sans ressaisir vos informations.
+            </Typography>
+          </Box>
+
+          <Grid container spacing={4} justifyContent="center">
+            {TEMPLATES.map((t) => (
+              <Grid item xs={12} sm={6} md={4} key={t.id}>
+                <Card sx={{ overflow: 'hidden', height: '100%',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': { transform: 'translateY(-6px)', boxShadow: tokens.shadows.cardHover } }}>
+                  <Box sx={{ p: 2, bgcolor: tokens.colors.neutral[50] }}>
+                    <TemplateThumb id={t.id} accent={t.accent} />
+                  </Box>
+                  <CardContent>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={0.5}>
+                      <Typography variant="h6" fontWeight={700}>{t.label}</Typography>
+                      <Box sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: t.accent }} />
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{t.desc}</Typography>
+                    <Button fullWidth variant="outlined" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/builder')}>
+                      Utiliser ce template
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
       {/* ── Features ───────────────────────────────────────────────────────── */}
-      <Box component="section" sx={{ py: { xs: 8, md: 12 } }}>
+      <Box component="section" sx={{ py: { xs: 8, md: 12 }, backgroundColor: tokens.colors.neutral[50] }}>
         <Container maxWidth="lg">
           <Box textAlign="center" mb={7}>
             <Typography variant="overline" color="primary" fontWeight={700} letterSpacing="0.1em">

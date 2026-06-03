@@ -48,9 +48,13 @@ export default function Footer() {
         >
           {/* Brand */}
           <Box textAlign={{ xs: 'center', md: 'left' }}>
-            <Typography variant="h6" fontWeight={700} color="#fff" gutterBottom>
-              Profila
-            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center" justifyContent={{ xs: 'center', md: 'flex-start' }} mb={0.5}>
+              <Box component="img" src="/icone_perso/profila.png" alt="Logo Profila"
+                sx={{ width: 30, height: 30, objectFit: 'contain' }} />
+              <Typography variant="h6" fontWeight={700} color="#fff">
+                Profila
+              </Typography>
+            </Stack>
             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', maxWidth: 260 }}>
               Créez votre CV professionnel en quelques minutes, gratuitement.
             </Typography>

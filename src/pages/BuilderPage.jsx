@@ -1,13 +1,21 @@
-import { useState } from 'react';
+import { useState, useRef, lazy, Suspense } from 'react';
 import {
   Box, Grid, Fab, Drawer, useTheme, useMediaQuery,
-  Tooltip, Typography, Paper, Divider, Stack, Button,
+  Tooltip, Typography, Paper, Divider, Stack, Button, Snackbar, Alert,
+  IconButton, Menu, MenuItem, ListItemIcon, ListItemText,
 } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import CloudDoneOutlinedIcon from '@mui/icons-material/CloudDoneOutlined';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
+const ImportPdfDialog = lazy(() => import('@components/ai/ImportPdfDialog'));
+const JobCoachDialog = lazy(() => import('@components/ai/JobCoachDialog'));
 import EditorPanel from '@components/editor/EditorPanel';
 import CVPreview from '@components/preview/CVPreview';
 import PDFDownloadButton from '@components/pdf/CVPDFDocument';
@@ -19,8 +27,14 @@ export default function BuilderPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [previewOpen, setPreviewOpen] = useState(false);
-  const { cvData, loadCV, resetCV } = useCV();
+  const [aiImportOpen, setAiImportOpen] = useState(false);
+  const [coachOpen, setCoachOpen] = useState(false);
+  const [savedToast, setSavedToast] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const jsonInputRef = useRef(null);
+  const { cvData, loadCV, resetCV, saveCV } = useCV();
 
+  const handleSave = () => { saveCV(); setSavedToast(true); };
   const handleExportJSON = () => downloadJSON(cvData, 'profila-cv.json');
 
   const handleImportJSON = async (e) => {
@@ -61,29 +75,55 @@ export default function BuilderPage() {
           </Typography>
 
           <Stack direction="row" spacing={1} alignItems="center">
-            <Tooltip title="Sauvegarder en JSON">
-              <Button size="small" startIcon={<SaveAltIcon />} onClick={handleExportJSON} variant="outlined">
-                Sauvegarder
+            <Tooltip title="Importer un CV PDF et le pré-remplir avec l'IA">
+              <Button
+                size="small" startIcon={<AutoAwesomeIcon />} variant="contained"
+                onClick={() => setAiImportOpen(true)}
+              >
+                Importer PDF (IA)
               </Button>
             </Tooltip>
 
-            <Tooltip title="Importer un JSON">
-              <Box component="label" sx={{ cursor: 'pointer' }}>
-                <Button size="small" startIcon={<UploadFileOutlinedIcon />} variant="outlined" component="span">
-                  Importer
-                </Button>
-                <input type="file" accept=".json" hidden onChange={handleImportJSON} />
-              </Box>
+            <Tooltip title="Analyser la compatibilité avec une offre puis optimiser ton CV">
+              <Button
+                size="small" startIcon={<GpsFixedIcon />} variant="outlined"
+                onClick={() => setCoachOpen(true)}
+              >
+                Coach IA (offre)
+              </Button>
             </Tooltip>
 
-            <Tooltip title="Réinitialiser le CV">
-              <Button size="small" startIcon={<RestartAltIcon />} color="error" variant="outlined" onClick={handleReset}>
-                Reset
+            <Tooltip title="Enregistrer dans ce navigateur">
+              <Button size="small" startIcon={<CloudDoneOutlinedIcon />} onClick={handleSave} variant="outlined">
+                Sauvegarder
               </Button>
             </Tooltip>
 
             <Divider orientation="vertical" flexItem />
             <PDFDownloadButton size="small" />
+
+            <Tooltip title="Plus d'actions">
+              <IconButton size="small" onClick={(e) => setMenuAnchor(e.currentTarget)}>
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+              <MenuItem onClick={() => { handleExportJSON(); setMenuAnchor(null); }}>
+                <ListItemIcon><SaveAltIcon fontSize="small" /></ListItemIcon>
+                <ListItemText>Exporter en JSON</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={() => { jsonInputRef.current?.click(); setMenuAnchor(null); }}>
+                <ListItemIcon><UploadFileOutlinedIcon fontSize="small" /></ListItemIcon>
+                <ListItemText>Importer un JSON</ListItemText>
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={() => { handleReset(); setMenuAnchor(null); }} sx={{ color: 'error.main' }}>
+                <ListItemIcon><RestartAltIcon fontSize="small" color="error" /></ListItemIcon>
+                <ListItemText>Réinitialiser le CV</ListItemText>
+              </MenuItem>
+            </Menu>
+            <input ref={jsonInputRef} type="file" accept=".json" hidden onChange={handleImportJSON} />
           </Stack>
         </Paper>
 
@@ -141,6 +181,29 @@ export default function BuilderPage() {
           )}
         </Box>
       </Box>
+
+      {aiImportOpen && (
+        <Suspense fallback={null}>
+          <ImportPdfDialog open={aiImportOpen} onClose={() => setAiImportOpen(false)} />
+        </Suspense>
+      )}
+
+      {coachOpen && (
+        <Suspense fallback={null}>
+          <JobCoachDialog open={coachOpen} onClose={() => setCoachOpen(false)} />
+        </Suspense>
+      )}
+
+      <Snackbar
+        open={savedToast}
+        autoHideDuration={2500}
+        onClose={() => setSavedToast(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" variant="filled" onClose={() => setSavedToast(false)} sx={{ width: '100%' }}>
+          CV sauvegardé dans ce navigateur ✓
+        </Alert>
+      </Snackbar>
     </>
   );
 }

@@ -1,13 +1,16 @@
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { useState } from 'react';
+import { pdf } from '@react-pdf/renderer';
 import { Button, CircularProgress } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import { ModernPDFTemplate } from './templates/ModernPDFTemplate';
+import { ClassicPDFTemplate } from './templates/ClassicPDFTemplate';
+import { MinimalPDFTemplate } from './templates/MinimalPDFTemplate';
 import { useCV } from '@context/CVContext';
 
 const TEMPLATE_MAP = {
   modern:  ModernPDFTemplate,
-  classic: ModernPDFTemplate, // Uses same structure, can be specialized later
-  minimal: ModernPDFTemplate,
+  classic: ClassicPDFTemplate,
+  minimal: MinimalPDFTemplate,
 };
 
 function getPDFFileName(personalInfo) {
@@ -17,28 +20,43 @@ function getPDFFileName(personalInfo) {
 
 export default function PDFDownloadButton({ variant = 'contained', size = 'medium', fullWidth = false }) {
   const { cvData } = useCV();
-  const PDFTemplate = TEMPLATE_MAP[cvData.meta?.template] || ModernPDFTemplate;
-  const fileName = getPDFFileName(cvData.personalInfo);
+  const [loading, setLoading] = useState(false);
+
+  // Génère le PDF au clic à partir des données ACTUELLES. Évite le bug de
+  // PDFDownloadLink qui met en cache le document au montage (CV encore vide)
+  // et ne le régénère pas après un loadCV (import PDF/JSON).
+  const handleDownload = async () => {
+    setLoading(true);
+    try {
+      const PDFTemplate = TEMPLATE_MAP[cvData.meta?.template] || ModernPDFTemplate;
+      const blob = await pdf(<PDFTemplate cvData={cvData} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = getPDFFileName(cvData.personalInfo);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(`Erreur lors de la génération du PDF : ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <PDFDownloadLink
-      document={<PDFTemplate cvData={cvData} />}
-      fileName={fileName}
-      style={{ textDecoration: 'none' }}
+    <Button
+      variant={variant}
+      size={size}
+      fullWidth={fullWidth}
+      disabled={loading}
+      onClick={handleDownload}
+      startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon />}
+      color="secondary"
+      sx={{ fontWeight: 600 }}
     >
-      {({ loading }) => (
-        <Button
-          variant={variant}
-          size={size}
-          fullWidth={fullWidth}
-          disabled={loading}
-          startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon />}
-          color="secondary"
-          sx={{ fontWeight: 600 }}
-        >
-          {loading ? 'Génération...' : 'Télécharger PDF'}
-        </Button>
-      )}
-    </PDFDownloadLink>
+      {loading ? 'Génération...' : 'Télécharger PDF'}
+    </Button>
   );
 }

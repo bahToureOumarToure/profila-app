@@ -18,6 +18,29 @@ export function getInitials(firstName, lastName) {
   return `${(firstName || '').charAt(0)}${(lastName || '').charAt(0)}`.toUpperCase();
 }
 
+// Ordre effectif des sections : la préférence utilisateur, complétée par les
+// sections manquantes dans l'ordre par défaut (rétro-compatible avec d'anciens CV).
+export function resolveSectionOrder(meta, defaultOrder) {
+  const saved = Array.isArray(meta?.sectionOrder) ? meta.sectionOrder : [];
+  const valid = saved.filter((k) => defaultOrder.includes(k));
+  const missing = defaultOrder.filter((k) => !valid.includes(k));
+  return [...valid, ...missing];
+}
+
+// Regroupe les compétences par catégorie (ordre d'apparition préservé).
+export function groupSkillsByCategory(skills = []) {
+  const groups = [];
+  const index = {};
+  skills.forEach((s) => {
+    const name = (s.name || '').trim();
+    if (!name) return;
+    const cat = (s.category || '').trim() || 'Autres';
+    if (!(cat in index)) { index[cat] = groups.length; groups.push({ cat, items: [] }); }
+    groups[index[cat]].items.push(name);
+  });
+  return groups;
+}
+
 export function cvCompletionScore(cvData) {
   let score = 0;
   const {
