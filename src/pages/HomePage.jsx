@@ -151,6 +151,16 @@ export default function HomePage() {
         }} />
 
         <Container maxWidth="md" sx={{ position: 'relative', textAlign: 'center' }}>
+          <Box
+            sx={{
+              width: 76, height: 76, borderRadius: '22px', mx: 'auto', mb: 3,
+              bgcolor: 'rgba(255,255,255,0.95)', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+            }}
+          >
+            <Box component="img" src="/icone_perso/profila.png" alt="Logo Profila"
+              sx={{ width: 54, height: 54, objectFit: 'contain' }} />
+          </Box>
           <Chip
             label="100% Gratuit · Aucune inscription"
             size="small"
