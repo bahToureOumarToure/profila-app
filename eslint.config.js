@@ -24,6 +24,7 @@ export default [
         Blob: 'readonly',
         console: 'readonly',
         document: 'readonly',
+        fetch: 'readonly',
         FileReader: 'readonly',
         localStorage: 'readonly',
         navigator: 'readonly',

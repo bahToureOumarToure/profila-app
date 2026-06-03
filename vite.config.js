@@ -19,6 +19,7 @@ export default defineConfig({
       '@theme': resolve(__dirname, 'src/theme'),
       '@data': resolve(__dirname, 'src/data'),
       '@utils': resolve(__dirname, 'src/utils'),
+      '@ai': resolve(__dirname, 'src/ai'),
     },
   },
   build: {

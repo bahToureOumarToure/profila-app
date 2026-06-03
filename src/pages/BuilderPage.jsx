@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import {
   Box, Grid, Fab, Drawer, useTheme, useMediaQuery,
   Tooltip, Typography, Paper, Divider, Stack, Button,
@@ -7,7 +7,10 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+
+const ImportPdfDialog = lazy(() => import('@components/ai/ImportPdfDialog'));
 import EditorPanel from '@components/editor/EditorPanel';
 import CVPreview from '@components/preview/CVPreview';
 import PDFDownloadButton from '@components/pdf/CVPDFDocument';
@@ -19,6 +22,7 @@ export default function BuilderPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [aiImportOpen, setAiImportOpen] = useState(false);
   const { cvData, loadCV, resetCV } = useCV();
 
   const handleExportJSON = () => downloadJSON(cvData, 'profila-cv.json');
@@ -61,6 +65,15 @@ export default function BuilderPage() {
           </Typography>
 
           <Stack direction="row" spacing={1} alignItems="center">
+            <Tooltip title="Importer un CV PDF et le pré-remplir avec l'IA">
+              <Button
+                size="small" startIcon={<AutoAwesomeIcon />} variant="contained"
+                onClick={() => setAiImportOpen(true)}
+              >
+                Importer PDF (IA)
+              </Button>
+            </Tooltip>
+
             <Tooltip title="Sauvegarder en JSON">
               <Button size="small" startIcon={<SaveAltIcon />} onClick={handleExportJSON} variant="outlined">
                 Sauvegarder
@@ -141,6 +154,12 @@ export default function BuilderPage() {
           )}
         </Box>
       </Box>
+
+      {aiImportOpen && (
+        <Suspense fallback={null}>
+          <ImportPdfDialog open={aiImportOpen} onClose={() => setAiImportOpen(false)} />
+        </Suspense>
+      )}
     </>
   );
 }
