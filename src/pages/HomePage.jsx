@@ -247,6 +247,15 @@ export default function HomePage() {
             </Typography>
           </Box>
 
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 4, md: 6 } }}>
+            <Box
+              component="img"
+              src="/icone_perso/experience.png"
+              alt="Assistant IA Profila"
+              sx={{ width: { xs: 200, md: 260 }, height: 'auto' }}
+            />
+          </Box>
+
           <Grid container spacing={3}>
             {AI_STEPS.map((s, idx) => (
               <Grid item xs={12} md={4} key={idx}>
