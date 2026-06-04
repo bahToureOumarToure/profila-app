@@ -26,7 +26,7 @@ export default function CertificationsSection() {
 
       {certifications.length === 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ py: 3, textAlign: 'center' }}>
-          Aucune certification — cliquez sur "Ajouter" pour commencer.
+          Aucune certification - cliquez sur "Ajouter" pour commencer.
         </Typography>
       )}
 

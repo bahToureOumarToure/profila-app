@@ -37,7 +37,7 @@ export default function DistinctionsSection() {
 
       {distinctions.length === 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ py: 3, textAlign: 'center' }}>
-          Aucune entrée — ajoutez vos prix, publications ou conférences.
+          Aucune entrée - ajoutez vos prix, publications ou conférences.
         </Typography>
       )}
 
