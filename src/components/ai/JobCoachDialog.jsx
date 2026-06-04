@@ -71,7 +71,7 @@ function DiffCard({ suggestion, accepted, onToggle }) {
       <Box sx={{ mb: 1 }}>
         <Typography variant="caption" color="text.secondary">Avant</Typography>
         <Box sx={{ p: 1, borderRadius: 1, bgcolor: 'action.hover', opacity: 0.8 }}>
-          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{suggestion.before || '—'}</Typography>
+          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{suggestion.before || '-'}</Typography>
         </Box>
       </Box>
       <Box>
@@ -146,7 +146,7 @@ export default function JobCoachDialog({ open, onClose }) {
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
         <GpsFixedIcon color="primary" fontSize="small" />
-        Coach IA — Cibler & optimiser pour une offre
+        Coach IA - Cibler & optimiser pour une offre
         <IconButton onClick={handleClose} disabled={busy} sx={{ ml: 'auto' }} size="small">
           <CloseIcon fontSize="small" />
         </IconButton>
@@ -159,7 +159,7 @@ export default function JobCoachDialog({ open, onClose }) {
       </Box>
 
       <DialogContent dividers>
-        {/* STEP 1 — paste offer */}
+        {/* STEP 1 - paste offer */}
         {phase === 'input' && (
           <Stack spacing={2}>
             <Typography variant="body2" color="text.secondary">
@@ -196,7 +196,7 @@ export default function JobCoachDialog({ open, onClose }) {
           </Box>
         )}
 
-        {/* STEP 2 — audit results */}
+        {/* STEP 2 - audit results */}
         {phase === 'audit' && a && (
           <Stack spacing={2.5}>
             <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -246,7 +246,7 @@ export default function JobCoachDialog({ open, onClose }) {
                 </Typography>
                 <Stack spacing={0.5}>
                   {a.reformulate.map((r, i) => (
-                    <Typography key={i} variant="body2"><strong>{r.keyword}</strong>{r.suggestion ? ` — ${r.suggestion}` : ''}</Typography>
+                    <Typography key={i} variant="body2"><strong>{r.keyword}</strong>{r.suggestion ? ` - ${r.suggestion}` : ''}</Typography>
                   ))}
                 </Stack>
               </Box>
@@ -269,12 +269,12 @@ export default function JobCoachDialog({ open, onClose }) {
             {error && <Alert severity="error">{error}</Alert>}
             <Alert severity="info" icon={<AutoFixHighIcon />}>
               Lance l'optimisation : l'IA réécrit ton résumé et tes expériences pour intégrer les
-              mots-clés pertinents — sans rien inventer. Tu valideras chaque changement.
+              mots-clés pertinents - sans rien inventer. Tu valideras chaque changement.
             </Alert>
           </Stack>
         )}
 
-        {/* STEP 3 — optimization diffs */}
+        {/* STEP 3 - optimization diffs */}
         {phase === 'review' && (
           <Stack spacing={1.5}>
             {suggestions.length === 0 ? (

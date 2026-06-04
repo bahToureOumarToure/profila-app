@@ -30,7 +30,7 @@ export default function InterestsSection() {
 
       {interests.length === 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ py: 3, textAlign: 'center' }}>
-          Aucun centre d'intérêt — cliquez sur "Ajouter" pour commencer.
+          Aucun centre d'intérêt - cliquez sur "Ajouter" pour commencer.
         </Typography>
       )}
 

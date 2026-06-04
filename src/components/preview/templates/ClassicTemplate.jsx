@@ -149,7 +149,7 @@ export default function ClassicTemplate({ cvData }) {
           <Box key={a.id} sx={{ mb: idx < achievements.length - 1 ? 1.25 : 0 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>
-                {a.rank ? `${a.rank} — ` : ''}{a.title}
+                {a.rank ? `${a.rank} - ` : ''}{a.title}
               </Typography>
               <Typography sx={{ fontSize: '0.7rem', color: '#777' }}>{formatDateRange(a.date, '', false)}</Typography>
             </Box>

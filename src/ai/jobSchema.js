@@ -7,7 +7,7 @@ const clamp100 = (v) => {
 };
 // Robuste & récursif : le LLM renvoie parfois des objets imbriqués
 // ({conseil, priorité}, {recommandation:{texte}}…). On en extrait TOUJOURS un
-// texte lisible — jamais "[object Object]".
+// texte lisible - jamais "[object Object]".
 const toText = (v) => {
   if (v == null) return '';
   if (typeof v === 'string') return v.trim();
@@ -20,7 +20,7 @@ const toText = (v) => {
     for (const key of keys) {
       if (typeof v[key] === 'string' && v[key].trim()) return v[key].trim();
     }
-    return Object.values(v).map(toText).filter(Boolean).join(' — ');
+    return Object.values(v).map(toText).filter(Boolean).join(' - ');
   }
   return '';
 };

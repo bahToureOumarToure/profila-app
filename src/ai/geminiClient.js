@@ -78,7 +78,7 @@ export async function generateJSON({ prompt, apiKey, model, temperature = 0.2, m
       if (!text) {
         const reason = candidate?.finishReason;
         const hint = reason === 'MAX_TOKENS'
-          ? ' (réponse tronquée : MAX_TOKENS — réessaie, le CV est peut-être trop long)'
+          ? ' (réponse tronquée : MAX_TOKENS - réessaie, le CV est peut-être trop long)'
           : reason && reason !== 'STOP' ? ` (finishReason: ${reason})` : '';
         throw new Error(`Réponse vide de Gemini${hint}.`);
       }

@@ -1,4 +1,4 @@
-# 📄 Profila — CV Builder
+# 📄 Profila - CV Builder
 
 > Créez votre CV professionnel en ligne, gratuitement.
 > Templates modernes, éditeur temps réel, export PDF haute qualité.
@@ -14,16 +14,16 @@
 
 ## ✨ Fonctionnalités
 
-- 🎨 **3 templates professionnels** — Moderne, Classique, Minimaliste
-- ⚡ **Éditeur temps réel** — prévisualisation instantanée pendant la saisie
-- 📄 **Export PDF haute qualité** — PDF natif A4 via `@react-pdf/renderer`
-- 🌓 **Dark / Light mode** — préférence persistée
-- 🎨 **Personnalisation complète** — 6 palettes de couleurs, 3 polices
-- 💾 **Sauvegarde automatique** — localStorage, aucune donnée envoyée
-- 📤 **Import / Export JSON** — sauvegardez et restaurez vos CV
-- 🔄 **Drag & Drop** — réordonnez vos sections
-- 📱 **100% Responsive** — mobile, tablette, desktop
-- 🔒 **Privacy-first** — aucun tracking, aucun cookie, aucun serveur
+- 🎨 **3 templates professionnels** - Moderne, Classique, Minimaliste
+- ⚡ **Éditeur temps réel** - prévisualisation instantanée pendant la saisie
+- 📄 **Export PDF haute qualité** - PDF natif A4 via `@react-pdf/renderer`
+- 🌓 **Dark / Light mode** - préférence persistée
+- 🎨 **Personnalisation complète** - 6 palettes de couleurs, 3 polices
+- 💾 **Sauvegarde automatique** - localStorage, aucune donnée envoyée
+- 📤 **Import / Export JSON** - sauvegardez et restaurez vos CV
+- 🔄 **Drag & Drop** - réordonnez vos sections
+- 📱 **100% Responsive** - mobile, tablette, desktop
+- 🔒 **Privacy-first** - aucun tracking, aucun cookie, aucun serveur
 
 ---
 
@@ -104,7 +104,7 @@ npm run build
 | Template | Description |
 |----------|-------------|
 | **Moderne** | Sidebar latérale colorée, design contemporain |
-| **Classique** | Élégant, sobre — idéal secteurs traditionnels |
+| **Classique** | Élégant, sobre - idéal secteurs traditionnels |
 | **Minimaliste** | Épuré, typographique, très lisible |
 
 ---

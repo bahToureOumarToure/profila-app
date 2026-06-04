@@ -155,7 +155,7 @@ export function ModernPDFTemplate({ cvData }) {
         {achievements.map((a) => (
           <View key={a.id} style={[styles.expBlock, { marginBottom: 8 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={styles.expTitle}>{a.rank ? `${a.rank} — ` : ''}{a.title}</Text>
+              <Text style={styles.expTitle}>{a.rank ? `${a.rank} - ` : ''}{a.title}</Text>
               <Text style={styles.expDate}>{formatDateRange(a.date, '', false)}</Text>
             </View>
             {(a.competition || a.location) && (
