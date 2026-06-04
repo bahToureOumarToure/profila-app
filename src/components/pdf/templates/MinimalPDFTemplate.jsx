@@ -136,7 +136,7 @@ export function MinimalPDFTemplate({ cvData }) {
         {achievements.map((a) => (
           <View key={a.id} style={styles.block}>
             <View style={styles.rowBetween}>
-              <Text style={styles.itemTitle}>{a.rank ? `${a.rank} — ` : ''}{a.title}</Text>
+              <Text style={styles.itemTitle}>{a.rank ? `${a.rank} - ` : ''}{a.title}</Text>
               <Text style={styles.itemDate}>{formatDateRange(a.date, '', false)}</Text>
             </View>
             {(a.competition || a.location) && (

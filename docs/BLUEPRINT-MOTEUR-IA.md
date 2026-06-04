@@ -1,4 +1,4 @@
-# Blueprint — Moteur IA de Profila
+# Blueprint - Moteur IA de Profila
 
 > Conception de la couche d'intelligence (parsing PDF, analyse de job description,
 > audit de compatibilité, optimisation ATS) **par-dessus** l'application Profila
@@ -21,10 +21,10 @@ Le modèle de données ci-dessous est celui que manipule déjà `CVContext` /
 | Export PDF natif A4 | ✅ `@react-pdf/renderer` | `src/components/pdf/` |
 | Import / Export JSON | ✅ `downloadJSON` / `readJSONFile` | `src/utils/cvHelpers.js` |
 | Score de complétion | ✅ heuristique 0-100 | `cvCompletionScore()` |
-| **Parsing PDF (IA)** | ❌ à construire | — |
-| **Analyse job description** | ❌ à construire | — |
-| **Audit de compatibilité** | ❌ à construire | — |
-| **Optimisation ATS** | ❌ à construire | — |
+| **Parsing PDF (IA)** | ❌ à construire | - |
+| **Analyse job description** | ❌ à construire | - |
+| **Audit de compatibilité** | ❌ à construire | - |
+| **Optimisation ATS** | ❌ à construire | - |
 
 Le `loadCV(data)` du contexte (`LOAD_CV` → `{ ...initialCVData, ...payload }`)
 est **le point d'injection idéal** : si l'IA produit un JSON valide, le pré-remplissage
@@ -41,7 +41,7 @@ C'est **LE** point d'architecture, pas un détail. Le README promet :
 > « Aucun serveur, aucun tracking, aucun cookie. Toutes vos informations restent dans votre navigateur. »
 
 Or tout appel à un LLM (OpenAI, Anthropic, Mistral, Gemini) implique :
-- d'**exposer une clé API** — impossible côté client sans la divulguer ;
+- d'**exposer une clé API** - impossible côté client sans la divulguer ;
 - d'**envoyer le contenu du CV** (données personnelles : nom, email, téléphone) à un tiers.
 
 ➡️ **Décision obligatoire avant toute ligne de code.** Trois options :
@@ -57,7 +57,7 @@ explicitement un chemin « sans IA » (l'app reste pleinement utilisable). La pa
 *Politique de confidentialité* doit être mise à jour : l'IA devient un traitement
 **opt-in** clairement annoncé.
 
-### 1.2 Parsing PDF — le PDF est un format hostile
+### 1.2 Parsing PDF - le PDF est un format hostile
 
 - Un PDF n'a **pas de structure sémantique** : c'est du texte positionné en (x, y).
   Les CV sur 2 colonnes cassent l'ordre de lecture naturel.
@@ -73,11 +73,11 @@ texte/page est trop faible, **fallback vision** (rendu canvas → image → LLM 
 Un LLM « bavarde ». Pour pré-remplir un formulaire il faut une sortie **machine-readable
 garantie** :
 - imposer un **JSON Schema** (function calling / structured outputs / `response_format`) ;
-- **valider** côté client (Zod) avant `loadCV` — ne jamais faire confiance à la sortie ;
+- **valider** côté client (Zod) avant `loadCV` - ne jamais faire confiance à la sortie ;
 - gérer dates hétérogènes (« 2021 », « janv. 2021 », « 01/2021 ») → normaliser en `YYYY-MM`
   attendu par les champs `type="month"` de l'éditeur.
 
-### 1.4 ATS — éviter le « keyword stuffing » et le mensonge
+### 1.4 ATS - éviter le « keyword stuffing » et le mensonge
 
 - Bourrer des mots-clés nuit (les ATS modernes et les recruteurs détectent le stuffing ;
   les techniques type texte blanc sont pénalisées).
@@ -87,7 +87,7 @@ garantie** :
   mal exprimé), `missing` (réellement absent → **proposé, pas inséré d'office**, avec
   un avertissement « à confirmer »).
 
-### 1.5 Analyse de job description par URL — le mur du CORS / scraping
+### 1.5 Analyse de job description par URL - le mur du CORS / scraping
 
 - `fetch()` direct d'une URL LinkedIn/Indeed depuis le navigateur = **bloqué par CORS**
   et souvent par anti-bot / authentification.
@@ -116,29 +116,29 @@ exige un backend récupérateur et reste *best-effort*. Ne pas le survendre.
 
 ## 2. Guide étape par étape (parcours utilisateur)
 
-Parcours « optimiser mon CV pour une offre » — pensé pour s'insérer dans `BuilderPage`.
+Parcours « optimiser mon CV pour une offre » - pensé pour s'insérer dans `BuilderPage`.
 
-1. **Point d'entrée** — bouton « ✨ Importer & Optimiser avec l'IA » sur la HomePage
+1. **Point d'entrée** - bouton « ✨ Importer & Optimiser avec l'IA » sur la HomePage
    et dans la Navbar du Builder.
-2. **Consentement IA** (1ʳᵉ fois) — modale expliquant que le contenu sera envoyé à un
+2. **Consentement IA** (1ʳᵉ fois) - modale expliquant que le contenu sera envoyé à un
    service d'IA ; choix du mode (clé personnelle BYOK ou service managé) ; case opt-in.
-3. **Import du CV** — drag & drop d'un PDF (ou « partir d'une page blanche »).
+3. **Import du CV** - drag & drop d'un PDF (ou « partir d'une page blanche »).
    - Barre de progression : *Extraction → Analyse → Structuration*.
    - Aperçu du texte extrait + avertissement si fallback OCR utilisé.
-4. **Validation du pré-remplissage** — l'IA renvoie le JSON ; l'éditeur est rempli.
+4. **Validation du pré-remplissage** - l'IA renvoie le JSON ; l'éditeur est rempli.
    Chaque champ déduit par IA est **badgé** (« suggéré par IA ») et reste éditable.
    L'utilisateur corrige/valide section par section.
-5. **Ajout de l'offre d'emploi** — onglet « Cibler une offre » : coller le texte de
+5. **Ajout de l'offre d'emploi** - onglet « Cibler une offre » : coller le texte de
    l'offre (ou URL en best-effort). L'IA extrait *keywords*, *hard/soft skills*, séniorité.
-6. **Audit de compatibilité** — score 0-100 affiché en jauge animée, avec :
+6. **Audit de compatibilité** - score 0-100 affiché en jauge animée, avec :
    - mots-clés **présents** (verts), **à reformuler** (orange), **manquants** (rouges) ;
    - recommandations priorisées.
-7. **Optimisation ATS (opt-in, non destructive)** — vue **diff côte-à-côte**
+7. **Optimisation ATS (opt-in, non destructive)** - vue **diff côte-à-côte**
    (avant / après) par section. L'utilisateur **accepte/refuse chaque suggestion**.
    Rien n'est appliqué sans clic. Les ajouts « missing » sont marqués « à confirmer ».
-8. **Personnalisation visuelle** — template (Modern/Classic/Minimal), palette, police
-   (Inter / Roboto / Playfair) — déjà existant.
-9. **Export** — PDF A4 natif (existant) + sauvegarde JSON locale.
+8. **Personnalisation visuelle** - template (Modern/Classic/Minimal), palette, police
+   (Inter / Roboto / Playfair) - déjà existant.
+9. **Export** - PDF A4 natif (existant) + sauvegarde JSON locale.
    Rappel : tout reste dans le navigateur sauf l'étape IA explicitement consentie.
 
 Garde-fous UX transverses : aucune action IA n'écrase les données sans confirmation ;
@@ -151,7 +151,7 @@ un bouton « Annuler / revenir à ma version » est toujours présent (historiqu
 
 L'IA doit produire **exactement** la forme attendue par `loadCV()` / `initialCVData`.
 Contraintes :
-- dates au format `"YYYY-MM"` (ou `"YYYY"`) — compat champs `type="month"` ;
+- dates au format `"YYYY-MM"` (ou `"YYYY"`) - compat champs `type="month"` ;
 - `skills[].level` ∈ `1..5` ; `languages[].level` parmi les libellés autorisés ;
 - pas d'`id` (généré à l'hydratation) ;
 - champs inconnus → chaîne vide, jamais `null`.
@@ -235,7 +235,7 @@ Contraintes :
       "description": "Prototype d'accessibilité web primé." }
   ],
   "distinctions": [
-    { "title": "Speaker — React Paris", "type": "Conférence", "issuer": "React Paris",
+    { "title": "Speaker - React Paris", "type": "Conférence", "issuer": "React Paris",
       "date": "2024-03", "url": "", "description": "Talk sur le rendu PDF côté client." }
   ]
 }
@@ -322,7 +322,7 @@ React 18 + Vite 5, MUI 5 + Emotion, React Router 6, Context+`useReducer`,
 
 Pour rester cohérent avec `FONT_OPTIONS` (Inter / Roboto / Playfair Display) et la
 demande « sans-serif moderne » : **Inter** par défaut (déjà prévu), Geist en option
-future. Charger via `@fontsource` (offline-friendly, pas de fuite vers Google Fonts —
+future. Charger via `@fontsource` (offline-friendly, pas de fuite vers Google Fonts -
 cohérent avec la posture privacy).
 
 ### 4.4 Organisation du code proposée (greffe minimale, non invasive)
@@ -330,7 +330,7 @@ cohérent avec la posture privacy).
 ```
 src/
 ├── ai/
-│   ├── client.js          # adaptateur LLM (BYOK | proxy) — une seule interface
+│   ├── client.js          # adaptateur LLM (BYOK | proxy) - une seule interface
 │   ├── schemas.js         # schémas Zod : CV, Job, Audit, Optimizations
 │   ├── prompts.js         # prompts versionnés (parse / analyzeJob / audit / optimize)
 │   ├── pdfExtract.js      # pdfjs → texte ; détection besoin OCR

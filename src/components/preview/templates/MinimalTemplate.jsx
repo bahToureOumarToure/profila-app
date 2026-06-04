@@ -126,7 +126,7 @@ export default function MinimalTemplate({ cvData }) {
         {achievements.map((a, idx) => (
           <Box key={a.id} sx={{ mb: idx < achievements.length - 1 ? 1 : 0 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>{a.rank ? `${a.rank} — ` : ''}{a.title}</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#111' }}>{a.rank ? `${a.rank} - ` : ''}{a.title}</Typography>
               <Typography sx={{ fontSize: '0.68rem', color: '#aaa' }}>{formatDateRange(a.date, '', false)}</Typography>
             </Box>
             {(a.competition || a.location) && (

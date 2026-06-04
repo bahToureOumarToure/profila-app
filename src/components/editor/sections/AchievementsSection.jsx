@@ -38,7 +38,7 @@ export default function AchievementsSection() {
 
       {achievements.length === 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ py: 3, textAlign: 'center' }}>
-          Aucune entrée — ajoutez vos médailles, titres ou compétitions.
+          Aucune entrée - ajoutez vos médailles, titres ou compétitions.
         </Typography>
       )}
 

@@ -72,7 +72,7 @@ RÈGLES STRICTES :
 - "matched" : compétences/mots-clés de l'offre DÉJÀ présents dans le CV.
 - "reformulate" : présents mais mal exprimés ("found_in" = section du CV, "suggestion" = reformulation).
 - "missing" : exigés par l'offre et ABSENTS du CV. "severity" ∈ {"high","medium","low"}.
-  "advice" = conseil HONNÊTE — ne JAMAIS inciter à inventer une compétence non possédée.
+  "advice" = conseil HONNÊTE - ne JAMAIS inciter à inventer une compétence non possédée.
 - "recommendations" : 3 à 6 conseils concrets et priorisés pour améliorer la pertinence.
 - Réponds en français. Aucune valeur null ; tableaux vides [] si rien.
 

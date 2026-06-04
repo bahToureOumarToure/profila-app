@@ -65,7 +65,7 @@ export function normalizeOptimizations(raw, cv) {
       suggestions.push({
         id: `skill-${key}`, target: 'skillAdd', skillName: name, skillCategory: category,
         label: `Compétence à ajouter : ${name}`,
-        before: '—', after: `${name}${category ? `  ·  ${category}` : ''}`,
+        before: '-', after: `${name}${category ? `  ·  ${category}` : ''}`,
         rationale: str(s.rationale),
       });
     });
