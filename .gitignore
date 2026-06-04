@@ -26,6 +26,8 @@ pnpm-debug.log*
 *.sw?
 
 # Env
-.env
+# NOTE: .env est volontairement SUIVI par git pour embarquer VITE_GEMINI_API_KEY
+# dans toutes les builds (dev & prod). La clé est donc exposée côté client et
+# dans le repo — n'utiliser qu'une clé perso à quota gratuit, repo privé conseillé.
 .env.local
 .env.*.local
