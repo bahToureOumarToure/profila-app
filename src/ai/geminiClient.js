@@ -1,20 +1,11 @@
 // Client Gemini minimal via l'API REST (pas de SDK → bundle léger).
-// La clé peut venir de .env.local (dev) ou être saisie par l'utilisateur (stockée
-// localement). Pour un projet perso sur le free tier, c'est suffisant.
+// La clé provient UNIQUEMENT de l'environnement (VITE_GEMINI_API_KEY), définie
+// dans .env — inlinée par Vite au build (dev comme prod). Aucune saisie côté UI.
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
 const DEFAULT_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
-const KEY_STORAGE = 'profila_gemini_key';
 
 export function getApiKey() {
-  return (
-    import.meta.env.VITE_GEMINI_API_KEY ||
-    (typeof localStorage !== 'undefined' && localStorage.getItem(KEY_STORAGE)) ||
-    ''
-  );
-}
-
-export function setApiKey(key) {
-  try { localStorage.setItem(KEY_STORAGE, key.trim()); } catch { /* storage indispo */ }
+  return import.meta.env.VITE_GEMINI_API_KEY || '';
 }
 
 export function hasApiKey() {

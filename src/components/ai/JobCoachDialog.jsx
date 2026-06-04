@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography,
-  LinearProgress, Alert, TextField, Stack, Chip, Link, IconButton, Divider,
+  LinearProgress, Alert, TextField, Stack, Chip, IconButton, Divider,
   Paper, Switch, FormControlLabel, Step, Stepper, StepLabel,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -15,7 +15,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useCV } from '@context/CVContext';
 import { auditCvAgainstJob, cvHasContent } from '@ai/auditJob';
 import { optimizeCvForJob } from '@ai/optimizeCV';
-import { hasApiKey, setApiKey } from '@ai/geminiClient';
+import { hasApiKey } from '@ai/geminiClient';
 
 const scoreColor = (s) => (s >= 75 ? 'success' : s >= 50 ? 'warning' : 'error');
 
@@ -93,25 +93,23 @@ export default function JobCoachDialog({ open, onClose }) {
   const [phase, setPhase] = useState('input');
   const [error, setError] = useState('');
   const [jobText, setJobText] = useState('');
-  const [keyInput, setKeyInput] = useState('');
   const [audit, setAudit] = useState(null);   // { job, audit }
   const [suggestions, setSuggestions] = useState([]);
   const [accepted, setAccepted] = useState({});
   const [appliedCount, setAppliedCount] = useState(0);
-  const needsKey = !hasApiKey();
+  const keyMissing = !hasApiKey();
 
   const handleClose = () => { if (!['auditing', 'optimizing'].includes(phase)) onClose(); };
 
   const runAudit = useCallback(async () => {
     setError(''); setPhase('auditing');
     try {
-      if (needsKey && keyInput.trim()) setApiKey(keyInput);
       const res = await auditCvAgainstJob(cvData, jobText);
       setAudit(res); setPhase('audit');
     } catch (e) {
       setError(e.message || 'Une erreur est survenue.'); setPhase('input');
     }
-  }, [cvData, jobText, needsKey, keyInput]);
+  }, [cvData, jobText]);
 
   const runOptimize = useCallback(async () => {
     setError(''); setPhase('optimizing');
@@ -169,15 +167,11 @@ export default function JobCoachDialog({ open, onClose }) {
             {!cvHasContent(cvData) && (
               <Alert severity="warning">Remplis ou importe d'abord ton CV pour un résultat pertinent.</Alert>
             )}
-            {needsKey && (
-              <Box>
-                <TextField fullWidth size="small" type="password" label="Clé API Gemini"
-                  placeholder="AIza…" value={keyInput} onChange={(e) => setKeyInput(e.target.value)} />
-                <Typography variant="caption" color="text.secondary">
-                  Gratuite sur{' '}
-                  <Link href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">Google AI Studio</Link>.
-                </Typography>
-              </Box>
+            {keyMissing && (
+              <Alert severity="warning">
+                Clé API Gemini non configurée. Définis <strong>VITE_GEMINI_API_KEY</strong> dans
+                ton fichier <code>.env</code> (puis rebuild).
+              </Alert>
             )}
             <TextField fullWidth multiline minRows={7} maxRows={15}
               label="Texte de l'offre d'emploi"
@@ -308,7 +302,7 @@ export default function JobCoachDialog({ open, onClose }) {
           <>
             <Button onClick={handleClose}>Fermer</Button>
             <Button variant="contained" onClick={runAudit}
-              disabled={jobText.trim().length < 30 || (needsKey && !keyInput.trim())}>
+              disabled={jobText.trim().length < 30 || keyMissing}>
               Analyser
             </Button>
           </>

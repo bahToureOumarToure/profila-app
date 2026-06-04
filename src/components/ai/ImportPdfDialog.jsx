@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography,
-  LinearProgress, Alert, TextField, Stack, Chip, Link, IconButton,
+  LinearProgress, Alert, Stack, Chip, IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -9,7 +9,7 @@ import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useCV } from '@context/CVContext';
 import { parseResumeFromPdf } from '@ai/parseResume';
-import { hasApiKey, setApiKey } from '@ai/geminiClient';
+import { hasApiKey } from '@ai/geminiClient';
 import { summarizeParsedCV } from '@ai/cvSchema';
 
 const STEP_LABELS = {
@@ -24,8 +24,7 @@ export default function ImportPdfDialog({ open, onClose }) {
   const [step, setStep] = useState('extract');
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);     // { cv, meta }
-  const [keyInput, setKeyInput] = useState('');
-  const needsKey = !hasApiKey();
+  const keyMissing = !hasApiKey();
 
   const reset = useCallback(() => {
     setPhase('idle'); setStep('extract'); setError(''); setResult(null);
@@ -36,13 +35,12 @@ export default function ImportPdfDialog({ open, onClose }) {
   const runParse = useCallback(async (file) => {
     setError(''); setResult(null); setPhase('working'); setStep('extract');
     try {
-      if (needsKey && keyInput.trim()) setApiKey(keyInput);
       const res = await parseResumeFromPdf(file, { onProgress: setStep });
       setResult(res); setPhase('review');
     } catch (e) {
       setError(e.message || 'Une erreur est survenue.'); setPhase('error');
     }
-  }, [needsKey, keyInput]);
+  }, []);
 
   const handleFile = (e) => {
     const file = e.target.files?.[0];
@@ -78,28 +76,18 @@ export default function ImportPdfDialog({ open, onClose }) {
               l'éditeur. Tu pourras tout vérifier et corriger ensuite.
             </Typography>
 
-            {needsKey && (
-              <Box>
-                <TextField
-                  fullWidth size="small" type="password" label="Clé API Gemini"
-                  placeholder="AIza…" value={keyInput}
-                  onChange={(e) => setKeyInput(e.target.value)}
-                />
-                <Typography variant="caption" color="text.secondary">
-                  Gratuite sur{' '}
-                  <Link href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">
-                    Google AI Studio
-                  </Link>
-                  . Stockée uniquement dans ton navigateur.
-                </Typography>
-              </Box>
+            {keyMissing && (
+              <Alert severity="warning">
+                Clé API Gemini non configurée. Définis <strong>VITE_GEMINI_API_KEY</strong> dans
+                ton fichier <code>.env</code> (puis rebuild), pour le dev comme pour la prod.
+              </Alert>
             )}
 
             {phase === 'error' && <Alert severity="error">{error}</Alert>}
 
             <Button
               component="label" variant="contained" startIcon={<UploadFileOutlinedIcon />}
-              disabled={needsKey && !keyInput.trim()}
+              disabled={keyMissing}
             >
               Choisir un fichier PDF
               <input type="file" accept="application/pdf" hidden onChange={handleFile} />
