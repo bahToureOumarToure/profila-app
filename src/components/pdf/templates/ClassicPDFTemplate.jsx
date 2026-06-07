@@ -1,28 +1,31 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { formatDateRange, resolveSectionOrder, groupSkillsByCategory } from '@utils/cvHelpers';
 import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
+import { ICONS } from '../PDFIcons';
 import '../pdfFonts';
 
 const styles = StyleSheet.create({
-  page:        { fontFamily: 'Inter', fontSize: 9, color: '#333', paddingVertical: 28, paddingHorizontal: 32 },
-  header:      { alignItems: 'center', marginBottom: 14, paddingBottom: 10 },
+  page:        { fontFamily: 'Inter', fontSize: 9, color: '#333', paddingVertical: 22, paddingHorizontal: 28 },
+  header:      { alignItems: 'center', marginBottom: 9, paddingBottom: 7 },
   name:        { fontSize: 19, fontFamily: 'Inter', fontWeight: 700, letterSpacing: 0.2 },
   title:       { fontSize: 9.5, color: '#555', marginTop: 3 },
-  contactRow:  { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 6 },
-  contactItem: { fontSize: 7.5, color: '#666', marginHorizontal: 5 },
-  secTitle:    { fontSize: 8.5, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginTop: 12 },
-  secRule:     { borderBottomWidth: 1.5, marginTop: 3, marginBottom: 7 },
+  contactRow:  { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 5 },
+  contactItem: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 4, marginVertical: 1 },
+  contactIcon: { marginRight: 3 },
+  contactTxt:  { fontSize: 7.5, color: '#666' },
+  secTitle:    { fontSize: 8.5, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginTop: 8 },
+  secRule:     { borderBottomWidth: 1.5, marginTop: 2, marginBottom: 5 },
   rowBetween:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   itemTitle:   { fontSize: 9.5, fontFamily: 'Inter', fontWeight: 700, color: '#111' },
   itemSub:     { fontSize: 8.5, fontFamily: 'Inter', fontWeight: 600 },
   itemField:   { fontSize: 8, color: '#666' },
   itemDate:    { fontSize: 7.5, color: '#777' },
-  itemDesc:    { fontSize: 8, color: '#555', marginTop: 2, lineHeight: 1.55 },
-  block:       { marginBottom: 9 },
-  summary:     { fontSize: 8.5, color: '#444', lineHeight: 1.6 },
+  itemDesc:    { fontSize: 8, color: '#555', marginTop: 1.5, lineHeight: 1.5 },
+  block:       { marginBottom: 6 },
+  summary:     { fontSize: 8.5, color: '#444', lineHeight: 1.55 },
   langRow:     { flexDirection: 'row', flexWrap: 'wrap' },
   chipsWrap:   { flexDirection: 'row', flexWrap: 'wrap' },
-  chip:        { borderWidth: 1, borderRadius: 3, paddingVertical: 2, paddingHorizontal: 5, marginRight: 4, marginBottom: 4 },
+  chip:        { borderWidth: 1, borderRadius: 3, paddingVertical: 1.5, paddingHorizontal: 5, marginRight: 3, marginBottom: 3 },
   chipTx:      { fontSize: 8 },
   skillCat:    { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2, opacity: 0.8 },
   langName:    { fontSize: 8.5, fontFamily: 'Inter', fontWeight: 600, color: '#111' },
@@ -173,7 +176,14 @@ export function ClassicPDFTemplate({ cvData }) {
     ),
   };
 
-  const contacts = [p.email, p.phone, p.location, p.website, p.linkedin].filter(Boolean);
+  const contacts = [
+    { key: 'email',    value: p.email },
+    { key: 'phone',    value: p.phone },
+    { key: 'location', value: p.location },
+    { key: 'website',  value: p.website },
+    { key: 'linkedin', value: p.linkedin },
+    { key: 'github',   value: p.github },
+  ].filter((c) => c.value);
 
   return (
     <Document>
@@ -182,7 +192,15 @@ export function ClassicPDFTemplate({ cvData }) {
           <Text style={[styles.name, { color: primary }]}>{p.firstName} {p.lastName}</Text>
           {p.title && <Text style={styles.title}>{p.title}</Text>}
           <View style={styles.contactRow}>
-            {contacts.map((c, i) => <Text key={i} style={styles.contactItem}>{c}</Text>)}
+            {contacts.map((c) => {
+              const Icon = ICONS[c.key];
+              return (
+                <View key={c.key} style={styles.contactItem}>
+                  <View style={styles.contactIcon}><Icon size={8} color={primary} /></View>
+                  <Text style={styles.contactTxt}>{c.value}</Text>
+                </View>
+              );
+            })}
           </View>
         </View>
 
