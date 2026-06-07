@@ -1,28 +1,31 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { formatDateRange, resolveSectionOrder, groupSkillsByCategory } from '@utils/cvHelpers';
 import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
+import { ICONS } from '../PDFIcons';
 import '../pdfFonts';
 
 const styles = StyleSheet.create({
-  page:        { fontFamily: 'Inter', fontSize: 9, color: '#333', paddingVertical: 30, paddingHorizontal: 34 },
+  page:        { fontFamily: 'Inter', fontSize: 9, color: '#333', paddingVertical: 24, paddingHorizontal: 30 },
   name:        { fontSize: 20, fontFamily: 'Inter', fontWeight: 700, color: '#111', letterSpacing: -0.3 },
-  title:       { fontSize: 10, fontFamily: 'Inter', fontWeight: 500, marginTop: 3 },
-  contactRow:  { flexDirection: 'row', flexWrap: 'wrap', marginTop: 5, marginBottom: 14 },
-  contactItem: { fontSize: 7.5, color: '#777', marginRight: 12 },
-  secHead:     { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  title:       { fontSize: 10, fontFamily: 'Inter', fontWeight: 500, marginTop: 2 },
+  contactRow:  { flexDirection: 'row', flexWrap: 'wrap', marginTop: 4, marginBottom: 9 },
+  contactItem: { flexDirection: 'row', alignItems: 'center', marginRight: 10, marginBottom: 2 },
+  contactIcon: { marginRight: 3 },
+  contactTxt:  { fontSize: 7.5, color: '#777' },
+  secHead:     { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
   secDash:     { width: 16, height: 2, marginRight: 6 },
   secTitle:    { fontSize: 8, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.2 },
-  section:     { marginBottom: 13 },
+  section:     { marginBottom: 8 },
   rowBetween:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   itemTitle:   { fontSize: 9.5, fontFamily: 'Inter', fontWeight: 700, color: '#111' },
-  itemSub:     { fontSize: 8, color: '#666', marginBottom: 2 },
+  itemSub:     { fontSize: 8, color: '#666', marginBottom: 1.5 },
   itemDate:    { fontSize: 7, color: '#aaa' },
-  itemDesc:    { fontSize: 8, color: '#555', lineHeight: 1.6 },
-  block:       { marginBottom: 8 },
-  summary:     { fontSize: 8.5, color: '#444', lineHeight: 1.7 },
+  itemDesc:    { fontSize: 8, color: '#555', lineHeight: 1.5 },
+  block:       { marginBottom: 5 },
+  summary:     { fontSize: 8.5, color: '#444', lineHeight: 1.6 },
   langRow:     { flexDirection: 'row', flexWrap: 'wrap' },
   skillsWrap:  { flexDirection: 'row', flexWrap: 'wrap' },
-  skillItem:   { fontSize: 8, color: '#444', marginRight: 12, marginBottom: 3 },
+  skillItem:   { fontSize: 8, color: '#444', marginRight: 10, marginBottom: 2 },
   skillLine:   { fontSize: 8, color: '#444', marginBottom: 2 },
   skillCat:    { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2, opacity: 0.8 },
   langName:    { fontSize: 8, fontFamily: 'Inter', fontWeight: 600, color: '#333' },
@@ -168,7 +171,14 @@ export function MinimalPDFTemplate({ cvData }) {
     ),
   };
 
-  const contacts = [p.email, p.phone, p.location].filter(Boolean);
+  const contacts = [
+    { key: 'email',    value: p.email },
+    { key: 'phone',    value: p.phone },
+    { key: 'location', value: p.location },
+    { key: 'website',  value: p.website },
+    { key: 'linkedin', value: p.linkedin },
+    { key: 'github',   value: p.github },
+  ].filter((c) => c.value);
 
   return (
     <Document>
@@ -176,7 +186,15 @@ export function MinimalPDFTemplate({ cvData }) {
         <Text style={styles.name}>{p.firstName} {p.lastName}</Text>
         {p.title && <Text style={[styles.title, { color: primary }]}>{p.title}</Text>}
         <View style={styles.contactRow}>
-          {contacts.map((c, i) => <Text key={i} style={styles.contactItem}>{c}</Text>)}
+          {contacts.map((c) => {
+            const Icon = ICONS[c.key];
+            return (
+              <View key={c.key} style={styles.contactItem}>
+                <View style={styles.contactIcon}><Icon size={8} color={primary} /></View>
+                <Text style={styles.contactTxt}>{c.value}</Text>
+              </View>
+            );
+          })}
         </View>
 
         {order.map((k) => (sections[k] ? <View key={k}>{sections[k]}</View> : null))}

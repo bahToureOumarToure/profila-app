@@ -2,34 +2,46 @@ import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/render
 import { formatDateRange, resolveSectionOrder } from '@utils/cvHelpers';
 import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
 import { groupSkills } from '../pdfFonts';
+import { ICONS } from '../PDFIcons';
 
 const SIDEBAR_KEYS = ['skills', 'languages', 'interests'];
 
 const styles = StyleSheet.create({
   page:       { flexDirection: 'row', fontFamily: 'Inter', fontSize: 9, color: '#1f2430' },
-  sidebar:    { width: '34%', minHeight: '100%', padding: 22, color: '#fff' },
-  main:       { flex: 1, padding: 26 },
+  sidebar:    { width: '34%', minHeight: '100%', padding: 16, color: '#fff' },
+  main:       { flex: 1, padding: 20 },
   name:       { fontSize: 15, fontFamily: 'Inter', fontWeight: 700, marginBottom: 2, color: '#fff', letterSpacing: 0.3 },
-  title:      { fontSize: 8.5, marginBottom: 14, opacity: 0.85, color: '#fff' },
-  avatar:     { width: 74, height: 74, borderRadius: 37, marginBottom: 12, alignSelf: 'center', objectFit: 'cover' },
-  sectionLbl: { fontSize: 7.5, fontFamily: 'Inter', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4, opacity: 0.95 },
-  divider:    { height: 0.5, backgroundColor: '#fff', opacity: 0.3, marginBottom: 7 },
-  contactTxt: { fontSize: 7.5, color: '#fff', opacity: 0.9, marginBottom: 3, lineHeight: 1.4 },
-  skillCat:   { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, color: '#fff', opacity: 0.7, marginTop: 5, marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.5 },
+  title:      { fontSize: 8.5, marginBottom: 10, opacity: 0.85, color: '#fff' },
+  avatar:     { width: 68, height: 68, borderRadius: 34, marginBottom: 9, alignSelf: 'center', objectFit: 'cover' },
+  sectionLbl: { fontSize: 7.5, fontFamily: 'Inter', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 3, opacity: 0.95 },
+  divider:    { height: 0.5, backgroundColor: '#fff', opacity: 0.3, marginBottom: 5 },
+  contactRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2.5 },
+  contactIcon:{ width: 9, marginRight: 5 },
+  contactTxt: { fontSize: 7.5, color: '#fff', opacity: 0.92, flex: 1, lineHeight: 1.35 },
+  skillCat:   { fontSize: 7, fontFamily: 'Inter', fontWeight: 600, color: '#fff', opacity: 0.7, marginTop: 4, marginBottom: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
   skillsWrap: { flexDirection: 'row', flexWrap: 'wrap' },
-  skillChip:  { backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 3, paddingVertical: 2, paddingHorizontal: 5, marginRight: 4, marginBottom: 4 },
+  skillChip:  { backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 3, paddingVertical: 1.5, paddingHorizontal: 5, marginRight: 3, marginBottom: 3 },
   skillChipTx:{ fontSize: 7.5, color: '#fff' },
   langName:   { fontSize: 8, fontFamily: 'Inter', fontWeight: 600, color: '#fff', marginBottom: 1 },
-  langLevel:  { fontSize: 7, color: '#fff', opacity: 0.7, marginBottom: 6 },
-  mainTitle:  { fontSize: 8, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.3, marginBottom: 3 },
-  mainDivider:{ height: 1, marginBottom: 9, borderRadius: 1 },
+  langLevel:  { fontSize: 7, color: '#fff', opacity: 0.7, marginBottom: 4 },
+  mainTitle:  { fontSize: 8, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.3, marginBottom: 2 },
+  mainDivider:{ height: 1, marginBottom: 6, borderRadius: 1 },
   expTitle:   { fontSize: 9.5, fontFamily: 'Inter', fontWeight: 700, color: '#111', marginBottom: 1 },
   expCompany: { fontSize: 8.5, fontFamily: 'Inter', fontWeight: 600, marginBottom: 1 },
   expDate:    { fontSize: 7.5, color: '#888' },
-  expDesc:    { fontSize: 8, color: '#3a4150', marginTop: 3, lineHeight: 1.55 },
-  expBlock:   { marginBottom: 11 },
-  summary:    { fontSize: 8.5, color: '#3a4150', lineHeight: 1.6, marginBottom: 2 },
+  expDesc:    { fontSize: 8, color: '#3a4150', marginTop: 2, lineHeight: 1.5 },
+  expBlock:   { marginBottom: 7 },
+  summary:    { fontSize: 8.5, color: '#3a4150', lineHeight: 1.55, marginBottom: 2 },
 });
+
+const ContactRow = ({ icon: Icon, value }) => (
+  value ? (
+    <View style={styles.contactRow}>
+      <View style={styles.contactIcon}><Icon size={9} color="#fff" /></View>
+      <Text style={styles.contactTxt}>{value}</Text>
+    </View>
+  ) : null
+);
 
 export function ModernPDFTemplate({ cvData }) {
   const {
@@ -41,7 +53,7 @@ export function ModernPDFTemplate({ cvData }) {
   const skillGroups = groupSkills(skills);
 
   const SideSection = ({ title, children }) => (
-    <View style={{ marginBottom: 12 }}>
+    <View style={{ marginBottom: 8 }}>
       <Text style={styles.sectionLbl}>{title}</Text>
       <View style={styles.divider} />
       {children}
@@ -49,7 +61,7 @@ export function ModernPDFTemplate({ cvData }) {
   );
 
   const MainSection = ({ title, children }) => (
-    <View style={{ marginBottom: 14 }}>
+    <View style={{ marginBottom: 9 }}>
       <Text style={[styles.mainTitle, { color: primary }]}>{title}</Text>
       <View style={[styles.mainDivider, { backgroundColor: primary, opacity: 0.3 }]} />
       {children}
@@ -197,14 +209,14 @@ export function ModernPDFTemplate({ cvData }) {
           <Text style={[styles.name, { textAlign: 'center' }]}>{p.firstName} {p.lastName}</Text>
           {p.title && <Text style={[styles.title, { textAlign: 'center' }]}>{p.title}</Text>}
 
-          {(p.email || p.phone || p.location || p.website) && (
+          {(p.email || p.phone || p.location || p.website || p.linkedin || p.github) && (
             <SideSection title="Contact">
-              {p.email    && <Text style={styles.contactTxt}>{p.email}</Text>}
-              {p.phone    && <Text style={[styles.contactTxt, { marginTop: 2 }]}>{p.phone}</Text>}
-              {p.location && <Text style={[styles.contactTxt, { marginTop: 2 }]}>{p.location}</Text>}
-              {p.website  && <Text style={[styles.contactTxt, { marginTop: 2 }]}>{p.website}</Text>}
-              {p.linkedin && <Text style={[styles.contactTxt, { marginTop: 2 }]}>{p.linkedin}</Text>}
-              {p.github   && <Text style={[styles.contactTxt, { marginTop: 2 }]}>{p.github}</Text>}
+              <ContactRow icon={ICONS.email}    value={p.email} />
+              <ContactRow icon={ICONS.phone}    value={p.phone} />
+              <ContactRow icon={ICONS.location} value={p.location} />
+              <ContactRow icon={ICONS.website}  value={p.website} />
+              <ContactRow icon={ICONS.linkedin} value={p.linkedin} />
+              <ContactRow icon={ICONS.github}   value={p.github} />
             </SideSection>
           )}
 
