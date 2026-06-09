@@ -6,19 +6,21 @@
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Révision Quiz">
-<title>Révision Quiz - Développement Personnel</title>
+<meta name="apple-mobile-web-app-title" content="Quiz Dev Perso">
+<title>Quiz - Développement Personnel</title>
 <style>
   :root{
     --bg:#f4f6fb; --card:#ffffff; --text:#1e293b; --muted:#64748b;
     --line:#e2e8f0; --accent:#2563eb; --accent-soft:#dbeafe;
-    --ok:#16a34a; --ok-soft:#dcfce7; --warn:#ea580c; --warn-soft:#ffedd5;
+    --ok:#16a34a; --ok-soft:#dcfce7; --bad:#dc2626; --bad-soft:#fee2e2;
+    --warn:#ea580c;
     --shadow:0 6px 22px rgba(15,23,42,.08); --radius:18px;
   }
   html[data-theme="dark"]{
     --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
     --line:#334155; --accent:#60a5fa; --accent-soft:#1e3a5f;
-    --ok:#4ade80; --ok-soft:#14532d; --warn:#fb923c; --warn-soft:#5c2710;
+    --ok:#22c55e; --ok-soft:#14532d; --bad:#f87171; --bad-soft:#4c1d1d;
+    --warn:#fb923c;
     --shadow:0 6px 22px rgba(0,0,0,.35);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -30,38 +32,32 @@
     padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
     -webkit-font-smoothing:antialiased; transition:background .2s,color .2s;
   }
-  .wrap{max-width:680px; margin:0 auto; padding:16px 16px 40px;}
+  .wrap{max-width:680px; margin:0 auto; padding:16px 16px 48px;}
 
-  /* Header */
-  .topbar{display:flex; align-items:center; gap:12px; margin:6px 0 18px;}
-  .topbar h1{font-size:1.45rem; margin:0; letter-spacing:-.02em; flex:1}
-  .sub{color:var(--muted); font-size:.92rem; margin:-12px 0 18px}
+  .topbar{display:flex; align-items:center; gap:12px; margin:6px 0 4px;}
+  .topbar h1{font-size:1.4rem; margin:0; letter-spacing:-.02em; flex:1}
+  .sub{color:var(--muted); font-size:.92rem; margin:0 0 18px}
   .icon-btn{
     border:1px solid var(--line); background:var(--card); color:var(--text);
     width:42px; height:42px; border-radius:12px; font-size:1.2rem; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; flex:0 0 auto;
-    transition:transform .1s, background .2s;
+    display:flex; align-items:center; justify-content:center; flex:0 0 auto; transition:transform .1s;
   }
   .icon-btn:active{transform:scale(.92)}
 
-  /* Global progress */
   .globalcard{
     background:linear-gradient(135deg,var(--accent),#7c3aed);
-    color:#fff; border-radius:var(--radius); padding:18px 20px; margin-bottom:18px;
-    box-shadow:var(--shadow);
+    color:#fff; border-radius:var(--radius); padding:18px 20px; margin-bottom:18px; box-shadow:var(--shadow);
   }
   .globalcard .lbl{font-size:.85rem; opacity:.9}
-  .globalcard .big{font-size:1.9rem; font-weight:700; letter-spacing:-.02em; margin:2px 0 10px}
-  .gbar{height:9px; background:rgba(255,255,255,.28); border-radius:99px; overflow:hidden}
-  .gbar>i{display:block; height:100%; background:#fff; border-radius:99px; transition:width .4s}
+  .globalcard .big{font-size:1.7rem; font-weight:700; letter-spacing:-.02em; margin:2px 0 0}
+  .globalcard .row{display:flex; gap:18px; margin-top:10px; font-size:.85rem; opacity:.95}
+  .globalcard .row b{font-size:1.05rem}
 
-  /* Quick actions */
   .actions{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px}
   .action{
     border:none; cursor:pointer; border-radius:14px; padding:15px 14px; text-align:left;
     font-size:1rem; font-weight:600; color:var(--text); background:var(--card);
-    box-shadow:var(--shadow); display:flex; flex-direction:column; gap:3px;
-    transition:transform .1s;
+    box-shadow:var(--shadow); display:flex; flex-direction:column; gap:3px; transition:transform .1s;
   }
   .action:active{transform:scale(.97)}
   .action .em{font-size:1.4rem}
@@ -72,267 +68,831 @@
   .section-title{font-size:.82rem; text-transform:uppercase; letter-spacing:.06em;
     color:var(--muted); font-weight:700; margin:4px 4px 12px}
 
-  /* Bloc list */
   .bloc{
     background:var(--card); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px;
-    box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; gap:14px;
-    transition:transform .1s;
+    box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; gap:14px; transition:transform .1s;
   }
   .bloc:active{transform:scale(.98)}
   .bloc .chip{
     flex:0 0 auto; width:46px; height:46px; border-radius:13px; display:flex;
-    align-items:center; justify-content:center; font-weight:800; font-size:1.05rem;
+    align-items:center; justify-content:center; font-weight:800; font-size:1rem;
     background:var(--accent-soft); color:var(--accent);
   }
   .bloc .info{flex:1; min-width:0}
   .bloc .info h3{margin:0 0 6px; font-size:1.02rem; line-height:1.3}
-  .bloc .meta{display:flex; align-items:center; gap:8px; font-size:.8rem; color:var(--muted)}
-  .minibar{height:6px; background:var(--line); border-radius:99px; overflow:hidden; flex:1}
-  .minibar>i{display:block; height:100%; background:var(--ok); border-radius:99px; transition:width .4s}
+  .bloc .meta{display:flex; align-items:center; gap:10px; font-size:.8rem; color:var(--muted)}
+  .badge{background:var(--ok-soft); color:var(--ok); padding:2px 9px; border-radius:99px; font-weight:700; font-size:.74rem}
   .bloc .arrow{color:var(--muted); font-size:1.3rem; flex:0 0 auto}
 
-  /* Study view */
+  /* Quiz */
   .study-head{display:flex; align-items:center; gap:10px; margin:6px 0 8px}
   .study-head .name{flex:1; font-weight:700; font-size:1rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .scorechip{background:var(--accent-soft); color:var(--accent); font-weight:800; font-size:.82rem; padding:4px 10px; border-radius:99px; font-variant-numeric:tabular-nums}
   .counter{font-variant-numeric:tabular-nums; color:var(--muted); font-size:.9rem; font-weight:600}
   .pbar{height:7px; background:var(--line); border-radius:99px; overflow:hidden; margin:0 0 18px}
   .pbar>i{display:block; height:100%; background:var(--accent); border-radius:99px; transition:width .35s}
 
-  .card{
-    background:var(--card); border-radius:22px; box-shadow:var(--shadow);
-    padding:26px 22px; min-height:48vh; display:flex; flex-direction:column;
-    border:1px solid var(--line);
-  }
-  .qlabel{font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); margin-bottom:12px}
-  .qtext{font-size:1.25rem; font-weight:600; line-height:1.45; letter-spacing:-.01em}
-  .tap-hint{margin-top:auto; text-align:center; color:var(--muted); font-size:.85rem; padding-top:18px}
+  .qcard{background:var(--card); border-radius:20px; box-shadow:var(--shadow); padding:22px 20px; border:1px solid var(--line); margin-bottom:14px}
+  .qlabel{font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); margin-bottom:10px}
+  .qtext{font-size:1.17rem; font-weight:600; line-height:1.45; letter-spacing:-.01em}
 
-  .answer{
-    margin-top:18px; padding:16px 16px; border-radius:14px;
-    background:var(--ok-soft); border-left:5px solid var(--ok);
-    animation:rise .28s ease;
+  .opts{display:flex; flex-direction:column; gap:11px}
+  .opt{
+    display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left; cursor:pointer;
+    background:var(--card); color:var(--text); border:2px solid var(--line); border-radius:14px;
+    padding:14px 15px; font-size:1rem; line-height:1.4; font-weight:500; box-shadow:var(--shadow); transition:transform .08s,border-color .15s,background .15s;
   }
-  .answer .alabel{font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ok); margin-bottom:5px}
-  .answer .atext{font-size:1.1rem; font-weight:600; line-height:1.5}
-  @keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+  .opt:active{transform:scale(.985)}
+  .opt .key{flex:0 0 auto; width:26px; height:26px; border-radius:8px; background:var(--accent-soft); color:var(--accent);
+    font-weight:800; font-size:.85rem; display:flex; align-items:center; justify-content:center; margin-top:1px}
+  .opt.correct{border-color:var(--ok); background:var(--ok-soft)}
+  .opt.correct .key{background:var(--ok); color:#fff}
+  .opt.wrong{border-color:var(--bad); background:var(--bad-soft)}
+  .opt.wrong .key{background:var(--bad); color:#fff}
+  .opt.dim{opacity:.5}
+  .opt[disabled]{cursor:default}
+  .opt .mark{margin-left:auto; font-weight:800; flex:0 0 auto}
 
-  .reveal-btn{
-    margin-top:18px; width:100%; border:none; cursor:pointer; border-radius:14px;
-    padding:16px; font-size:1.05rem; font-weight:700; color:#fff; background:var(--accent);
-    box-shadow:var(--shadow); transition:transform .1s;
-  }
-  .reveal-btn:active{transform:scale(.98)}
+  .feedback{margin-top:16px; padding:14px 15px; border-radius:14px; font-weight:600; animation:rise .25s ease}
+  .feedback.good{background:var(--ok-soft); color:var(--ok); border-left:5px solid var(--ok)}
+  .feedback.bad{background:var(--bad-soft); color:var(--bad); border-left:5px solid var(--bad)}
+  .feedback .exp{display:block; margin-top:6px; font-weight:500; color:var(--text); font-size:.95rem}
+  @keyframes rise{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
 
-  .rate{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px}
-  .rate button{
-    border:none; cursor:pointer; border-radius:14px; padding:15px; font-size:1rem; font-weight:700;
-    box-shadow:var(--shadow); transition:transform .1s; display:flex; align-items:center; justify-content:center; gap:7px;
-  }
-  .rate button:active{transform:scale(.96)}
-  .rate .review{background:var(--warn-soft); color:var(--warn)}
-  .rate .got{background:var(--ok); color:#fff}
+  .next-btn{margin-top:16px; width:100%; border:none; cursor:pointer; border-radius:14px; padding:16px;
+    font-size:1.05rem; font-weight:700; color:#fff; background:var(--accent); box-shadow:var(--shadow); transition:transform .1s}
+  .next-btn:active{transform:scale(.98)}
 
-  .nav{display:flex; gap:10px; margin-top:14px}
-  .nav button{
-    flex:1; border:1px solid var(--line); background:var(--card); color:var(--muted);
-    border-radius:12px; padding:11px; font-size:.92rem; font-weight:600; cursor:pointer;
-  }
-  .nav button:active{transform:scale(.97)}
-  .nav button:disabled{opacity:.4}
-
-  /* Finish screen */
-  .finish{text-align:center; padding:30px 16px}
-  .finish .trophy{font-size:3.4rem}
-  .finish h2{margin:8px 0 4px}
-  .finish p{color:var(--muted); margin:0 0 22px}
-  .stats{display:flex; gap:12px; justify-content:center; margin-bottom:26px}
-  .stat{background:var(--card); border-radius:16px; padding:14px 20px; box-shadow:var(--shadow); min-width:96px}
-  .stat .n{font-size:1.7rem; font-weight:800}
-  .stat .l{font-size:.78rem; color:var(--muted)}
-  .stat.ok .n{color:var(--ok)} .stat.rv .n{color:var(--warn)}
-  .stack{display:flex; flex-direction:column; gap:10px}
-  .btn{
-    border:none; cursor:pointer; border-radius:14px; padding:15px; font-size:1rem; font-weight:700;
-    box-shadow:var(--shadow); transition:transform .1s;
-  }
+  /* Results */
+  .finish{text-align:center; padding:26px 16px}
+  .ring{width:150px; height:150px; margin:6px auto 14px; position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pc{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+  .ring .pc b{font-size:2.1rem; font-weight:800; line-height:1}
+  .ring .pc span{font-size:.8rem; color:var(--muted)}
+  .finish h2{margin:6px 0 2px}
+  .finish .msg{color:var(--muted); margin:0 0 8px}
+  .record{display:inline-block; background:#fef9c3; color:#a16207; font-weight:700; font-size:.8rem; padding:4px 12px; border-radius:99px; margin-bottom:18px}
+  html[data-theme="dark"] .record{background:#422006; color:#fde047}
+  .stack{display:flex; flex-direction:column; gap:10px; max-width:340px; margin:0 auto}
+  .btn{border:none; cursor:pointer; border-radius:14px; padding:15px; font-size:1rem; font-weight:700; box-shadow:var(--shadow); transition:transform .1s}
   .btn:active{transform:scale(.98)}
   .btn.primary{background:var(--accent); color:#fff}
   .btn.ghost{background:var(--card); color:var(--text); border:1px solid var(--line)}
+  .btn.warn{background:var(--warn); color:#fff}
 
-  .empty{text-align:center; color:var(--muted); padding:50px 20px}
+  .empty{text-align:center; color:var(--muted); padding:46px 20px}
   .empty .em{font-size:3rem; display:block; margin-bottom:10px}
 
   .footer{text-align:center; color:var(--muted); font-size:.78rem; margin-top:30px; line-height:1.6}
-  .footer a{color:var(--accent)}
   .reset-link{background:none; border:none; color:var(--muted); text-decoration:underline; cursor:pointer; font-size:.78rem}
 
-  @media(max-width:380px){ body{font-size:16px} .qtext{font-size:1.15rem} }
+  @media(max-width:380px){ body{font-size:16px} .qtext{font-size:1.1rem} .opt{font-size:.95rem} }
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
 
 <script>
-/* ============================================================
-   DONNÉES - Corrigé officiel des quiz (Développement Personnel)
-   Tirets longs remplaces par des tirets normaux (-).
-   ============================================================ */
+/* Données générées depuis le QCM officiel.
+   Caractères normalisés : tiret long, signe moins et fleche -> tiret simple "-" / "->". */
 const QUIZ = [
-  {
-    id:"A", chip:"A",
-    title:"Bloc A - PCM, Analyse Transactionnelle & Régulation Émotionnelle",
-    questions:[
-      {q:"Qui a fondé l'Analyse Transactionnelle ?", a:"b. Eric Berne"},
-      {q:"CAS PRATIQUE : Votre manager dit en réunion, d'un ton légèrement sarcastique... Quel type de transaction selon Berne s'est produit ?", a:"c. Transaction cachée (duplex)"},
-      {q:"Quel driver de Kahler correspond à la croyance « Je peux tout gérer, je n'ai pas besoin des autres » ?", a:"a. Sois fort"},
-      {q:"Dans le Process Communication Model, quel type de personnalité réagit sous stress par de la provocation et de l'opposition ?", a:"a. Rebelle"},
-      {q:"VRAI ou FAUX : Dans le PCM de Taibi Kahler, le type Rêveur / Imagineur a besoin de stimulation sociale intense pour fonctionner de façon optimale.", a:"Faux"},
-      {q:"Qui a popularisé le modèle d'Intelligence Émotionnelle auprès du grand public en 1995 ?", a:"c. Daniel Goleman"},
-      {q:"Dans la métaphore de l'Iceberg appliquée au comportement humain, lequel de ces éléments appartient à la partie VISIBLE ?", a:"a. Les comportements et actions observables"},
-      {q:"Parmi les cinq stratégies du modèle de Gross, laquelle intervient APRÈS que la réponse émotionnelle a été générée ?", a:"a. S5 - Modulation de la Réponse"},
-      {q:"Quelle stratégie de régulation émotionnelle est considérée comme la plus efficace selon Gross et John (2003) ?", a:"c. S4 - Réévaluation Cognitive"},
-      {q:"Un ingénieur qui se dit : « Cette critique de code n'est pas une attaque personnelle... » utilise quelle stratégie du modèle de Gross ?", a:"d. S4 - Réévaluation Cognitive"}
-    ]
-  },
-  {
-    id:"B", chip:"B",
-    title:"Bloc B - Design Thinking",
-    questions:[
-      {q:"Quelle est la séquence correcte des 5 phases du Design Thinking selon le modèle Stanford d.school retenu dans ce cours ?", a:"B. Empathize -> Define -> Ideate -> Prototype -> Test"},
-      {q:"Une équipe vient de terminer la phase Ideate et souhaite valider rapidement... Elle dispose de 30 minutes... Quelle approche de prototypage est la plus adaptée ?", a:"B. Prototype papier (low-fi) : dessiner les écrans principaux en 30 minutes pour tester le concept et le flux auprès des utilisateurs"},
-      {q:"Quelle est la structure correcte d'un POV Statement (Point of View) en Design Thinking ?", a:"D. [Utilisateur] a besoin de [besoin] parce que [insight]"},
-      {q:"Dans la technique SCAMPER utilisée en phase Ideate du Design Thinking, que représente chaque lettre de l'acronyme ?", a:"A. Substituer, Combiner, Adapter, Modifier, Put to other uses, Éliminer, Renverser"},
-      {q:"Quel est le principe fondateur de la phase Prototype en Design Thinking, tel qu'énoncé dans ce cours ?", a:"A. « Fail early, fail cheap » - matérialiser rapidement pour apprendre sans investissement massif"},
-      {q:"Une équipe d'ingénieurs travaille sur une application... Dans quelle phase du Design Thinking se trouve cette équipe, et quel outil viennent-ils d'utiliser ?", a:"B. Phase DEFINE - ils ont rédigé un POV Statement centré humain avec insight"},
-      {q:"Voici quatre formulations candidates pour un POV Statement... Laquelle est la plus conforme aux critères d'un bon POV Statement ?", a:"D. « Un développeur junior a besoin d'un retour formatif régulier sur ses livrables parce qu'il apprend mieux par ajustements fréquents que par évaluations concentrées en fin de projet. »"},
-      {q:"Vrai ou Faux : Le Design Thinking est un processus linéaire...", a:"Faux"},
-      {q:"Vrai ou Faux : La technique Crazy 8's consiste à générer 8 idées dessinées grossièrement en 8 minutes...", a:"Vrai"}
-    ]
-  },
-  {
-    id:"C", chip:"C",
-    title:"Bloc C - Résolution de Problèmes & Pensée Critique",
-    questions:[
-      {q:"Le cycle PDCA (Plan-Do-Check-Act) est associé à quel auteur ?", a:"D. W. Edwards Deming"},
-      {q:"Quelle est la finalité de la méthode des 5 Pourquoi ?", a:"A. Remonter à la cause racine unique d'un problème"},
-      {q:"Dans le cycle PDCA, la phase DO consiste à :", a:"D. Implémenter le changement à petite échelle (pilote)"},
-      {q:"Dans l'exemple de l'ascenseur lent (Wedell-Wedellsborg, 2017), quelle est la solution proposée après reframing du problème ?", a:"B. Poser des miroirs"},
-      {q:"Quelle est la distinction fondamentale entre le Problem Reframing et la Pensée Latérale ?", a:"A. Le Reframing questionne l'énoncé du problème ; la Pensée Latérale l'accepte et cherche des solutions hors des sentiers habituels"},
-      {q:"Dans le contexte de la Pensée Latérale d'Edward de Bono, que signifie l'acronyme PO ?", a:"B. Provocative Operation"},
-      {q:"Dans la métaphore du Coach vs Play Stealer (Farnam Street, 2018), comment le Play Stealer raisonne-t-il ?", a:"B. Par analogie - en copiant ce qui a déjà été fait avec de légères variations"},
-      {q:"Hiba prépare son PFA depuis 3 semaines... Quelle méthode recommandez-vous à Hiba en priorité ?", a:"D. Le Problem Reframing - pour questionner si elle travaille dans la bonne direction"},
-      {q:"Nada doit présenter son projet de fin d'année devant jury dans 3 semaines... Quelle méthode recommandez-vous à Nada ?", a:"D. La Pensée Latérale - pour sortir du pattern visuel dans lequel elle est enfermée"},
-      {q:"Salman veut créer une application... Quelle méthode aurait pu aider Salman à ne pas abandonner ?", a:"D. First Principles - pour déconstruire la contrainte héritée et partir des besoins réels"}
-    ]
-  },
-  {
-    id:"D", chip:"D",
-    title:"Bloc D - Biais Cognitifs & Systèmes de Pensée",
-    questions:[
-      {q:"Selon Daniel Kahneman, le Système 1 est :", a:"d. Rapide et automatique"},
-      {q:"Le « Self-Serving Bias » se manifeste typiquement par :", a:"b. Attribuer ses succès à son mérite et ses échecs aux circonstances extérieures"},
-      {q:"Le biais d'ancrage désigne le fait que :", a:"d. Le premier chiffre entendu oriente toutes les estimations qui suivent"},
-      {q:"Le biais de confirmation consiste à :", a:"b. Chercher des informations qui valident notre croyance et ignorer celles qui la réfutent"},
-      {q:"L'heuristique de disponibilité conduit à :", a:"c. Évaluer la probabilité d'un événement selon la facilité avec laquelle un exemple vient à l'esprit"},
-      {q:"Le « Sunk Cost Fallacy » (sophisme du coût irrécupérable) consiste à :", a:"b. Continuer un projet à cause des ressources déjà investies, indépendamment des perspectives futures"},
-      {q:"L'effet Dunning-Kruger affirme que :", a:"c. Les personnes peu compétentes surestiment leurs capacités, tandis que les experts ont tendance à les sous-estimer"},
-      {q:"Le « Groupthink » (pensée de groupe) désigne le fait que :", a:"c. Le désir de consensus du groupe prend le dessus sur l'évaluation critique des alternatives"},
-      {q:"Le syndrome « Not Invented Here » (NIH) consiste à :", a:"c. Résister systématiquement aux solutions, idées ou outils venant de l'extérieur"},
-      {q:"L'erreur fondamentale d'attribution (FAE) consiste à :", a:"b. Expliquer le comportement des autres par leur personnalité, en ignorant le contexte situationnel"}
-    ]
-  },
-  {
-    id:"F1", chip:"F1",
-    title:"Bloc F (Partie 1) - Identité Numérique & Personal Branding",
-    questions:[
-      {q:"Qu'est-ce que l'identité numérique ?", a:"c. L'ensemble des traces, contenus et représentations qu'un individu laisse sur les réseaux numériques"},
-      {q:"Selon Tom Peters dans « The Brand Called You » (Fast Company, 1997), à l'ère de l'individu vous devez :", a:"c. Être votre propre marque"},
-      {q:"La Proposition de Valeur Unique (PVU) se construit à l'intersection de 3 composantes. Lesquelles ?", a:"a. Hard Skills × Soft Skills × Passions et intérêts"},
-      {q:"Quelle est la formule officielle pour formuler sa Proposition de Valeur ?", a:"a. « Je suis [titre] qui aide [cible] à [résoudre quoi] grâce à [spécialité] »"},
-      {q:"Que signifie AIDA : le cadre heuristique du copywriting vu en cours ?", a:"d. Attention, Interest, Desire, Action"},
-      {q:"Quelles sont les 4 raisons pour lesquelles les recruteurs tech consultent GitHub avant le CV ?", a:"d. Preuve concrète / Signal de rigueur / Écosystème tech / Progression visible"},
-      {q:"Comment le cours définit-il « Learn in Public » ?", a:"b. Documenter son apprentissage de manière structurée, sans attendre d'être l'expert"},
-      {q:"Selon la séance, quel est le concept de Learn in Public exprimé en une phrase ?", a:"a. « J'apprends quelque chose aujourd'hui, je note pour les autres (et pour moi plus tard). »"},
-      {q:"Quelle est la formule d'une niche solide selon la séance ?", a:"d. [Domaine technique] × [Secteur / application] × [Angle ou région]"},
-      {q:"Le triangle de cohérence du profil numérique repose sur 3 piliers. Lesquels ?", a:"a. Le narratif (qui vous êtes) / Preuve (ce que vous savez faire) / Contenu (comment vous pensez)"}
-    ]
-  },
-  {
-    id:"F2", chip:"F2",
-    title:"Bloc F (Partie 2) - Skills Gap Analysis, OKRs & Business Model You",
-    questions:[
-      {q:"Quelle est la formule exacte du Skills Gap ?", a:"C. Compétence requise - compétence acquise"},
-      {q:"Quelle est la première étape de la Skills Gap Analysis ?", a:"C. Définir le référentiel du poste cible"},
-      {q:"Le profil T-shaped combine :", a:"C. Une expertise profonde dans 1 domaine et des compétences transverses larges"},
-      {q:"Les OKRs (Objectives and Key Results) ont été inventés par :", a:"A. Andy Grove - Intel - 1983"},
-      {q:"Dans un OKR, l'Objectif (O) est :", a:"C. Une phrase qualitative, inspirante et sans chiffres"},
-      {q:"Q1 (Mois 1 à 3) dans le Plan 12 Mois s'intitule :", a:"A. Fondements et Formation"},
-      {q:"Q4 (Mois 10 à 12) dans le Plan 12 Mois s'intitule :", a:"C. Récolte et Ajustement"},
-      {q:"Quel format utilise la vue Candidatures dans le Dashboard de Suivi ?", a:"C. Pipeline visuel"},
-      {q:"Dans le Business Model You, à quelle question répond la section Value Proposition ?", a:"A. How can you help?"},
-      {q:"Dans le Business Model You, à quelle question répond la section Key Resources ?", a:"B. What do you have? What do you need?"}
-    ]
-  }
+{
+"id": "A",
+"chip": "A",
+"title": "Intelligence émotionnelle, régulation & Analyse Transactionnelle",
+"questions": [
+{
+"q": "Qui a popularisé le modèle d'Intelligence Émotionnelle auprès du grand public en 1995 ?",
+"options": [
+"Peter Salovey",
+"Howard Gardner",
+"Daniel Goleman",
+"James Gross"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Dans la métaphore de l'Iceberg appliquée au comportement humain, lequel de ces éléments appartient à la partie VISIBLE ?",
+"options": [
+"Les comportements et actions observables",
+"Les motivations inconscientes",
+"Les peurs et insécurités",
+"Les valeurs et croyances profondes"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Parmi les cinq stratégies du modèle de Gross, laquelle intervient APRÈS que la réponse émotionnelle a été générée ?",
+"options": [
+"S5 - Modulation de la Réponse",
+"S4 - Réévaluation Cognitive",
+"S1 - Sélection de Situation",
+"S2 - Modification de Situation"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Quelle stratégie de régulation émotionnelle est considérée comme la plus efficace selon Gross et John (2003) ?",
+"options": [
+"S1 - Sélection de Situation",
+"S5 - Modulation de la Réponse",
+"S4 - Réévaluation Cognitive",
+"S3 - Déploiement Attentionnel"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Un ingénieur qui se dit : « Cette critique de code n'est pas une attaque personnelle - c'est une opportunité d'amélioration professionnelle » utilise quelle stratégie du modèle de Gross ?",
+"options": [
+"S5 - Modulation de la Réponse",
+"S3 - Déploiement Attentionnel",
+"S2 - Modification de Situation",
+"S4 - Réévaluation Cognitive"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Qui a fondé l'Analyse Transactionnelle ?",
+"options": [
+"Carl Rogers",
+"Eric Berne",
+"Daniel Goleman",
+"Taibi Kahler"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "CAS PRATIQUE : Votre manager dit en réunion, d'un ton légèrement sarcastique : « Tu as bien avancé sur l'API ce sprint ? » Tout le monde comprend qu'il sous-entend : « Tu n'as pas du tout avancé. » Quel type de transaction selon Berne s'est produit ?",
+"options": [
+"Transaction croisée",
+"Transaction complémentaire Adulte-Adulte",
+"Transaction cachée (duplex)",
+"Transaction Parent Nourricier-Enfant Adapté"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Quel driver de Kahler correspond à la croyance « Je peux tout gérer, je n'ai pas besoin des autres » ?",
+"options": [
+"Sois fort",
+"Sois parfait",
+"Fais plaisir",
+"Dépêche-toi"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans le Process Communication Model, quel type de personnalité réagit sous stress par de la provocation et de l'opposition ?",
+"options": [
+"Rebelle",
+"Promoteur",
+"Persévérant",
+"Travaillomane"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "VRAI ou FAUX : Dans le PCM de Taibi Kahler, le type Rêveur / Imagineur a besoin de stimulation sociale intense pour fonctionner de façon optimale.",
+"options": [
+"Vrai",
+"Faux"
+],
+"correct": 1,
+"explanation": "il a un besoin psychologique de solitude et de calme"
+}
+]
+},
+{
+"id": "B",
+"chip": "B",
+"title": "Design Thinking",
+"questions": [
+{
+"q": "Quelle est la séquence correcte des 5 phases du Design Thinking selon le modèle Stanford d.school retenu dans ce cours ?",
+"options": [
+"Empathize -> Define -> Prototype -> Ideate -> Test",
+"Empathize -> Define -> Ideate -> Prototype -> Test",
+"Define -> Empathize -> Ideate -> Prototype -> Test",
+"Empathize -> Ideate -> Define -> Prototype -> Test"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Une équipe vient de terminer la phase Ideate et souhaite valider rapidement si leur idée principale - une nouvelle interface de gestion des tâches - répond bien au problème formulé dans le POV Statement. Elle dispose de 30 minutes avant de pouvoir rencontrer 3 utilisateurs représentatifs. Quelle approche de prototypage est la plus adaptée à cette situation, selon les principes du Design Thinking ?",
+"options": [
+"Présenter verbalement l'idée aux utilisateurs sans prototype, car expliquer l'idée suffit pour obtenir leur feedback",
+"Prototype papier (low-fi) : dessiner les écrans principaux en 30 minutes pour tester le concept et le flux auprès des utilisateurs",
+"Créer une maquette Figma interactive complète avec toutes les fonctionnalités et animations pour donner une expérience réaliste aux testeurs",
+"Reporter la rencontre avec les utilisateurs et développer d'abord un MVP fonctionnel en code pour avoir quelque chose de concret à tester"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Quelle est la structure correcte d'un POV Statement (Point of View) en Design Thinking ?",
+"options": [
+"Comment pourrions-nous [action] pour [utilisateur] afin de [résultat] ?",
+"[Système] doit permettre de [fonctionnalité] pour [objectif]",
+"[Utilisateur] veut [solution] et [critère de succès]",
+"[Utilisateur] a besoin de [besoin] parce que [insight]"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Dans la technique SCAMPER utilisée en phase Ideate du Design Thinking, que représente chaque lettre de l'acronyme ?",
+"options": [
+"Substituer, Combiner, Adapter, Modifier, Put to other uses, Éliminer, Renverser",
+"Segmenter, Conceptualiser, Améliorer, Mesurer, Prioriser, Estimer, Recadrer",
+"Substituer, Créer, Analyser, Modifier, Produire, Évaluer, Réviser",
+"Substituer, Comparer, Adapter, Multiplier, Proposer, Estimer, Regrouper"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Quel est le principe fondateur de la phase Prototype en Design Thinking, tel qu'énoncé dans ce cours ?",
+"options": [
+"\"Fail early, fail cheap\" - matérialiser rapidement pour apprendre sans investissement massif",
+"\"Build it right the first time\" - investir dans un prototype haute fidélité dès le départ",
+"\"Test-driven development\" - écrire les tests avant de coder le prototype",
+"\"Done is better than perfect\" - livrer rapidement un produit finalisé aux utilisateurs"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Une équipe d'ingénieurs travaille sur une application de suivi de projets. Après plusieurs interviews, ils écrivent : \"Un chef de projet junior a besoin de visualiser l'avancement de toutes ses tâches en un coup d'œil parce qu'il jongle entre 5 projets simultanés et perd du temps à consolider manuellement des informations dispersées.\" Dans quelle phase du Design Thinking se trouve cette équipe, et quel outil viennent-ils d'utiliser ?",
+"options": [
+"Phase IDEATE - ils ont formulé une question HMW pour orienter le brainstorming",
+"Phase DEFINE - ils ont rédigé un POV Statement centré humain avec insight",
+"Phase EMPATHIZE - ils ont rédigé une Empathy Map résumant leurs observations",
+"Phase PROTOTYPE - ils ont décrit les fonctionnalités clés de leur solution"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Voici quatre formulations candidates pour un POV Statement dans un projet de refonte d'outil de code review. Laquelle est la plus conforme aux critères d'un bon POV Statement (centré humain, ouvert, avec insight) ?",
+"options": [
+"\"Un développeur junior a besoin d'un rapport hebdomadaire automatique envoyé par son manager.\"",
+"\"Les développeurs ont besoin de feedback parce que c'est important pour progresser.\"",
+"\"L'outil de code review doit intégrer un système de commentaires automatiques et un tableau de bord de progression pour améliorer la qualité du code.\"",
+"\"Un développeur junior a besoin d'un retour formatif régulier sur ses livrables parce qu'il apprend mieux par ajustements fréquents que par évaluations concentrées en fin de projet.\""
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Vrai ou Faux : Le Design Thinking est un processus linéaire dans lequel chaque phase doit être complètement terminée avant de passer à la suivante. Il est impossible de revenir à une phase antérieure une fois qu'on l'a quittée.",
+"options": [
+"Vrai",
+"Faux"
+],
+"correct": 1,
+"explanation": "Le Design Thinking est un processus hautement itératif"
+},
+{
+"q": "Vrai ou Faux : La technique Crazy 8's consiste à générer 8 idées dessinées grossièrement en 8 minutes. La contrainte temporelle a pour objectif pédagogique de libérer les participants du perfectionnisme.",
+"options": [
+"Vrai",
+"Faux"
+],
+"correct": 0,
+"explanation": ""
+}
+]
+},
+{
+"id": "C",
+"chip": "C",
+"title": "Résolution de problèmes & Pensée critique",
+"questions": [
+{
+"q": "Le cycle PDCA (Plan-Do-Check-Act) est associé à quel auteur ?",
+"options": [
+"Taiichi Ohno",
+"Kaoru Ishikawa",
+"Sakichi Toyoda",
+"W. Edwards Deming"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Quelle est la finalité de la méthode des 5 Pourquoi ?",
+"options": [
+"Remonter à la cause racine unique d'un problème",
+"Générer un maximum de solutions créatives",
+"Cartographier toutes les causes possibles d'un problème",
+"Améliorer un processus en cycle itératif"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans le cycle PDCA, la phase DO consiste à :",
+"options": [
+"Standardiser le changement à toute l'organisation",
+"Analyse les résultats par rapport aux objectifs fixés",
+"Identifier le problème et définir les KPIs",
+"Implémenter le changement à petite échelle (pilote)"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Dans l'exemple de l'ascenseur lent (Wedell-Wedellsborg, 2017), quelle est la solution proposée après reframing du problème ?",
+"options": [
+"Améliorer l'algorithme de gestion de l'ascenseur",
+"Poser des miroirs",
+"Décaler les pauses des employés pour répartir la demande",
+"Installer un moteur plus puissant"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Quelle est la distinction fondamentale entre le Problem Reframing et la Pensée Latérale ?",
+"options": [
+"Le Reframing questionne l'énoncé du problème ; la Pensée Latérale l'accepte et cherche des solutions hors des sentiers habituels",
+"Le Reframing vient de la psychologie ; la Pensée Latérale vient du management",
+"Le Reframing utilise des données quantitatives ; la Pensée Latérale est qualitative",
+"Le Reframing s'applique en groupe ; la Pensée Latérale est individuelle"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans le contexte de la Pensée Latérale d'Edward de Bono, que signifie l'acronyme PO ?",
+"options": [
+"Problème Ouvert",
+"Provocative Operation",
+"Principe d'Opposition",
+"Point d'Observation"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Dans la métaphore du Coach vs Play Stealer (Farnam Street, 2018), comment le Play Stealer raisonne-t-il ?",
+"options": [
+"Par inversion - en formulant l'opposé du problème",
+"Par analogie - en copiant ce qui a déjà été fait avec de légères variations",
+"Par questionnement socratique - en challengeant chaque supposition",
+"Par First Principles - en construisant depuis les règles fondamentales"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Hiba prépare son PFA depuis 3 semaines. Elle travaille beaucoup - slides, rapports, tests - mais à chaque réunion son encadrant dit que « le travail n'avance pas dans la bonne direction ». Les retours restent décevants malgré l'effort. Quelle méthode recommandez-vous à Hiba en priorité ?",
+"options": [
+"Le PDCA - pour améliorer progressivement son processus de travail",
+"Les 5 Pourquoi - pour identifier la cause racine de ses difficultés",
+"La Pensée Latérale - pour trouver une façon créative d'avancer",
+"Le Problem Reframing - pour questionner si elle travaille dans la bonne direction"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Nada doit présenter son projet de fin d'année devant jury dans 3 semaines. Elle a refait ses slides 4 fois, changé les couleurs, ajouté des animations. Chaque retour de ses camarades est le même : « C'est propre mais ça n'accroche pas - ça ressemble à toutes les autres présentations. » Elle ne voit plus quoi changer. Quelle méthode recommandez-vous à Nada ?",
+"options": [
+"Le Problem Reframing - pour questionner si elle prépare la bonne présentation",
+"Les 5 Pourquoi - pour identifier pourquoi ses slides n'accrochent pas",
+"First Principles - pour déconstruire ce qu'est une présentation réussie",
+"La Pensée Latérale - pour sortir du pattern visuel dans lequel elle est enfermée"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Salman veut créer une application pour aider les étudiants à organiser leur emploi du temps. Ses camarades lui disent : « Il existe déjà Google Calendar - tu ne pourras jamais rivaliser. » Salman accepte cette idée sans la questionner et abandonne son projet. Quelle méthode aurait pu aider Salman à ne pas abandonner ?",
+"options": [
+"Le PDCA - pour tester son idée à petite échelle avant d'abandonner",
+"Pensée Latérale - pour trouver une façon créative de se différencier de Google Calendar",
+"Problem Reframing - pour questionner si l'application est la bonne solution",
+"First Principles - pour déconstruire la contrainte héritée et partir des besoins réels"
+],
+"correct": 3,
+"explanation": ""
+}
+]
+},
+{
+"id": "D",
+"chip": "D",
+"title": "Biais cognitifs & Systèmes de pensée",
+"questions": [
+{
+"q": "Selon Daniel Kahneman, le Système 1 est :",
+"options": [
+"Toujours rationnel et conscient",
+"Réservé aux décisions complexes",
+"Lent et délibéré",
+"Rapide et automatique"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Le « Self-Serving Bias » se manifeste typiquement par :",
+"options": [
+"Toujours blâmer les autres pour tous les événements",
+"Attribuer ses succès à son mérite et ses échecs aux circonstances extérieures",
+"Refuser d'évaluer ses propres performances",
+"S'attribuer toutes les responsabilités, succès comme échecs"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Le biais d'ancrage désigne le fait que :",
+"options": [
+"Les groupes décident toujours mieux que les individus",
+"On retient mieux les informations émotionnelles",
+"Les experts donnent toujours la bonne réponse",
+"Le premier chiffre entendu oriente toutes les estimations qui suivent"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Le biais de confirmation consiste à :",
+"options": [
+"Confirmer publiquement les décisions du groupe",
+"Chercher des informations qui valident notre croyance et ignorer celles qui la réfutent",
+"Refuser systématiquement les solutions extérieures",
+"Donner raison aux experts par défaut"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "L'heuristique de disponibilité conduit à :",
+"options": [
+"Sous-estimer systématiquement les risques médiatisés",
+"Choisir l'option la plus disponible sur le marché",
+"Évaluer la probabilité d'un événement selon la facilité avec laquelle un exemple vient à l'esprit",
+"Donner la priorité aux statistiques officielles"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Le « Sunk Cost Fallacy » (sophisme du coût irrécupérable) consiste à :",
+"options": [
+"Abandonner un projet trop tôt par excès de prudence",
+"Continuer un projet à cause des ressources déjà investies, indépendamment des perspectives futures",
+"N'investir que dans des projets gratuits",
+"Calculer rationnellement la valeur attendue avant chaque décision"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "L'effet Dunning-Kruger affirme que :",
+"options": [
+"Les experts surestiment systématiquement leur niveau",
+"Tout le monde évalue ses compétences de manière exacte",
+"Les personnes peu compétentes surestiment leurs capacités, tandis que les experts ont tendance à les sous-estimer",
+"La compétence n'a aucun lien avec la confiance en soi"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Le « Groupthink » (pensée de groupe) désigne le fait que :",
+"options": [
+"Le groupe trouve toujours la meilleure solution",
+"Les introvertis dominent les discussions de groupe",
+"Le désir de consensus du groupe prend le dessus sur l'évaluation critique des alternatives",
+"Les décisions de groupe sont plus rapides que les décisions individuelles"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Le syndrome « Not Invented Here » (NIH) consiste à :",
+"options": [
+"Préférer toujours les solutions open source",
+"Inviter des consultants externes pour chaque décision",
+"Résister systématiquement aux solutions, idées ou outils venant de l'extérieur",
+"Adopter sans réserve toute solution venue de l'extérieur"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "L'erreur fondamentale d'attribution (FAE) consiste à :",
+"options": [
+"Surestimer l'influence du contexte sur les comportements",
+"Expliquer le comportement des autres par leur personnalité, en ignorant le contexte situationnel",
+"Attribuer ses propres succès au hasard",
+"Confondre cause et conséquence dans une analyse statistique"
+],
+"correct": 1,
+"explanation": ""
+}
+]
+},
+{
+"id": "F1",
+"chip": "F1",
+"title": "Identité numérique & Personal Branding",
+"questions": [
+{
+"q": "Qu'est-ce que l'identité numérique ?",
+"options": [
+"Le mot de passe associé à un compte en ligne",
+"L'ensemble des traces, contenus et représentations qu'un individu laisse sur les réseaux numériques",
+"Uniquement le profil LinkedIn d'une personne",
+"Le nom de domaine d'un site web personnel"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Selon Tom Peters dans « The Brand Called You » (Fast Company, 1997), à l'ère de l'individu vous devez :",
+"options": [
+"Avoir un CV impeccable",
+"Maîtriser un seul domaine technique",
+"Être votre propre marque",
+"Travailler dans une grande entreprise"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "La Proposition de Valeur Unique (PVU) se construit à l'intersection de 3 composantes. Lesquelles ?",
+"options": [
+"Hard Skills × Soft Skills × Passions et intérêts",
+"Diplôme × Expérience × Réseau",
+"LinkedIn × GitHub × CV",
+"Photo × Bio × Recommandations"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Quelle est la formule officielle pour formuler sa Proposition de Valeur ?",
+"options": [
+"« Je suis [titre] qui aide [cible] à [résoudre quoi] grâce à [spécialité] »",
+"« Je travaille dans [secteur] depuis [durée] »",
+"« Je propose [service] à [prix] »",
+"« Je suis [titre] passionné par [domaine] »"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Que signifie AIDA - le cadre heuristique du copywriting vu en cours ?",
+"options": [
+"Apprendre, Implémenter, Démontrer, Améliorer",
+"Annonce, Information, Démonstration, Adhésion",
+"Authenticité, Innovation, Données, Action",
+"Attention, Interest, Desire, Action"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Quelles sont les 4 raisons pour lesquelles les recruteurs tech consultent GitHub avant le CV ?",
+"options": [
+"Gratuité / Popularité / Mode / Tendance",
+"Code / Issues / Pull Requests / Forks",
+"Étoiles / Followers / Repos / Commits",
+"Preuve concrète / Signal de rigueur / Écosystème tech / Progression visible"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Comment le cours définit-il « Learn in Public » ?",
+"options": [
+"Donner des cours publics dans son domaine d'expertise",
+"Documenter son apprentissage de manière structurée, sans attendre d'être l'expert",
+"Partager ses notes de classe avec ses camarades",
+"Apprendre uniquement dans des MOOC publics et certifiés"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Selon la séance, quel est le concept de Learn in Public exprimé en une phrase ?",
+"options": [
+"« J'apprends quelque chose aujourd'hui, je note pour les autres (et pour moi plus tard). »",
+"« Je donne mon avis tranché sur tous les sujets de mon domaine. »",
+"« Je publie uniquement quand je maîtrise totalement un sujet. »",
+"« Après plusieurs mois de tests, voici ma vision de la meilleure solution. »"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Quelle est la formule d'une niche solide selon la séance ?",
+"options": [
+"[Pays] + [Ville] + [École]",
+"[Compétence] + [Diplôme] + [Expérience]",
+"[Outil] + [Langage] + [Framework]",
+"[Domaine technique] × [Secteur / application] × [Angle ou région]"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Le triangle de cohérence du profil numérique repose sur 3 piliers. Lesquelles ?",
+"options": [
+"Le narratif (qui vous êtes) / Preuve (ce que vous savez faire) / Contenu (comment vous pensez)",
+"LinkedIn / Twitter / Instagram",
+"Photo / Bio / Recommandations",
+"Hard Skills / Soft Skills / Passions"
+],
+"correct": 0,
+"explanation": ""
+}
+]
+},
+{
+"id": "F2",
+"chip": "F2",
+"title": "Skills Gap, OKRs & Stratégie de carrière",
+"questions": [
+{
+"q": "Quelle est la formule exacte du Skills Gap ?",
+"options": [
+"Compétence requise + compétence acquise",
+"Compétence acquise ÷ compétence requise",
+"Compétence requise - compétence acquise",
+"Compétence requise × niveau d'importance"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Quelle est la première étape de la Skills Gap Analysis ?",
+"options": [
+"Évaluer les compétences actuelles",
+"Calculer l'écart (Gap)",
+"Définir le référentiel du poste cible",
+"Élaborer le plan d'action"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Le profil T-shaped combine :",
+"options": [
+"Une expertise très profonde dans un seul domaine, sans compétences transverses",
+"Deux expertises profondes dans deux domaines sans transversalité",
+"Une expertise profonde dans 1 domaine et des compétences transverses larges",
+"Des compétences moyennes réparties uniformément sur tous les domaines"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Les OKRs (Objectives et Key Results) ont été inventés par :",
+"options": [
+"Andy Grove - Intel - 1983",
+"Peter Drucker - General Electric - 1954",
+"Eric Schmidt - Google - 2001",
+"John Doerr - Google - 1999"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans un OKR, l'Objectif (O) est :",
+"options": [
+"Un indicator de performance hebdomadaire",
+"Une liste d'actions à accomplir dans le mois",
+"Une phrase qualitative, inspirante et sans chiffres",
+"Un chiffre précis avec une date butoir"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Q1 (Mois 1 à 3) dans le Plan 12 Mois s'intitule :",
+"options": [
+"Fondements et Formation",
+"Construction et Projets",
+"Récolte et Ajustement",
+"Visibilité et Réseau"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Q4 (Mois 10 à 12) dans le Plan 12 Mois s'intitule :",
+"options": [
+"Fondements et Formation",
+"Construction et Projets",
+"Récolte et Ajustement",
+"Visibilité et Réseau"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Quel format utilise la vue Candidatures dans le Dashboard de Suivi ?",
+"options": [
+"Table de progression",
+"Chronologie ou Timeline",
+"Pipeline visuel",
+"Matrice de compétences"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Dans le Business Model You, à quelle question répond la section Value Proposition ?",
+"options": [
+"How can you help?",
+"What are you doing?",
+"Who is helping you?",
+"What do you get?"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans le Business Model You, à quelle question répond la section Key Resources ?",
+"options": [
+"Who are you helping?",
+"What do you have? What do you need?",
+"How can you help?",
+"What are you doing?"
+],
+"correct": 1,
+"explanation": ""
+}
+]
+}
 ];
 
-/* ============================================================
-   ÉTAT & PERSISTANCE
-   ============================================================ */
-const STORE_KEY = "revquiz.status.v2";
-const THEME_KEY = "revquiz.theme";
-let status = loadStatus();          // { "A#0": "got" | "review" }
-let session = null;                 // { ids:[...], pos, title, results:{} }
+/* ---------- état & persistance ---------- */
+const BEST_KEY="quizdp.best.v1";
+const WRONG_KEY="quizdp.wrong.v1";
+const THEME_KEY="quizdp.theme";
+let best = load(BEST_KEY, {});
+let wrong = new Set(load(WRONG_KEY, []));
+let session = null;
 
-function loadStatus(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; } }
-function saveStatus(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(status)); }catch(e){} }
-function qid(blocId, i){ return blocId + "#" + i; }
-function allQuestions(){ const out=[]; QUIZ.forEach(b=>b.questions.forEach((q,i)=>out.push({id:qid(b.id,i), q:q.q, a:q.a, bloc:b.title}))); return out; }
-function questionById(id){ const [bid,idx]=id.split("#"); const b=QUIZ.find(x=>x.id===bid); const q=b.questions[+idx]; return {id, q:q.q, a:q.a, bloc:b.title}; }
-function blocProgress(b){ let got=0; b.questions.forEach((_,i)=>{ if(status[qid(b.id,i)]==="got") got++; }); return {got, total:b.questions.length}; }
-function reviewIds(){ return allQuestions().filter(x=>status[x.id]==="review").map(x=>x.id); }
-function globalGot(){ return allQuestions().filter(x=>status[x.id]==="got").length; }
+function load(k,d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } }
+function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function qid(bid,i){ return bid + "#" + i; }
+function totalQuestions(){ return QUIZ.reduce((n,b)=>n+b.questions.length,0); }
+function questionById(id){ const [bid,idx]=id.split("#"); const b=QUIZ.find(x=>x.id===bid); return {id, bloc:b.title, ...b.questions[+idx]}; }
+function allIds(){ const out=[]; QUIZ.forEach(b=>b.questions.forEach((_,i)=>out.push(qid(b.id,i)))); return out; }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pct(s,t){ return t? Math.round(s/t*100):0; }
 
-/* Theme */
+/* ---------- thème ---------- */
 function initTheme(){
   const saved = localStorage.getItem(THEME_KEY);
   const sysDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  document.documentElement.setAttribute("data-theme", saved || (sysDark ? "dark" : "light"));
+  document.documentElement.setAttribute("data-theme", saved || (sysDark?"dark":"light"));
 }
 function toggleTheme(){
-  const cur = document.documentElement.getAttribute("data-theme");
-  const next = cur === "dark" ? "light" : "dark";
+  const next = document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
   document.documentElement.setAttribute("data-theme", next);
   try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
   document.querySelector('meta[name=theme-color]').setAttribute("content", next==="dark"?"#0f172a":"#2563eb");
 }
 
-/* Utils */
-function esc(s){ return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
-function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-
-/* ============================================================
-   VUES
-   ============================================================ */
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 const app = document.getElementById("app");
+const KEYS = ["A","B","C","D","E","F"];
 
+/* ---------- accueil ---------- */
 function renderHome(){
   session = null;
-  const total = allQuestions().length;
-  const got = globalGot();
-  const pct = total ? Math.round(got/total*100) : 0;
-  const rev = reviewIds().length;
+  const t = totalQuestions();
+  const bAll = best["ALL"];
+  const wn = wrong.size;
 
-  let blocsHtml = QUIZ.map(b=>{
-    const p = blocProgress(b);
-    const w = p.total ? Math.round(p.got/p.total*100) : 0;
+  const blocsHtml = QUIZ.map(b=>{
+    const rec = best[b.id];
+    const badge = rec ? `<span class="badge">Record ${rec.score}/${rec.total}</span>` : `<span style="color:var(--muted)">Pas encore tenté</span>`;
     return `<div class="bloc" onclick="startBloc('${b.id}')">
-      <div class="chip">${b.chip}</div>
+      <div class="chip">${esc(b.chip)}</div>
       <div class="info">
-        <h3>${esc(b.title.replace(/^Bloc [A-Z0-9]+ - /,''))}</h3>
-        <div class="meta">
-          <div class="minibar"><i style="width:${w}%"></i></div>
-          <span>${p.got}/${p.total}</span>
-        </div>
+        <h3>${esc(b.title)}</h3>
+        <div class="meta">${b.questions.length} questions ${badge}</div>
       </div>
       <div class="arrow">›</div>
     </div>`;
@@ -340,166 +900,192 @@ function renderHome(){
 
   app.innerHTML = `
     <div class="topbar">
-      <h1>Révision Quiz</h1>
+      <h1>Quiz Dev Perso</h1>
       <button class="icon-btn" onclick="toggleTheme()" aria-label="Thème">◑</button>
     </div>
     <div class="sub">Développement Personnel & Soft Skills</div>
 
     <div class="globalcard">
-      <div class="lbl">Progression globale</div>
-      <div class="big">${got} / ${total} <span style="font-size:1rem;font-weight:600;opacity:.85">acquis · ${pct}%</span></div>
-      <div class="gbar"><i style="width:${pct}%"></i></div>
+      <div class="lbl">QCM interactif</div>
+      <div class="big">${t} questions · ${QUIZ.length} blocs</div>
+      <div class="row">
+        <div><b>${bAll?bAll.pct+"%":"-"}</b> meilleur examen</div>
+        <div><b>${wn}</b> à revoir</div>
+      </div>
     </div>
 
     <div class="actions">
       <button class="action primary" onclick="startAll()">
-        <span class="em">🔀</span>
-        Tout réviser
-        <small>${total} questions mélangées</small>
+        <span class="em">📝</span>Examen complet<small>${t} questions mélangées</small>
       </button>
-      <button class="action" onclick="startReview()">
-        <span class="em">🎯</span>
-        À revoir
-        <small>${rev} carte${rev>1?'s':''} marquée${rev>1?'s':''}</small>
+      <button class="action" onclick="startWrong()">
+        <span class="em">🎯</span>Mes erreurs<small>${wn} question${wn>1?'s':''} à revoir</small>
       </button>
     </div>
 
-    <div class="section-title">Les 6 séries de quiz</div>
+    <div class="section-title">Réviser par bloc</div>
     ${blocsHtml}
 
     <div class="footer">
-      Hors ligne · aucune connexion requise · progression enregistrée sur ce téléphone<br>
-      <button class="reset-link" onclick="resetAll()">Réinitialiser ma progression</button>
-    </div>
-  `;
+      Hors ligne · aucune connexion requise · scores enregistrés sur ce téléphone<br>
+      <button class="reset-link" onclick="resetAll()">Réinitialiser mes scores</button>
+    </div>`;
   window.scrollTo(0,0);
 }
 
+/* ---------- démarrage de session ---------- */
+function buildItem(id){
+  const q = questionById(id);
+  const order = shuffle(q.options.map((_,i)=>i));
+  const options = order.map(i=>q.options[i]);
+  const correct = order.indexOf(q.correct);
+  return { id, q:q.q, options, correct, explanation:q.explanation||"", chosen:null };
+}
+function startSession(ids, title, key){
+  session = { title, key, items: ids.map(buildItem), pos:0, score:0 };
+  renderQuestion();
+}
 function startBloc(id){
   const b = QUIZ.find(x=>x.id===id);
-  const ids = b.questions.map((_,i)=>qid(b.id,i));
-  startSession(ids, b.title.replace(/^Bloc [A-Z0-9]+ - /,''), false);
+  startSession(b.questions.map((_,i)=>qid(id,i)), b.title, id);
 }
-function startAll(){
-  startSession(shuffle(allQuestions().map(x=>x.id)), "Révision complète", true);
-}
-function startReview(){
-  const ids = reviewIds();
+function startAll(){ startSession(shuffle(allIds()), "Examen complet", "ALL"); }
+function startWrong(){
+  const ids = [...wrong];
   if(!ids.length){
-    app.innerHTML = `<div class="topbar"><button class="icon-btn" onclick="renderHome()">‹</button><h1 style="font-size:1.2rem">À revoir</h1></div>
-      <div class="empty"><span class="em">✨</span>Aucune carte à revoir pour le moment.<br>Marque des cartes « À revoir » pendant tes révisions, elles apparaîtront ici.</div>
-      <div class="stack" style="max-width:320px;margin:20px auto"><button class="btn primary" onclick="renderHome()">Retour à l'accueil</button></div>`;
+    app.innerHTML = `<div class="topbar"><button class="icon-btn" onclick="renderHome()">‹</button><h1 style="font-size:1.2rem">Mes erreurs</h1></div>
+      <div class="empty"><span class="em">✨</span>Aucune erreur à revoir.<br>Les questions ratées pendant un quiz apparaîtront ici jusqu'à ce que tu les réussisses.</div>
+      <div class="stack"><button class="btn primary" onclick="renderHome()">Retour à l'accueil</button></div>`;
     return;
   }
-  startSession(shuffle(ids), "Cartes à revoir", true);
+  startSession(shuffle(ids), "Mes erreurs", null);
 }
 
-function startSession(ids, title, shuffled){
-  session = { ids, pos:0, title, results:{}, revealed:false };
-  renderCard();
-}
+/* ---------- question ---------- */
+function renderQuestion(){
+  const it = session.items[session.pos];
+  const n = session.pos+1, tot = session.items.length;
+  const answered = it.chosen!==null;
 
-function renderCard(){
-  if(session.pos >= session.ids.length){ return renderFinish(); }
-  const item = questionById(session.ids[session.pos]);
-  const n = session.pos + 1, tot = session.ids.length;
-  const pct = Math.round((session.pos)/tot*100);
-  const revealed = session.revealed;
+  const optsHtml = it.options.map((o,i)=>{
+    let cls="opt", mark="";
+    if(answered){
+      if(i===it.correct){ cls+=" correct"; mark='<span class="mark">✓</span>'; }
+      else if(i===it.chosen){ cls+=" wrong"; mark='<span class="mark">✗</span>'; }
+      else cls+=" dim";
+    }
+    return `<button class="${cls}" ${answered?'disabled':''} onclick="choose(${i})">
+      <span class="key">${KEYS[i]}</span><span>${esc(o)}</span>${mark}</button>`;
+  }).join("");
+
+  let feedback="";
+  if(answered){
+    const good = it.chosen===it.correct;
+    feedback = `<div class="feedback ${good?'good':'bad'}">
+      ${good?'✅ Bonne réponse !':'❌ Réponse incorrecte'}
+      ${it.explanation?`<span class="exp">${esc(it.explanation)}</span>`:''}
+    </div>
+    <button class="next-btn" onclick="nextQ()">${n===tot?'Voir mon score':'Question suivante ›'}</button>`;
+  }
 
   app.innerHTML = `
     <div class="study-head">
-      <button class="icon-btn" onclick="confirmQuit()" aria-label="Retour">‹</button>
+      <button class="icon-btn" onclick="renderHome()" aria-label="Retour">‹</button>
       <div class="name">${esc(session.title)}</div>
-      <div class="counter">${n} / ${tot}</div>
+      <div class="scorechip">✓ ${session.score}</div>
     </div>
-    <div class="pbar"><i style="width:${pct}%"></i></div>
+    <div class="pbar"><i style="width:${Math.round(session.pos/tot*100)}%"></i></div>
 
-    <div class="card" id="card" ${revealed?'':'onclick="reveal()"'}>
-      <div class="qlabel">Question</div>
-      <div class="qtext">${esc(item.q)}</div>
-      ${revealed ? `
-        <div class="answer">
-          <div class="alabel">Réponse</div>
-          <div class="atext">${esc(item.a)}</div>
-        </div>` : `
-        <div class="tap-hint">Touche la carte pour révéler la réponse</div>`}
+    <div class="qcard">
+      <div class="qlabel">Question ${n} / ${tot}</div>
+      <div class="qtext">${esc(it.q)}</div>
     </div>
-
-    ${revealed ? `
-      <div class="rate">
-        <button class="review" onclick="rate('review')">🔁 À revoir</button>
-        <button class="got" onclick="rate('got')">✅ Acquis</button>
-      </div>` : `
-      <button class="reveal-btn" onclick="reveal()">Voir la réponse</button>`}
-
-    <div class="nav">
-      <button onclick="prevCard()" ${session.pos===0?'disabled':''}>‹ Précédent</button>
-      <button onclick="skipCard()">Passer ›</button>
-    </div>
-  `;
+    <div class="opts">${optsHtml}</div>
+    ${feedback}`;
   window.scrollTo(0,0);
 }
 
-function reveal(){ session.revealed = true; renderCard(); }
-function rate(val){
-  const id = session.ids[session.pos];
-  status[id] = val; saveStatus();
-  session.results[id] = val;
-  nextCard();
+function choose(i){
+  const it = session.items[session.pos];
+  if(it.chosen!==null) return;
+  it.chosen = i;
+  if(i===it.correct){
+    session.score++;
+    wrong.delete(it.id); save(WRONG_KEY,[...wrong]);
+  } else {
+    wrong.add(it.id); save(WRONG_KEY,[...wrong]);
+  }
+  renderQuestion();
 }
-function nextCard(){ session.pos++; session.revealed=false; renderCard(); }
-function skipCard(){ session.pos++; session.revealed=false; renderCard(); }
-function prevCard(){ if(session.pos>0){ session.pos--; session.revealed=false; renderCard(); } }
+function nextQ(){
+  if(session.pos < session.items.length-1){ session.pos++; renderQuestion(); }
+  else renderResult();
+}
 
-function renderFinish(){
-  const ids = session.ids;
-  let got=0, rev=0;
-  ids.forEach(id=>{ if(session.results[id]==="got") got++; else if(session.results[id]==="review") rev++; });
-  const reviewedNow = ids.filter(id=>session.results[id]==="review");
+/* ---------- résultats ---------- */
+function renderResult(){
+  const s = session.score, t = session.items.length, p = pct(s,t);
+  let isRecord = false;
+  if(session.key){
+    const prev = best[session.key];
+    if(!prev || p > prev.pct){ best[session.key] = {score:s,total:t,pct:p}; save(BEST_KEY,best); isRecord = !!prev || true; if(prev && p<=prev.pct) isRecord=false; }
+    if(prev && p<=prev.pct) isRecord=false;
+  }
+  let msg, emo;
+  if(p>=90){ msg="Excellent, tu maîtrises !"; emo="🏆"; }
+  else if(p>=70){ msg="Bien joué, continue !"; emo="💪"; }
+  else if(p>=50){ msg="Pas mal, encore un effort."; emo="📈"; }
+  else { msg="À retravailler, on s'accroche !"; emo="🔁"; }
+
+  const wrongIds = session.items.filter(it=>it.chosen!==it.correct).map(it=>it.id);
+  const C=2*Math.PI*52, off=C*(1-p/100);
+  const ringColor = p>=70?'var(--ok)':p>=50?'var(--warn)':'var(--bad)';
 
   app.innerHTML = `
     <div class="finish">
-      <div class="trophy">${rev===0 && got>0 ? "🏆" : "💪"}</div>
-      <h2>Session terminée !</h2>
-      <p>${esc(session.title)}</p>
-      <div class="stats">
-        <div class="stat ok"><div class="n">${got}</div><div class="l">Acquis</div></div>
-        <div class="stat rv"><div class="n">${rev}</div><div class="l">À revoir</div></div>
+      <div style="font-size:2.4rem">${emo}</div>
+      <div class="ring">
+        <svg width="150" height="150">
+          <circle cx="75" cy="75" r="52" fill="none" stroke="var(--line)" stroke-width="12"/>
+          <circle cx="75" cy="75" r="52" fill="none" stroke="${ringColor}" stroke-width="12"
+            stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+        </svg>
+        <div class="pc"><b>${p}%</b><span>${s} / ${t}</span></div>
       </div>
+      <h2>${esc(session.title)}</h2>
+      <div class="msg">${msg}</div>
+      ${isRecord?`<div class="record">🎉 Nouveau record !</div>`:``}
       <div class="stack">
-        ${reviewedNow.length ? `<button class="btn primary" onclick='restartReview()'>🔁 Revoir les ${reviewedNow.length} cartes ratées</button>` : ``}
-        <button class="btn ghost" onclick="restartSame()">↻ Recommencer cette session</button>
-        <button class="btn ghost" onclick="renderHome()">🏠 Retour à l'accueil</button>
+        ${wrongIds.length?`<button class="btn warn" onclick='retryWrong(${JSON.stringify(wrongIds)})'>🎯 ${wrongIds.length>1?`Revoir mes ${wrongIds.length} erreurs`:`Revoir mon erreur`}</button>`:``}
+        <button class="btn ghost" onclick="restart()">↻ Recommencer ce quiz</button>
+        <button class="btn primary" onclick="renderHome()">🏠 Accueil</button>
       </div>
-    </div>
-  `;
+    </div>`;
   window.scrollTo(0,0);
-  // garder en mémoire la session pour les boutons de reprise
-  finishCache = { title: session.title, all: ids.slice(), reviewed: reviewedNow };
+  finishCache = { ids: session.items.map(it=>it.id), title: session.title, key: session.key };
 }
-let finishCache = null;
-function restartSame(){ startSession(shuffle(finishCache.all), finishCache.title, true); }
-function restartReview(){ startSession(shuffle(finishCache.reviewed), "Cartes à revoir", true); }
-
-function confirmQuit(){ renderHome(); }
+let finishCache=null;
+function restart(){ startSession(shuffle(finishCache.ids), finishCache.title, finishCache.key); }
+function retryWrong(ids){ startSession(shuffle(ids), "Mes erreurs", null); }
 
 function resetAll(){
-  if(confirm("Réinitialiser toute ta progression (Acquis / À revoir) ?")){
-    status = {}; saveStatus(); renderHome();
+  if(confirm("Réinitialiser tous tes scores et la liste « à revoir » ?")){
+    best={}; wrong=new Set(); save(BEST_KEY,best); save(WRONG_KEY,[]); renderHome();
   }
 }
 
-/* Clavier (confort sur ordinateur) */
+/* ---------- clavier (confort ordinateur) ---------- */
 document.addEventListener("keydown", e=>{
   if(!session) return;
-  if(e.key===" " || e.key==="Enter"){ e.preventDefault(); if(!session.revealed) reveal(); }
-  else if(e.key==="ArrowRight"){ skipCard(); }
-  else if(e.key==="ArrowLeft"){ prevCard(); }
-  else if(session.revealed && (e.key==="1"||e.key.toLowerCase()==="r")){ rate("review"); }
-  else if(session.revealed && (e.key==="2"||e.key.toLowerCase()==="a")){ rate("got"); }
+  const it = session.items[session.pos];
+  if(it && it.chosen===null){
+    const k = ["a","b","c","d"].indexOf(e.key.toLowerCase());
+    if(k>=0 && k<it.options.length){ choose(k); }
+    else if(["1","2","3","4"].includes(e.key)){ const n=+e.key-1; if(n<it.options.length) choose(n); }
+  } else if(it && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); nextQ(); }
 });
 
-/* Démarrage */
+/* ---------- go ---------- */
 initTheme();
 renderHome();
 </script>
