@@ -14,6 +14,15 @@ Pas de serveur, pas d'installation, pas de connexion internet nécessaire.
 - **Mode sombre / clair**, lisible, gros boutons tactiles
 - Tout enregistré en local (localStorage) : scores et liste « à revoir »
 
+## 📂 Deux fichiers, deux modes
+
+| Fichier | Mode | Pour quoi faire |
+|---------|------|-----------------|
+| **`index.html`** | 🎓 Révision (par bloc) | S'entraîner avec **correction immédiate** après chaque réponse, suivre ses records par thème |
+| **`examen.html`** | 📝 Évaluation (tout mélangé) | Se **tester en conditions d'examen** : 59 questions aléatoires, **sans titre de bloc**, **aucune correction pendant le test**, score + correction détaillée à la fin |
+
+Les deux marchent **hors ligne** et partagent les mêmes 59 questions.
+
 ## 📱 Comment l'utiliser sur ton téléphone
 
 1. Récupère le fichier **`index.html`** (envoie-le toi par mail / WhatsApp / Drive).

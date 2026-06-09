@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7c3aed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Évaluation">
+<title>Évaluation - Développement Personnel</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --text:#1e293b; --muted:#64748b;
+    --line:#e2e8f0; --accent:#7c3aed; --accent-soft:#ede9fe;
+    --ok:#16a34a; --ok-soft:#dcfce7; --bad:#dc2626; --bad-soft:#fee2e2; --warn:#ea580c;
+    --shadow:0 6px 22px rgba(15,23,42,.08); --radius:18px;
+  }
+  html[data-theme="dark"]{
+    --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
+    --line:#334155; --accent:#a78bfa; --accent-soft:#3b2a63;
+    --ok:#22c55e; --ok-soft:#14532d; --bad:#f87171; --bad-soft:#4c1d1d; --warn:#fb923c;
+    --shadow:0 6px 22px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:17px; line-height:1.55;
+    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+    -webkit-font-smoothing:antialiased; transition:background .2s,color .2s;
+  }
+  .wrap{max-width:680px; margin:0 auto; padding:16px 16px 48px;}
+
+  .topbar{display:flex; align-items:center; gap:12px; margin:6px 0 4px;}
+  .topbar h1{font-size:1.4rem; margin:0; letter-spacing:-.02em; flex:1}
+  .icon-btn{
+    border:1px solid var(--line); background:var(--card); color:var(--text);
+    width:42px; height:42px; border-radius:12px; font-size:1.2rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex:0 0 auto; transition:transform .1s;
+  }
+  .icon-btn:active{transform:scale(.92)}
+
+  /* Start */
+  .hero{
+    background:linear-gradient(135deg,var(--accent),#2563eb);
+    color:#fff; border-radius:22px; padding:30px 24px; box-shadow:var(--shadow); text-align:center; margin:8px 0 22px;
+  }
+  .hero .em{font-size:3rem}
+  .hero h2{margin:8px 0 6px; font-size:1.55rem; letter-spacing:-.02em}
+  .hero p{margin:0; opacity:.92; font-size:.95rem}
+  .hero .best{margin-top:14px; display:inline-block; background:rgba(255,255,255,.2); padding:5px 14px; border-radius:99px; font-weight:700; font-size:.85rem}
+
+  .info-list{list-style:none; padding:0; margin:0 0 22px}
+  .info-list li{display:flex; gap:12px; align-items:flex-start; background:var(--card); border-radius:14px;
+    padding:14px 16px; box-shadow:var(--shadow); margin-bottom:10px; font-size:.95rem}
+  .info-list .ic{font-size:1.3rem; flex:0 0 auto}
+
+  .btn{border:none; cursor:pointer; border-radius:14px; padding:16px; font-size:1.05rem; font-weight:700;
+    box-shadow:var(--shadow); transition:transform .1s; width:100%}
+  .btn:active{transform:scale(.98)}
+  .btn.primary{background:var(--accent); color:#fff}
+  .btn.ghost{background:var(--card); color:var(--text); border:1px solid var(--line)}
+
+  /* Question */
+  .study-head{display:flex; align-items:center; gap:10px; margin:6px 0 8px}
+  .study-head .name{flex:1; font-weight:700; font-size:1rem; color:var(--muted)}
+  .counter{font-variant-numeric:tabular-nums; color:var(--accent); font-size:.9rem; font-weight:800}
+  .pbar{height:7px; background:var(--line); border-radius:99px; overflow:hidden; margin:0 0 18px}
+  .pbar>i{display:block; height:100%; background:var(--accent); border-radius:99px; transition:width .35s}
+
+  .qcard{background:var(--card); border-radius:20px; box-shadow:var(--shadow); padding:22px 20px; border:1px solid var(--line); margin-bottom:14px}
+  .qlabel{font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); margin-bottom:10px}
+  .qtext{font-size:1.17rem; font-weight:600; line-height:1.45; letter-spacing:-.01em}
+
+  .opts{display:flex; flex-direction:column; gap:11px}
+  .opt{
+    display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left; cursor:pointer;
+    background:var(--card); color:var(--text); border:2px solid var(--line); border-radius:14px;
+    padding:14px 15px; font-size:1rem; line-height:1.4; font-weight:500; box-shadow:var(--shadow);
+    transition:transform .08s,border-color .15s,background .15s;
+  }
+  .opt:active{transform:scale(.985)}
+  .opt .key{flex:0 0 auto; width:26px; height:26px; border-radius:8px; background:var(--accent-soft); color:var(--accent);
+    font-weight:800; font-size:.85rem; display:flex; align-items:center; justify-content:center; margin-top:1px}
+  .opt.sel{border-color:var(--accent); background:var(--accent-soft)}
+  .opt.sel .key{background:var(--accent); color:#fff}
+
+  .nav{display:flex; gap:10px; margin-top:16px}
+  .nav .skip{flex:0 0 auto; border:1px solid var(--line); background:var(--card); color:var(--muted);
+    border-radius:14px; padding:16px 18px; font-weight:600; cursor:pointer}
+  .next-btn{flex:1; border:none; cursor:pointer; border-radius:14px; padding:16px; font-size:1.05rem; font-weight:700;
+    color:#fff; background:var(--accent); box-shadow:var(--shadow); transition:transform .1s}
+  .next-btn:disabled{opacity:.45}
+  .next-btn:active{transform:scale(.98)}
+
+  /* Result */
+  .finish{text-align:center; padding:22px 4px 8px}
+  .ring{width:160px; height:160px; margin:6px auto 14px; position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pc{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+  .ring .pc b{font-size:2.3rem; font-weight:800; line-height:1}
+  .ring .pc span{font-size:.82rem; color:var(--muted)}
+  .finish h2{margin:6px 0 2px}
+  .finish .msg{color:var(--muted); margin:0 0 16px}
+  .record{display:inline-block; background:#fef9c3; color:#a16207; font-weight:700; font-size:.8rem; padding:4px 12px; border-radius:99px; margin-bottom:8px}
+  html[data-theme="dark"] .record{background:#422006; color:#fde047}
+
+  .section-title{font-size:.82rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);
+    font-weight:700; margin:24px 4px 12px; text-align:left}
+  .ritem{background:var(--card); border-radius:16px; box-shadow:var(--shadow); padding:16px 16px; margin-bottom:12px; text-align:left}
+  .ritem .rq{font-weight:600; font-size:1rem; margin-bottom:10px}
+  .ritem .rq .num{color:var(--accent); font-weight:800; margin-right:6px}
+  .ritem .ro{display:flex; gap:9px; align-items:flex-start; padding:8px 10px; border-radius:10px; font-size:.93rem; margin-bottom:5px; border:1px solid transparent}
+  .ritem .ro .ic{flex:0 0 auto; font-weight:800}
+  .ritem .ro.good{background:var(--ok-soft); color:var(--ok); border-color:var(--ok)}
+  .ritem .ro.bad{background:var(--bad-soft); color:var(--bad); border-color:var(--bad)}
+  .ritem .ro.norm{color:var(--muted)}
+  .ritem .exp{margin-top:8px; font-size:.88rem; color:var(--muted); font-style:italic}
+  .tag{display:inline-block; font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:99px; margin-bottom:8px}
+  .tag.ok{background:var(--ok-soft); color:var(--ok)} .tag.ko{background:var(--bad-soft); color:var(--bad)}
+
+  .stack{display:flex; flex-direction:column; gap:10px; max-width:360px; margin:14px auto 0}
+  .footer{text-align:center; color:var(--muted); font-size:.78rem; margin-top:30px; line-height:1.6}
+  @media(max-width:380px){ body{font-size:16px} .qtext{font-size:1.1rem} .opt{font-size:.95rem} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* Données générées depuis le QCM officiel.
+   Caractères normalisés : tiret long, signe moins et fleche -> "-" / "->". */
+const QUIZ = [
+{
+"id": "A",
+"chip": "A",
+"title": "Intelligence émotionnelle, régulation & Analyse Transactionnelle",
+"questions": [
+{
+"q": "Qui a popularisé le modèle d'Intelligence Émotionnelle auprès du grand public en 1995 ?",
+"options": [
+"Peter Salovey",
+"Howard Gardner",
+"Daniel Goleman",
+"James Gross"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Dans la métaphore de l'Iceberg appliquée au comportement humain, lequel de ces éléments appartient à la partie VISIBLE ?",
+"options": [
+"Les comportements et actions observables",
+"Les motivations inconscientes",
+"Les peurs et insécurités",
+"Les valeurs et croyances profondes"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Parmi les cinq stratégies du modèle de Gross, laquelle intervient APRÈS que la réponse émotionnelle a été générée ?",
+"options": [
+"S5 - Modulation de la Réponse",
+"S4 - Réévaluation Cognitive",
+"S1 - Sélection de Situation",
+"S2 - Modification de Situation"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Quelle stratégie de régulation émotionnelle est considérée comme la plus efficace selon Gross et John (2003) ?",
+"options": [
+"S1 - Sélection de Situation",
+"S5 - Modulation de la Réponse",
+"S4 - Réévaluation Cognitive",
+"S3 - Déploiement Attentionnel"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Un ingénieur qui se dit : « Cette critique de code n'est pas une attaque personnelle - c'est une opportunité d'amélioration professionnelle » utilise quelle stratégie du modèle de Gross ?",
+"options": [
+"S5 - Modulation de la Réponse",
+"S3 - Déploiement Attentionnel",
+"S2 - Modification de Situation",
+"S4 - Réévaluation Cognitive"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Qui a fondé l'Analyse Transactionnelle ?",
+"options": [
+"Carl Rogers",
+"Eric Berne",
+"Daniel Goleman",
+"Taibi Kahler"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "CAS PRATIQUE : Votre manager dit en réunion, d'un ton légèrement sarcastique : « Tu as bien avancé sur l'API ce sprint ? » Tout le monde comprend qu'il sous-entend : « Tu n'as pas du tout avancé. » Quel type de transaction selon Berne s'est produit ?",
+"options": [
+"Transaction croisée",
+"Transaction complémentaire Adulte-Adulte",
+"Transaction cachée (duplex)",
+"Transaction Parent Nourricier-Enfant Adapté"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Quel driver de Kahler correspond à la croyance « Je peux tout gérer, je n'ai pas besoin des autres » ?",
+"options": [
+"Sois fort",
+"Sois parfait",
+"Fais plaisir",
+"Dépêche-toi"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans le Process Communication Model, quel type de personnalité réagit sous stress par de la provocation et de l'opposition ?",
+"options": [
+"Rebelle",
+"Promoteur",
+"Persévérant",
+"Travaillomane"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "VRAI ou FAUX : Dans le PCM de Taibi Kahler, le type Rêveur / Imagineur a besoin de stimulation sociale intense pour fonctionner de façon optimale.",
+"options": [
+"Vrai",
+"Faux"
+],
+"correct": 1,
+"explanation": "il a un besoin psychologique de solitude et de calme"
+}
+]
+},
+{
+"id": "B",
+"chip": "B",
+"title": "Design Thinking",
+"questions": [
+{
+"q": "Quelle est la séquence correcte des 5 phases du Design Thinking selon le modèle Stanford d.school retenu dans ce cours ?",
+"options": [
+"Empathize -> Define -> Prototype -> Ideate -> Test",
+"Empathize -> Define -> Ideate -> Prototype -> Test",
+"Define -> Empathize -> Ideate -> Prototype -> Test",
+"Empathize -> Ideate -> Define -> Prototype -> Test"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Une équipe vient de terminer la phase Ideate et souhaite valider rapidement si leur idée principale - une nouvelle interface de gestion des tâches - répond bien au problème formulé dans le POV Statement. Elle dispose de 30 minutes avant de pouvoir rencontrer 3 utilisateurs représentatifs. Quelle approche de prototypage est la plus adaptée à cette situation, selon les principes du Design Thinking ?",
+"options": [
+"Présenter verbalement l'idée aux utilisateurs sans prototype, car expliquer l'idée suffit pour obtenir leur feedback",
+"Prototype papier (low-fi) : dessiner les écrans principaux en 30 minutes pour tester le concept et le flux auprès des utilisateurs",
+"Créer une maquette Figma interactive complète avec toutes les fonctionnalités et animations pour donner une expérience réaliste aux testeurs",
+"Reporter la rencontre avec les utilisateurs et développer d'abord un MVP fonctionnel en code pour avoir quelque chose de concret à tester"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Quelle est la structure correcte d'un POV Statement (Point of View) en Design Thinking ?",
+"options": [
+"Comment pourrions-nous [action] pour [utilisateur] afin de [résultat] ?",
+"[Système] doit permettre de [fonctionnalité] pour [objectif]",
+"[Utilisateur] veut [solution] et [critère de succès]",
+"[Utilisateur] a besoin de [besoin] parce que [insight]"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Dans la technique SCAMPER utilisée en phase Ideate du Design Thinking, que représente chaque lettre de l'acronyme ?",
+"options": [
+"Substituer, Combiner, Adapter, Modifier, Put to other uses, Éliminer, Renverser",
+"Segmenter, Conceptualiser, Améliorer, Mesurer, Prioriser, Estimer, Recadrer",
+"Substituer, Créer, Analyser, Modifier, Produire, Évaluer, Réviser",
+"Substituer, Comparer, Adapter, Multiplier, Proposer, Estimer, Regrouper"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Quel est le principe fondateur de la phase Prototype en Design Thinking, tel qu'énoncé dans ce cours ?",
+"options": [
+"\"Fail early, fail cheap\" - matérialiser rapidement pour apprendre sans investissement massif",
+"\"Build it right the first time\" - investir dans un prototype haute fidélité dès le départ",
+"\"Test-driven development\" - écrire les tests avant de coder le prototype",
+"\"Done is better than perfect\" - livrer rapidement un produit finalisé aux utilisateurs"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Une équipe d'ingénieurs travaille sur une application de suivi de projets. Après plusieurs interviews, ils écrivent : \"Un chef de projet junior a besoin de visualiser l'avancement de toutes ses tâches en un coup d'œil parce qu'il jongle entre 5 projets simultanés et perd du temps à consolider manuellement des informations dispersées.\" Dans quelle phase du Design Thinking se trouve cette équipe, et quel outil viennent-ils d'utiliser ?",
+"options": [
+"Phase IDEATE - ils ont formulé une question HMW pour orienter le brainstorming",
+"Phase DEFINE - ils ont rédigé un POV Statement centré humain avec insight",
+"Phase EMPATHIZE - ils ont rédigé une Empathy Map résumant leurs observations",
+"Phase PROTOTYPE - ils ont décrit les fonctionnalités clés de leur solution"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Voici quatre formulations candidates pour un POV Statement dans un projet de refonte d'outil de code review. Laquelle est la plus conforme aux critères d'un bon POV Statement (centré humain, ouvert, avec insight) ?",
+"options": [
+"\"Un développeur junior a besoin d'un rapport hebdomadaire automatique envoyé par son manager.\"",
+"\"Les développeurs ont besoin de feedback parce que c'est important pour progresser.\"",
+"\"L'outil de code review doit intégrer un système de commentaires automatiques et un tableau de bord de progression pour améliorer la qualité du code.\"",
+"\"Un développeur junior a besoin d'un retour formatif régulier sur ses livrables parce qu'il apprend mieux par ajustements fréquents que par évaluations concentrées en fin de projet.\""
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Vrai ou Faux : Le Design Thinking est un processus linéaire dans lequel chaque phase doit être complètement terminée avant de passer à la suivante. Il est impossible de revenir à une phase antérieure une fois qu'on l'a quittée.",
+"options": [
+"Vrai",
+"Faux"
+],
+"correct": 1,
+"explanation": "Le Design Thinking est un processus hautement itératif"
+},
+{
+"q": "Vrai ou Faux : La technique Crazy 8's consiste à générer 8 idées dessinées grossièrement en 8 minutes. La contrainte temporelle a pour objectif pédagogique de libérer les participants du perfectionnisme.",
+"options": [
+"Vrai",
+"Faux"
+],
+"correct": 0,
+"explanation": ""
+}
+]
+},
+{
+"id": "C",
+"chip": "C",
+"title": "Résolution de problèmes & Pensée critique",
+"questions": [
+{
+"q": "Le cycle PDCA (Plan-Do-Check-Act) est associé à quel auteur ?",
+"options": [
+"Taiichi Ohno",
+"Kaoru Ishikawa",
+"Sakichi Toyoda",
+"W. Edwards Deming"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Quelle est la finalité de la méthode des 5 Pourquoi ?",
+"options": [
+"Remonter à la cause racine unique d'un problème",
+"Générer un maximum de solutions créatives",
+"Cartographier toutes les causes possibles d'un problème",
+"Améliorer un processus en cycle itératif"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans le cycle PDCA, la phase DO consiste à :",
+"options": [
+"Standardiser le changement à toute l'organisation",
+"Analyse les résultats par rapport aux objectifs fixés",
+"Identifier le problème et définir les KPIs",
+"Implémenter le changement à petite échelle (pilote)"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Dans l'exemple de l'ascenseur lent (Wedell-Wedellsborg, 2017), quelle est la solution proposée après reframing du problème ?",
+"options": [
+"Améliorer l'algorithme de gestion de l'ascenseur",
+"Poser des miroirs",
+"Décaler les pauses des employés pour répartir la demande",
+"Installer un moteur plus puissant"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Quelle est la distinction fondamentale entre le Problem Reframing et la Pensée Latérale ?",
+"options": [
+"Le Reframing questionne l'énoncé du problème ; la Pensée Latérale l'accepte et cherche des solutions hors des sentiers habituels",
+"Le Reframing vient de la psychologie ; la Pensée Latérale vient du management",
+"Le Reframing utilise des données quantitatives ; la Pensée Latérale est qualitative",
+"Le Reframing s'applique en groupe ; la Pensée Latérale est individuelle"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans le contexte de la Pensée Latérale d'Edward de Bono, que signifie l'acronyme PO ?",
+"options": [
+"Problème Ouvert",
+"Provocative Operation",
+"Principe d'Opposition",
+"Point d'Observation"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Dans la métaphore du Coach vs Play Stealer (Farnam Street, 2018), comment le Play Stealer raisonne-t-il ?",
+"options": [
+"Par inversion - en formulant l'opposé du problème",
+"Par analogie - en copiant ce qui a déjà été fait avec de légères variations",
+"Par questionnement socratique - en challengeant chaque supposition",
+"Par First Principles - en construisant depuis les règles fondamentales"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Hiba prépare son PFA depuis 3 semaines. Elle travaille beaucoup - slides, rapports, tests - mais à chaque réunion son encadrant dit que « le travail n'avance pas dans la bonne direction ». Les retours restent décevants malgré l'effort. Quelle méthode recommandez-vous à Hiba en priorité ?",
+"options": [
+"Le PDCA - pour améliorer progressivement son processus de travail",
+"Les 5 Pourquoi - pour identifier la cause racine de ses difficultés",
+"La Pensée Latérale - pour trouver une façon créative d'avancer",
+"Le Problem Reframing - pour questionner si elle travaille dans la bonne direction"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Nada doit présenter son projet de fin d'année devant jury dans 3 semaines. Elle a refait ses slides 4 fois, changé les couleurs, ajouté des animations. Chaque retour de ses camarades est le même : « C'est propre mais ça n'accroche pas - ça ressemble à toutes les autres présentations. » Elle ne voit plus quoi changer. Quelle méthode recommandez-vous à Nada ?",
+"options": [
+"Le Problem Reframing - pour questionner si elle prépare la bonne présentation",
+"Les 5 Pourquoi - pour identifier pourquoi ses slides n'accrochent pas",
+"First Principles - pour déconstruire ce qu'est une présentation réussie",
+"La Pensée Latérale - pour sortir du pattern visuel dans lequel elle est enfermée"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Salman veut créer une application pour aider les étudiants à organiser leur emploi du temps. Ses camarades lui disent : « Il existe déjà Google Calendar - tu ne pourras jamais rivaliser. » Salman accepte cette idée sans la questionner et abandonne son projet. Quelle méthode aurait pu aider Salman à ne pas abandonner ?",
+"options": [
+"Le PDCA - pour tester son idée à petite échelle avant d'abandonner",
+"Pensée Latérale - pour trouver une façon créative de se différencier de Google Calendar",
+"Problem Reframing - pour questionner si l'application est la bonne solution",
+"First Principles - pour déconstruire la contrainte héritée et partir des besoins réels"
+],
+"correct": 3,
+"explanation": ""
+}
+]
+},
+{
+"id": "D",
+"chip": "D",
+"title": "Biais cognitifs & Systèmes de pensée",
+"questions": [
+{
+"q": "Selon Daniel Kahneman, le Système 1 est :",
+"options": [
+"Toujours rationnel et conscient",
+"Réservé aux décisions complexes",
+"Lent et délibéré",
+"Rapide et automatique"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Le « Self-Serving Bias » se manifeste typiquement par :",
+"options": [
+"Toujours blâmer les autres pour tous les événements",
+"Attribuer ses succès à son mérite et ses échecs aux circonstances extérieures",
+"Refuser d'évaluer ses propres performances",
+"S'attribuer toutes les responsabilités, succès comme échecs"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Le biais d'ancrage désigne le fait que :",
+"options": [
+"Les groupes décident toujours mieux que les individus",
+"On retient mieux les informations émotionnelles",
+"Les experts donnent toujours la bonne réponse",
+"Le premier chiffre entendu oriente toutes les estimations qui suivent"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Le biais de confirmation consiste à :",
+"options": [
+"Confirmer publiquement les décisions du groupe",
+"Chercher des informations qui valident notre croyance et ignorer celles qui la réfutent",
+"Refuser systématiquement les solutions extérieures",
+"Donner raison aux experts par défaut"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "L'heuristique de disponibilité conduit à :",
+"options": [
+"Sous-estimer systématiquement les risques médiatisés",
+"Choisir l'option la plus disponible sur le marché",
+"Évaluer la probabilité d'un événement selon la facilité avec laquelle un exemple vient à l'esprit",
+"Donner la priorité aux statistiques officielles"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Le « Sunk Cost Fallacy » (sophisme du coût irrécupérable) consiste à :",
+"options": [
+"Abandonner un projet trop tôt par excès de prudence",
+"Continuer un projet à cause des ressources déjà investies, indépendamment des perspectives futures",
+"N'investir que dans des projets gratuits",
+"Calculer rationnellement la valeur attendue avant chaque décision"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "L'effet Dunning-Kruger affirme que :",
+"options": [
+"Les experts surestiment systématiquement leur niveau",
+"Tout le monde évalue ses compétences de manière exacte",
+"Les personnes peu compétentes surestiment leurs capacités, tandis que les experts ont tendance à les sous-estimer",
+"La compétence n'a aucun lien avec la confiance en soi"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Le « Groupthink » (pensée de groupe) désigne le fait que :",
+"options": [
+"Le groupe trouve toujours la meilleure solution",
+"Les introvertis dominent les discussions de groupe",
+"Le désir de consensus du groupe prend le dessus sur l'évaluation critique des alternatives",
+"Les décisions de groupe sont plus rapides que les décisions individuelles"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Le syndrome « Not Invented Here » (NIH) consiste à :",
+"options": [
+"Préférer toujours les solutions open source",
+"Inviter des consultants externes pour chaque décision",
+"Résister systématiquement aux solutions, idées ou outils venant de l'extérieur",
+"Adopter sans réserve toute solution venue de l'extérieur"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "L'erreur fondamentale d'attribution (FAE) consiste à :",
+"options": [
+"Surestimer l'influence du contexte sur les comportements",
+"Expliquer le comportement des autres par leur personnalité, en ignorant le contexte situationnel",
+"Attribuer ses propres succès au hasard",
+"Confondre cause et conséquence dans une analyse statistique"
+],
+"correct": 1,
+"explanation": ""
+}
+]
+},
+{
+"id": "F1",
+"chip": "F1",
+"title": "Identité numérique & Personal Branding",
+"questions": [
+{
+"q": "Qu'est-ce que l'identité numérique ?",
+"options": [
+"Le mot de passe associé à un compte en ligne",
+"L'ensemble des traces, contenus et représentations qu'un individu laisse sur les réseaux numériques",
+"Uniquement le profil LinkedIn d'une personne",
+"Le nom de domaine d'un site web personnel"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Selon Tom Peters dans « The Brand Called You » (Fast Company, 1997), à l'ère de l'individu vous devez :",
+"options": [
+"Avoir un CV impeccable",
+"Maîtriser un seul domaine technique",
+"Être votre propre marque",
+"Travailler dans une grande entreprise"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "La Proposition de Valeur Unique (PVU) se construit à l'intersection de 3 composantes. Lesquelles ?",
+"options": [
+"Hard Skills × Soft Skills × Passions et intérêts",
+"Diplôme × Expérience × Réseau",
+"LinkedIn × GitHub × CV",
+"Photo × Bio × Recommandations"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Quelle est la formule officielle pour formuler sa Proposition de Valeur ?",
+"options": [
+"« Je suis [titre] qui aide [cible] à [résoudre quoi] grâce à [spécialité] »",
+"« Je travaille dans [secteur] depuis [durée] »",
+"« Je propose [service] à [prix] »",
+"« Je suis [titre] passionné par [domaine] »"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Que signifie AIDA - le cadre heuristique du copywriting vu en cours ?",
+"options": [
+"Apprendre, Implémenter, Démontrer, Améliorer",
+"Annonce, Information, Démonstration, Adhésion",
+"Authenticité, Innovation, Données, Action",
+"Attention, Interest, Desire, Action"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Quelles sont les 4 raisons pour lesquelles les recruteurs tech consultent GitHub avant le CV ?",
+"options": [
+"Gratuité / Popularité / Mode / Tendance",
+"Code / Issues / Pull Requests / Forks",
+"Étoiles / Followers / Repos / Commits",
+"Preuve concrète / Signal de rigueur / Écosystème tech / Progression visible"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Comment le cours définit-il « Learn in Public » ?",
+"options": [
+"Donner des cours publics dans son domaine d'expertise",
+"Documenter son apprentissage de manière structurée, sans attendre d'être l'expert",
+"Partager ses notes de classe avec ses camarades",
+"Apprendre uniquement dans des MOOC publics et certifiés"
+],
+"correct": 1,
+"explanation": ""
+},
+{
+"q": "Selon la séance, quel est le concept de Learn in Public exprimé en une phrase ?",
+"options": [
+"« J'apprends quelque chose aujourd'hui, je note pour les autres (et pour moi plus tard). »",
+"« Je donne mon avis tranché sur tous les sujets de mon domaine. »",
+"« Je publie uniquement quand je maîtrise totalement un sujet. »",
+"« Après plusieurs mois de tests, voici ma vision de la meilleure solution. »"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Quelle est la formule d'une niche solide selon la séance ?",
+"options": [
+"[Pays] + [Ville] + [École]",
+"[Compétence] + [Diplôme] + [Expérience]",
+"[Outil] + [Langage] + [Framework]",
+"[Domaine technique] × [Secteur / application] × [Angle ou région]"
+],
+"correct": 3,
+"explanation": ""
+},
+{
+"q": "Le triangle de cohérence du profil numérique repose sur 3 piliers. Lesquelles ?",
+"options": [
+"Le narratif (qui vous êtes) / Preuve (ce que vous savez faire) / Contenu (comment vous pensez)",
+"LinkedIn / Twitter / Instagram",
+"Photo / Bio / Recommandations",
+"Hard Skills / Soft Skills / Passions"
+],
+"correct": 0,
+"explanation": ""
+}
+]
+},
+{
+"id": "F2",
+"chip": "F2",
+"title": "Skills Gap, OKRs & Stratégie de carrière",
+"questions": [
+{
+"q": "Quelle est la formule exacte du Skills Gap ?",
+"options": [
+"Compétence requise + compétence acquise",
+"Compétence acquise ÷ compétence requise",
+"Compétence requise - compétence acquise",
+"Compétence requise × niveau d'importance"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Quelle est la première étape de la Skills Gap Analysis ?",
+"options": [
+"Évaluer les compétences actuelles",
+"Calculer l'écart (Gap)",
+"Définir le référentiel du poste cible",
+"Élaborer le plan d'action"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Le profil T-shaped combine :",
+"options": [
+"Une expertise très profonde dans un seul domaine, sans compétences transverses",
+"Deux expertises profondes dans deux domaines sans transversalité",
+"Une expertise profonde dans 1 domaine et des compétences transverses larges",
+"Des compétences moyennes réparties uniformément sur tous les domaines"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Les OKRs (Objectives et Key Results) ont été inventés par :",
+"options": [
+"Andy Grove - Intel - 1983",
+"Peter Drucker - General Electric - 1954",
+"Eric Schmidt - Google - 2001",
+"John Doerr - Google - 1999"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans un OKR, l'Objectif (O) est :",
+"options": [
+"Un indicator de performance hebdomadaire",
+"Une liste d'actions à accomplir dans le mois",
+"Une phrase qualitative, inspirante et sans chiffres",
+"Un chiffre précis avec une date butoir"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Q1 (Mois 1 à 3) dans le Plan 12 Mois s'intitule :",
+"options": [
+"Fondements et Formation",
+"Construction et Projets",
+"Récolte et Ajustement",
+"Visibilité et Réseau"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Q4 (Mois 10 à 12) dans le Plan 12 Mois s'intitule :",
+"options": [
+"Fondements et Formation",
+"Construction et Projets",
+"Récolte et Ajustement",
+"Visibilité et Réseau"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Quel format utilise la vue Candidatures dans le Dashboard de Suivi ?",
+"options": [
+"Table de progression",
+"Chronologie ou Timeline",
+"Pipeline visuel",
+"Matrice de compétences"
+],
+"correct": 2,
+"explanation": ""
+},
+{
+"q": "Dans le Business Model You, à quelle question répond la section Value Proposition ?",
+"options": [
+"How can you help?",
+"What are you doing?",
+"Who is helping you?",
+"What do you get?"
+],
+"correct": 0,
+"explanation": ""
+},
+{
+"q": "Dans le Business Model You, à quelle question répond la section Key Resources ?",
+"options": [
+"Who are you helping?",
+"What do you have? What do you need?",
+"How can you help?",
+"What are you doing?"
+],
+"correct": 1,
+"explanation": ""
+}
+]
+}
+];
+
+const BEST_KEY="examdp.best.v1";
+const THEME_KEY="examdp.theme";
+let exam = null;
+
+function load(k,d){ try{ const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } }
+function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pct(s,t){ return t? Math.round(s/t*100):0; }
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const KEYS=["A","B","C","D","E","F"];
+const app=document.getElementById("app");
+
+function initTheme(){
+  const saved=localStorage.getItem(THEME_KEY);
+  const sysDark=window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.setAttribute("data-theme", saved||(sysDark?"dark":"light"));
+}
+function toggleTheme(){
+  const next=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try{ localStorage.setItem(THEME_KEY,next); }catch(e){}
+  document.querySelector('meta[name=theme-color]').setAttribute("content", next==="dark"?"#0f172a":"#7c3aed");
+}
+
+/* toutes les questions, tous blocs confondus (sans titre de bloc) */
+function pool(){ const out=[]; QUIZ.forEach(b=>b.questions.forEach(q=>out.push(q))); return out; }
+
+function renderStart(){
+  exam=null;
+  const t=pool().length;
+  const best=load(BEST_KEY,null);
+  app.innerHTML = `
+    <div class="topbar">
+      <h1>Évaluation</h1>
+      <button class="icon-btn" onclick="toggleTheme()" aria-label="Thème">◑</button>
+    </div>
+    <div class="hero">
+      <div class="em">🎓</div>
+      <h2>Teste ta compréhension</h2>
+      <p>${t} questions mélangées, tous les thèmes en aléatoire</p>
+      ${best!=null?`<div class="best">🏅 Meilleur score : ${best}%</div>`:``}
+    </div>
+    <ul class="info-list">
+      <li><span class="ic">🔀</span><span>Questions et propositions <b>mélangées</b> à chaque tentative.</span></li>
+      <li><span class="ic">🙈</span><span>Aucune correction pendant le test - tu découvres ton <b>score à la fin</b>.</span></li>
+      <li><span class="ic">📋</span><span>Correction détaillée <b>après</b> : tes réponses vs les bonnes.</span></li>
+    </ul>
+    <button class="btn primary" onclick="startExam()">Commencer l'évaluation</button>
+    <div class="footer">Hors ligne · aucune connexion requise</div>`;
+  window.scrollTo(0,0);
+}
+
+function buildItem(q){
+  const order=shuffle(q.options.map((_,i)=>i));
+  return { q:q.q, options:order.map(i=>q.options[i]), correct:order.indexOf(q.correct), explanation:q.explanation||"", chosen:null };
+}
+function startExam(){
+  exam={ items: shuffle(pool()).map(buildItem), pos:0 };
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const it=exam.items[exam.pos];
+  const n=exam.pos+1, tot=exam.items.length;
+  const optsHtml=it.options.map((o,i)=>{
+    const cls="opt"+(it.chosen===i?" sel":"");
+    return `<button class="${cls}" onclick="select(${i})"><span class="key">${KEYS[i]}</span><span>${esc(o)}</span></button>`;
+  }).join("");
+  const last=n===tot;
+  app.innerHTML = `
+    <div class="study-head">
+      <button class="icon-btn" onclick="quit()" aria-label="Quitter">‹</button>
+      <div class="name">Évaluation</div>
+      <div class="counter">${n} / ${tot}</div>
+    </div>
+    <div class="pbar"><i style="width:${Math.round(exam.pos/tot*100)}%"></i></div>
+    <div class="qcard">
+      <div class="qlabel">Question ${n}</div>
+      <div class="qtext">${esc(it.q)}</div>
+    </div>
+    <div class="opts">${optsHtml}</div>
+    <div class="nav">
+      <button class="skip" onclick="nextQ()">Passer</button>
+      <button class="next-btn" ${it.chosen===null?'disabled':''} onclick="nextQ()">${last?'Terminer':'Suivant ›'}</button>
+    </div>`;
+  window.scrollTo(0,0);
+}
+function select(i){ exam.items[exam.pos].chosen=i; renderQuestion(); }
+function nextQ(){ if(exam.pos<exam.items.length-1){ exam.pos++; renderQuestion(); } else renderResult(); }
+function quit(){ if(confirm("Quitter l'évaluation en cours ? Ta progression sera perdue.")) renderStart(); }
+
+function renderResult(){
+  const its=exam.items, t=its.length;
+  let s=0; its.forEach(it=>{ if(it.chosen===it.correct) s++; });
+  const p=pct(s,t);
+  const prev=load(BEST_KEY,null);
+  let isRecord=false;
+  if(prev==null || p>prev){ isRecord = prev!=null; save(BEST_KEY,p); }
+  if(prev==null) isRecord=false;
+
+  let msg,emo;
+  if(p>=90){ msg="Excellent, tu maîtrises le programme !"; emo="🏆"; }
+  else if(p>=70){ msg="Bonne compréhension, continue !"; emo="💪"; }
+  else if(p>=50){ msg="Des bases à consolider."; emo="📈"; }
+  else { msg="À retravailler en priorité."; emo="🔁"; }
+
+  const C=2*Math.PI*56, off=C*(1-p/100);
+  const ringColor=p>=70?'var(--ok)':p>=50?'var(--warn)':'var(--bad)';
+  const wrongN=t-s;
+
+  const review=its.map((it,qi)=>{
+    const good=it.chosen===it.correct;
+    const opts=it.options.map((o,i)=>{
+      let cls="ro norm", ic="";
+      if(i===it.correct){ cls="ro good"; ic="✓"; }
+      else if(i===it.chosen){ cls="ro bad"; ic="✗"; }
+      return `<div class="${cls}"><span class="ic">${ic||'&nbsp;'}</span><span>${esc(o)}</span></div>`;
+    }).join("");
+    const unanswered = it.chosen===null ? `<div class="ro bad"><span class="ic">!</span><span>Pas de réponse donnée</span></div>` : "";
+    return `<div class="ritem">
+      <span class="tag ${good?'ok':'ko'}">${good?'Correct':'À revoir'}</span>
+      <div class="rq"><span class="num">Q${qi+1}.</span>${esc(it.q)}</div>
+      ${opts}${unanswered}
+      ${it.explanation?`<div class="exp">${esc(it.explanation)}</div>`:''}
+    </div>`;
+  }).join("");
+
+  app.innerHTML = `
+    <div class="topbar"><h1>Résultat</h1><button class="icon-btn" onclick="toggleTheme()">◑</button></div>
+    <div class="finish">
+      <div style="font-size:2.4rem">${emo}</div>
+      <div class="ring">
+        <svg width="160" height="160">
+          <circle cx="80" cy="80" r="56" fill="none" stroke="var(--line)" stroke-width="13"/>
+          <circle cx="80" cy="80" r="56" fill="none" stroke="${ringColor}" stroke-width="13"
+            stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+        </svg>
+        <div class="pc"><b>${p}%</b><span>${s} / ${t} bonnes</span></div>
+      </div>
+      ${isRecord?`<div class="record">🎉 Nouveau record !</div>`:``}
+      <h2>${s} bonnes · ${wrongN} à revoir</h2>
+      <div class="msg">${msg}</div>
+      <div class="stack">
+        <button class="btn primary" onclick="startExam()">↻ Nouvelle évaluation</button>
+        <button class="btn ghost" onclick="renderStart()">🏠 Accueil</button>
+      </div>
+    </div>
+    <div class="section-title">Correction détaillée</div>
+    ${review}
+    <div class="stack"><button class="btn primary" onclick="startExam()">↻ Nouvelle évaluation</button></div>`;
+  window.scrollTo(0,0);
+}
+
+/* clavier (ordinateur) */
+document.addEventListener("keydown", e=>{
+  if(!exam) return;
+  const it=exam.items[exam.pos]; if(!it) return;
+  const k=["a","b","c","d"].indexOf(e.key.toLowerCase());
+  if(k>=0 && k<it.options.length){ select(k); }
+  else if(["1","2","3","4"].includes(e.key)){ const n=+e.key-1; if(n<it.options.length) select(n); }
+  else if((e.key==="Enter"||e.key===" ") && it.chosen!==null){ e.preventDefault(); nextQ(); }
+});
+
+initTheme();
+renderStart();
+</script>
+</body>
+</html>
