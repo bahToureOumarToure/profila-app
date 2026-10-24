@@ -50,7 +50,7 @@ export default function ImportPdfDialog({ open, onClose }) {
 
   const handleApply = () => {
     if (!result) return;
-    loadCV(result.cv);
+    loadCV(result.cv, 'Import PDF (IA)');
     reset();
     onClose();
   };
@@ -134,11 +134,12 @@ export default function ImportPdfDialog({ open, onClose }) {
               <Chip size="small" label={`${summary.counts.languages} langue(s)`} />
               <Chip size="small" label={`${summary.counts.projects} projet(s)`} />
               <Chip size="small" label={`${summary.counts.certifications} certif.`} />
+              <Chip size="small" label={`${summary.counts.achievements} compétition(s)`} />
             </Stack>
 
             <Alert severity="info">
-              Appliquer remplacera le contenu actuel de l'éditeur. Pense à sauvegarder ton
-              CV en JSON avant si besoin.
+              Appliquer remplacera le contenu actuel de l'éditeur (le design est conservé).
+              Le bouton « Annuler » de la barre d'outils permet de revenir en arrière.
             </Alert>
           </Stack>
         )}

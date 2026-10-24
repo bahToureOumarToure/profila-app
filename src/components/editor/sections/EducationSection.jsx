@@ -1,10 +1,12 @@
 import { Grid, TextField, Box, Typography } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useCV } from '@context/CVContext';
+import { EMPTY_ITEMS } from '@data/initialCVData';
 import ItemCard from '../controls/ItemCard';
 import SectionHeader from '../controls/SectionHeader';
+import DateField from '../controls/DateField';
 
-const EMPTY_EDU = { school: '', degree: '', field: '', startDate: '', endDate: '', description: '' };
+const EMPTY_EDU = EMPTY_ITEMS.education;
 
 export default function EducationSection() {
   const { cvData, addItem, updateItem, removeItem, reorderItems } = useCV();
@@ -52,17 +54,20 @@ export default function EducationSection() {
                           <Grid item xs={12} sm={6}>
                             <TextField fullWidth label="Diplôme / Titre" value={edu.degree} onChange={handleChange(edu.id, 'degree')} />
                           </Grid>
-                          <Grid item xs={12}>
-                            <TextField fullWidth label="Domaine d'études" value={edu.field} onChange={handleChange(edu.id, 'field')} />
+                          <Grid item xs={12} sm={6}>
+                            <TextField fullWidth label="Spécialité" placeholder="ex. Génie informatique" value={edu.field} onChange={handleChange(edu.id, 'field')} />
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <TextField fullWidth label="Ville, pays" placeholder="ex. Berkane, Maroc" value={edu.location} onChange={handleChange(edu.id, 'location')} />
                           </Grid>
                           <Grid item xs={6}>
-                            <TextField fullWidth label="Début" type="month" value={edu.startDate} onChange={handleChange(edu.id, 'startDate')} InputLabelProps={{ shrink: true }} />
+                            <DateField label="Début" value={edu.startDate} onChange={handleChange(edu.id, 'startDate')} />
                           </Grid>
                           <Grid item xs={6}>
-                            <TextField fullWidth label="Fin" type="month" value={edu.endDate} onChange={handleChange(edu.id, 'endDate')} InputLabelProps={{ shrink: true }} />
+                            <DateField label="Fin (prévue)" value={edu.endDate} onChange={handleChange(edu.id, 'endDate')} />
                           </Grid>
                           <Grid item xs={12}>
-                            <TextField fullWidth multiline rows={2} label="Description (optionnel)" value={edu.description} onChange={handleChange(edu.id, 'description')} />
+                            <TextField fullWidth multiline minRows={2} label="Détails (optionnel, une ligne par point)" placeholder="- Mention Bien · Cours : systèmes distribués, sécurité" value={edu.description} onChange={handleChange(edu.id, 'description')} />
                           </Grid>
                         </Grid>
                       </ItemCard>

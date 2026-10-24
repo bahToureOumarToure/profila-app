@@ -1,0 +1,109 @@
+name: CI / CD
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Lint, tests unitaires et build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Tests unitaires et rendu PDF (Vitest)
+        run: npm test
+      - name: Build de production
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
+
+  e2e:
+    name: Test fonctionnel (navigateur)
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Installer Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Servir le build
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && exit 0; sleep 1; done
+          echo "Le serveur de prévisualisation n'a pas démarré" && exit 1
+      - name: Scénario E2E (Gemini simulé)
+        run: npm run test:e2e
+        env:
+          E2E_SCREENSHOTS: e2e-screenshots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-screenshots
+          path: e2e-screenshots
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # Déploiement continu sur Vercel (branche main uniquement). Activé dès que les
+  # secrets VERCEL_TOKEN, VERCEL_ORG_ID et VERCEL_PROJECT_ID sont configurés dans
+  # le dépôt ; sinon l'étape est ignorée sans faire échouer le workflow.
+  deploy:
+    name: Déploiement production (Vercel)
+    needs: [quality, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Vérifier la configuration
+        id: check
+        run: |
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Secrets Vercel absents : déploiement ignoré (voir README > Déploiement)."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.enabled == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.enabled == 'true'
+        with:
+          node-version: 22
+      - name: Build et déploiement
+        if: steps.check.outputs.enabled == 'true'
+        run: |
+          npx --yes vercel@39 pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx --yes vercel@39 build --prod --token="$VERCEL_TOKEN"
+          npx --yes vercel@39 deploy --prebuilt --prod --token="$VERCEL_TOKEN"

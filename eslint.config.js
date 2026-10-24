@@ -5,9 +5,18 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ['dist/**', 'node_modules/**', 'playwright-report/**'],
   },
   js.configs.recommended,
+  {
+    // Scripts Node (tests E2E) : globals Node.
+    files: ['e2e/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: { Buffer: 'readonly', console: 'readonly', process: 'readonly', document: 'readonly', localStorage: 'readonly' },
+    },
+  },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -20,6 +29,13 @@ export default [
       },
       globals: {
         alert: 'readonly',
+        atob: 'readonly',
+        Buffer: 'readonly',
+        Image: 'readonly',
+        process: 'readonly',
+        ResizeObserver: 'readonly',
+        TextDecoder: 'readonly',
+        clearTimeout: 'readonly',
         confirm: 'readonly',
         Blob: 'readonly',
         console: 'readonly',

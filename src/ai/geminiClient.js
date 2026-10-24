@@ -12,10 +12,6 @@ export function hasApiKey() {
   return Boolean(getApiKey());
 }
 
-/**
- * Appelle Gemini et renvoie un objet JSON parsé (responseMimeType: application/json).
- * @param {{ prompt: string, apiKey?: string, model?: string, temperature?: number }} opts
- */
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Délai de réessai conseillé par Google (RetryInfo dans details, ou "retry in Xms").
@@ -34,7 +30,14 @@ function parseRetryMs(errorBody, message) {
   return null;
 }
 
-export async function generateJSON({ prompt, apiKey, model, temperature = 0.2, maxRetries = 4, onRetry } = {}) {
+/**
+ * Appelle Gemini et renvoie un objet JSON parsé (responseMimeType: application/json).
+ * Mode simple : `prompt`. Mode conversation : `contents` (tours user/model) +
+ * `systemInstruction` (consignes et contexte rafraîchis à chaque appel).
+ */
+export async function generateJSON({
+  prompt, contents, systemInstruction, apiKey, model, temperature = 0.2, maxRetries = 4, onRetry,
+} = {}) {
   const key = (apiKey || getApiKey()).trim();
   if (!key) {
     throw new Error('Clé API Gemini manquante. Ajoute VITE_GEMINI_API_KEY ou saisis ta clé.');
@@ -47,7 +50,12 @@ export async function generateJSON({ prompt, apiKey, model, temperature = 0.2, m
   if (/2\.5/.test(mdl)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
 
   const url = `${ENDPOINT}/${mdl}:generateContent?key=${encodeURIComponent(key)}`;
-  const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig });
+  const payload = {
+    contents: contents?.length ? contents : [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig,
+  };
+  if (systemInstruction) payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+  const body = JSON.stringify(payload);
 
   for (let attempt = 0; ; attempt += 1) {
     let res;

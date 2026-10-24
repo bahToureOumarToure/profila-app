@@ -31,3 +31,7 @@ pnpm-debug.log*
 # dans le repo — n'utiliser qu'une clé perso à quota gratuit, repo privé conseillé.
 .env.local
 .env.*.local
+
+# Sorties de tests
+e2e-screenshots/
+/out/

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Box, Tabs, Tab, Paper, LinearProgress, Typography, Tooltip } from '@mui/material';
+import { useMemo, useState } from 'react';
+import { Box, Tabs, Tab, Paper, LinearProgress, Typography, Tooltip, ButtonBase } from '@mui/material';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
@@ -23,7 +23,9 @@ import AchievementsSection from './sections/AchievementsSection';
 import DistinctionsSection from './sections/DistinctionsSection';
 import CustomizationSection from './sections/CustomizationSection';
 import { useCV } from '@context/CVContext';
-import { cvCompletionScore } from '@utils/cvHelpers';
+import { analyzeATS } from '@utils/atsCheck';
+import { scoreColor } from './ATSPanel';
+import { getLayoutInfo } from '@components/pdf/layoutInfo';
 
 const SECTIONS = [
   { id: 'personal',       label: 'Infos',           icon: <PersonOutlineIcon fontSize="small" /> },
@@ -33,7 +35,7 @@ const SECTIONS = [
   { id: 'languages',      label: 'Langues',         icon: <LanguageIcon fontSize="small" /> },
   { id: 'projects',       label: 'Projets',         icon: <CodeIcon fontSize="small" /> },
   { id: 'certifications', label: 'Certifications',  icon: <WorkspacePremiumOutlinedIcon fontSize="small" /> },
-  { id: 'achievements',   label: 'Palmarès',        icon: <EmojiEventsOutlinedIcon fontSize="small" /> },
+  { id: 'achievements',   label: 'Compétitions',        icon: <EmojiEventsOutlinedIcon fontSize="small" /> },
   { id: 'distinctions',   label: 'Distinctions',    icon: <MilitaryTechOutlinedIcon fontSize="small" /> },
   { id: 'interests',      label: 'Intérêts',        icon: <FavoriteBorderIcon fontSize="small" /> },
   { id: 'customization',  label: 'Design',          icon: <PaletteOutlinedIcon fontSize="small" /> },
@@ -53,10 +55,13 @@ const SECTION_COMPONENTS = {
   customization:  <CustomizationSection />,
 };
 
-export default function EditorPanel() {
-  const [activeSection, setActiveSection] = useState('personal');
+// L'onglet actif peut être piloté par le parent (ex. clic sur un constat ATS).
+export default function EditorPanel({ activeSection: controlled, onSectionChange, onOpenATS }) {
+  const [internal, setInternal] = useState('personal');
+  const activeSection = controlled ?? internal;
+  const setActiveSection = onSectionChange ?? setInternal;
   const { cvData } = useCV();
-  const score = cvCompletionScore(cvData);
+  const { score } = useMemo(() => analyzeATS(cvData, { pages: getLayoutInfo()?.pages }), [cvData]);
 
   return (
     <Paper
@@ -71,20 +76,18 @@ export default function EditorPanel() {
         overflow: 'hidden',
       }}
     >
-      {/* Completion bar */}
-      <Box sx={{ px: 2, pt: 1.5, pb: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-          <Typography variant="caption" color="text.secondary">Complétion du CV</Typography>
-          <Typography variant="caption" fontWeight={600} color={score >= 80 ? 'success.main' : 'primary.main'}>
-            {score}%
-          </Typography>
-        </Box>
-        <LinearProgress
-          variant="determinate"
-          value={score}
-          color={score >= 80 ? 'success' : 'primary'}
-        />
-      </Box>
+      {/* Score ATS (analyse locale) */}
+      <Tooltip title="Voir le détail de l'analyse ATS" placement="bottom-start">
+        <ButtonBase onClick={onOpenATS} sx={{ display: 'block', textAlign: 'left', px: 2, pt: 1.5, pb: 1, width: '100%' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+            <Typography variant="caption" color="text.secondary">Score ATS</Typography>
+            <Typography variant="caption" fontWeight={600} color={`${scoreColor(score)}.main`}>
+              {score} / 100
+            </Typography>
+          </Box>
+          <LinearProgress variant="determinate" value={score} color={scoreColor(score)} />
+        </ButtonBase>
+      </Tooltip>
 
       {/* Section tabs */}
       <Tabs

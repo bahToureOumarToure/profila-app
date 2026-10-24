@@ -7,21 +7,24 @@ pas de Markdown) respectant EXACTEMENT cette structure :
 
 {
   "personalInfo": {
-    "firstName": "", "lastName": "", "title": "", "email": "", "phone": "",
+    "firstName": "", "lastName": "", "title": "", "availability": "", "email": "", "phone": "",
     "location": "", "website": "", "linkedin": "", "github": "", "summary": ""
   },
   "experiences": [
     { "company": "", "position": "", "startDate": "", "endDate": "",
-      "current": false, "location": "", "description": "" }
+      "current": false, "location": "", "description": "", "technologies": "" }
   ],
   "education": [
-    { "school": "", "degree": "", "field": "", "startDate": "", "endDate": "", "description": "" }
+    { "school": "", "degree": "", "field": "", "location": "", "startDate": "", "endDate": "", "description": "" }
   ],
   "skills": [ { "name": "", "level": 3, "category": "" } ],
   "languages": [ { "name": "", "level": "Courant (C1/C2)" } ],
-  "projects": [ { "name": "", "description": "", "url": "", "technologies": "" } ],
+  "projects": [ { "name": "", "description": "", "url": "", "technologies": "", "startDate": "", "endDate": "" } ],
   "certifications": [
     { "name": "", "issuer": "", "date": "", "expiryDate": "", "credentialId": "", "url": "" }
+  ],
+  "achievements": [
+    { "title": "", "rank": "", "competition": "", "date": "", "location": "", "description": "" }
   ],
   "interests": [ { "name": "", "category": "Autre", "description": "" } ]
 }
@@ -37,6 +40,13 @@ RÈGLES STRICTES :
 - N'invente RIEN : si une information n'est pas dans le texte, laisse le champ vide ou omets l'item.
   Ne crée pas de compétences ou d'expériences fictives.
 - Conserve les chiffres et résultats quantifiables dans les descriptions (très importants).
+- "description" des expériences et projets : une réalisation par ligne, chaque ligne
+  commençant par "- " (elles deviennent des puces). "technologies" : liste séparée
+  par des virgules des outils/langages cités pour ce poste ou projet.
+- "title" : intitulé visé (ex. "Élève-ingénieur en génie informatique").
+  "availability" : disponibilité si mentionnée (ex. "Stage PFE à partir de février 2027").
+- "website" : portfolio ou site personnel. "achievements" : compétitions, hackathons,
+  classements ("rank" = ex. "1re place", "Mention honorable").
 - Renvoie des tableaux vides [] pour les sections absentes. Aucune valeur null.
 
 TEXTE BRUT DU CV :
@@ -110,7 +120,9 @@ RÉSUMÉ DE PROFIL (priorité) :
   parfaitement ce poste).
 
 - Pour les expériences : si une description est déjà optimale, renvoie "after" identique
-  à "before" (elle sera ignorée).
+  à "before" (elle sera ignorée). Format de "after" : une réalisation par ligne
+  commençant par "- " (2 à 4 lignes), verbe d'action en tête, résultat chiffré si le
+  CV le mentionne.
 
 Renvoie UNIQUEMENT cet objet JSON (pas de Markdown) :
 {

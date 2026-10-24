@@ -7,6 +7,7 @@ import { useCV } from '@context/CVContext';
 import { DISTINCTION_TYPES } from '@data/initialCVData';
 import ItemCard from '../controls/ItemCard';
 import SectionHeader from '../controls/SectionHeader';
+import DateField from '../controls/DateField';
 
 const EMPTY_DISTINCTION = {
   title: '',
@@ -73,7 +74,7 @@ export default function DistinctionsSection() {
                             <TextField fullWidth label="Organisme / Éditeur" value={item.issuer} onChange={handleChange(item.id, 'issuer')} />
                           </Grid>
                           <Grid item xs={12} sm={6}>
-                            <TextField fullWidth label="Date" type="month" value={item.date} onChange={handleChange(item.id, 'date')} InputLabelProps={{ shrink: true }} />
+                            <DateField label="Date" value={item.date} onChange={handleChange(item.id, 'date')} />
                           </Grid>
                           <Grid item xs={12}>
                             <TextField fullWidth label="URL (optionnel)" placeholder="https://..." value={item.url} onChange={handleChange(item.id, 'url')} />

@@ -13,10 +13,12 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import SEOHead from '@components/common/SEOHead';
 import { tokens } from '@theme/tokens';
 import { alpha } from '@mui/material/styles';
+import { CV_TEMPLATES } from '@data/initialCVData';
+import { useCV } from '@context/CVContext';
 
 // ── Moteur IA : étapes mises en avant sur l'accueil ──────────────────────────
 const AI_STEPS = [
@@ -26,56 +28,54 @@ const AI_STEPS = [
     description: "L'IA lit votre PDF et pré-remplit automatiquement l'éditeur. Plus besoin de tout retaper.",
   },
   {
-    icon: <GpsFixedIcon />,
-    title: 'Ciblez une offre d\'emploi',
-    description: 'Collez une annonce : l\'IA calcule un score de compatibilité ATS (0-100) et liste les mots-clés manquants.',
+    icon: <ForumOutlinedIcon />,
+    title: 'Dialoguez avec votre CV',
+    description: "Demandez une réécriture, un avis de recruteur ou une version plus courte : l'assistant propose, vous validez chaque modification (et pouvez annuler).",
   },
   {
-    icon: <AutoFixHighIcon />,
-    title: 'Optimisez en un clic',
-    description: 'L\'IA réécrit votre résumé et vos expériences et ajoute les compétences pertinentes-vous validez chaque suggestion.',
+    icon: <GpsFixedIcon />,
+    title: 'Ciblez une offre',
+    description: "Collez une annonce : score de compatibilité ATS, mots-clés manquants et optimisations honnêtes, sans rien inventer.",
   },
 ];
 
 // ── Templates présentés (mock visuel léger, sans image) ──────────────────────
-const TEMPLATES = [
-  { id: 'modern',  label: 'Moderne',      accent: tokens.colors.primary[900],  desc: 'Sidebar colorée, contemporain.' },
-  { id: 'classic', label: 'Classique',    accent: '#0d47a1',                   desc: 'Sobre et élégant, secteurs traditionnels.' },
-  { id: 'minimal', label: 'Minimaliste',  accent: '#212121',                   desc: 'Épuré, typographique, très lisible.' },
-];
+const TEMPLATES = CV_TEMPLATES.map((t) => ({ ...t, accent: t.defaultColor }));
 
+// Miniature schématique : une colonne, comme les PDF générés.
 function TemplateThumb({ id, accent }) {
   const line = (w, key, o = 0.5) => (
-    <Box key={key} sx={{ height: 5, borderRadius: 1, bgcolor: alpha('#000', o * 0.25), width: w, mb: 0.8 }} />
+    <Box key={key} sx={{ height: 4, borderRadius: 1, bgcolor: alpha('#000', o * 0.25), width: w, mb: 0.6 }} />
   );
+  const heading = (key) => (
+    <Box key={key} sx={{ mt: 1, mb: 0.6 }}>
+      <Box sx={{ height: 5, width: '38%', borderRadius: 1, bgcolor: id === 'minimal' ? alpha('#000', 0.75) : accent }} />
+      <Box sx={{ height: '1px', bgcolor: id === 'minimal' ? alpha('#000', 0.6) : accent, mt: 0.4 }} />
+    </Box>
+  );
+  const photo = { ats: 'right', classic: 'left-round', modern: 'left' }[id];
+  const centered = id === 'classic' || id === 'minimal';
   return (
     <Box sx={{ aspectRatio: '1 / 1.414', bgcolor: '#fff', borderRadius: 1.5, overflow: 'hidden',
-      border: '1px solid', borderColor: 'divider', display: 'flex',
-      flexDirection: id === 'classic' ? 'column' : 'row' }}>
-      {id === 'modern' && (
-        <>
-          <Box sx={{ width: '34%', bgcolor: accent, p: 1.2 }}>
-            <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: alpha('#fff', 0.3), mx: 'auto', mb: 1.2 }} />
-            {[0.8, 0.6, 0.7, 0.5].map((w, i) => <Box key={i} sx={{ height: 4, borderRadius: 1, bgcolor: alpha('#fff', 0.4), width: `${w * 100}%`, mb: 0.7 }} />)}
-          </Box>
-          <Box sx={{ flex: 1, p: 1.4 }}>{[0.9, 0.7, 0.85, 0.6, 0.8, 0.5, 0.75].map((w, i) => line(`${w * 100}%`, i))}</Box>
-        </>
-      )}
-      {id === 'classic' && (
-        <>
-          <Box sx={{ bgcolor: accent, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Box sx={{ height: 7, width: '45%', borderRadius: 1, bgcolor: alpha('#fff', 0.6) }} />
-          </Box>
-          <Box sx={{ p: 1.6 }}>{[0.95, 0.7, 0.85, 0.6, 0.8, 0.55, 0.78, 0.5].map((w, i) => line(`${w * 100}%`, i))}</Box>
-        </>
-      )}
-      {id === 'minimal' && (
-        <Box sx={{ p: 1.8, width: '100%' }}>
-          <Box sx={{ height: 8, width: '50%', borderRadius: 1, bgcolor: alpha('#000', 0.7), mb: 0.6 }} />
-          <Box sx={{ height: 4, width: '32%', borderRadius: 1, bgcolor: accent, mb: 1.6 }} />
-          {[0.92, 0.7, 0.85, 0.6, 0.8, 0.55, 0.75, 0.5].map((w, i) => line(`${w * 100}%`, i, 0.45))}
+      border: '1px solid', borderColor: 'divider', p: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexDirection: photo === 'right' ? 'row-reverse' : 'row' }}>
+        {photo && (
+          <Box sx={{ width: 26, height: 26, flexShrink: 0, bgcolor: alpha(accent, 0.25),
+            borderRadius: photo === 'left-round' ? '50%' : 0.5 }} />
+        )}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: centered ? 'center' : 'flex-start' }}>
+          <Box sx={{ height: 7, width: '55%', borderRadius: 1, mb: 0.6,
+            bgcolor: id === 'classic' || id === 'modern' ? accent : alpha('#000', 0.75) }} />
+          <Box sx={{ height: 3, width: '75%', borderRadius: 1, bgcolor: alpha('#000', 0.3), mb: 0.4 }} />
+          <Box sx={{ height: 3, width: '60%', borderRadius: 1, bgcolor: alpha('#000', 0.2) }} />
         </Box>
-      )}
+      </Box>
+      {heading('h1')}
+      {[0.95, 0.9, 0.6].map((w, i) => line(`${w * 100}%`, `a${i}`))}
+      {heading('h2')}
+      {[0.85, 0.92, 0.7, 0.88].map((w, i) => line(`${w * 100}%`, `b${i}`))}
+      {heading('h3')}
+      {[0.9, 0.75, 0.82].map((w, i) => line(`${w * 100}%`, `c${i}`))}
     </Box>
   );
 }
@@ -83,28 +83,28 @@ function TemplateThumb({ id, accent }) {
 const FEATURES = [
   {
     icon: <AutoAwesomeIcon />,
-    title: 'Templates professionnels',
-    description: '3 modèles élégants (Moderne, Classique, Minimaliste) pensés pour maximiser vos chances.',
+    title: '4 templates optimisés ATS',
+    description: 'Ingénieur, Académique, Moderne, Minimaliste : une colonne, texte réel, titres standards, liens cliquables.',
   },
   {
     icon: <PictureAsPdfOutlinedIcon />,
-    title: 'Export PDF haute qualité',
-    description: 'Générez un PDF impeccable prêt à envoyer, avec une mise en page parfaite.',
+    title: 'Aperçu = PDF final',
+    description: "L'aperçu affiche le vrai PDF : ce que vous voyez est exactement ce que vous téléchargez, ajusté sur une page.",
   },
   {
     icon: <SpeedOutlinedIcon />,
-    title: 'Éditeur en temps réel',
-    description: 'Votre CV se met à jour instantanément pendant la saisie. Aucun délai.',
+    title: 'Analyse ATS instantanée',
+    description: 'Score et corrections concrètes (dates, coordonnées, puces, chiffres) sans envoyer vos données.',
   },
   {
     icon: <PaletteOutlinedIcon />,
-    title: 'Personnalisation complète',
-    description: 'Couleurs, typographie, sections-adaptez chaque détail à votre image.',
+    title: 'Mise en page maîtrisée',
+    description: 'Densité, taille du texte, polices nettes, ordre et titres des sections, sections masquables.',
   },
   {
     icon: <LockOutlinedIcon />,
-    title: 'Données 100% privées',
-    description: 'Tout reste dans votre navigateur. Aucune donnée envoyée sur un serveur.',
+    title: 'Données privées',
+    description: "Tout reste dans votre navigateur. Seuls les textes envoyés à l'assistant IA quittent votre machine, à votre demande.",
   },
   {
     icon: <DevicesOutlinedIcon />,
@@ -121,6 +121,12 @@ const STEPS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { updateMeta } = useCV();
+
+  const applyTemplate = (t) => {
+    updateMeta({ template: t.id, fontFamily: t.defaultFont, colorScheme: { primary: t.defaultColor, secondary: t.defaultColor } });
+    navigate('/builder');
+  };
 
   return (
     <>
@@ -183,7 +189,7 @@ export default function HomePage() {
             component="p"
             sx={{ color: 'rgba(255,255,255,0.82)', mb: 5, fontWeight: 400, maxWidth: 560, mx: 'auto' }}
           >
-            Des templates modernes, un éditeur intuitif et un export PDF haute qualité-gratuitement.
+            Des templates optimisés ATS, un assistant IA avec qui dialoguer et un export PDF d'une page, gratuitement.
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
             <Button
@@ -343,7 +349,7 @@ export default function HomePage() {
 
           <Grid container spacing={4} justifyContent="center">
             {TEMPLATES.map((t) => (
-              <Grid item xs={12} sm={6} md={4} key={t.id}>
+              <Grid item xs={12} sm={6} md={3} key={t.id}>
                 <Card sx={{ overflow: 'hidden', height: '100%',
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': { transform: 'translateY(-6px)', boxShadow: tokens.shadows.cardHover } }}>
@@ -355,8 +361,8 @@ export default function HomePage() {
                       <Typography variant="h6" fontWeight={700}>{t.label}</Typography>
                       <Box sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: t.accent }} />
                     </Stack>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{t.desc}</Typography>
-                    <Button fullWidth variant="outlined" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/builder')}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{t.description}</Typography>
+                    <Button fullWidth variant="outlined" endIcon={<ArrowForwardIcon />} onClick={() => applyTemplate(t)}>
                       Utiliser ce template
                     </Button>
                   </CardContent>

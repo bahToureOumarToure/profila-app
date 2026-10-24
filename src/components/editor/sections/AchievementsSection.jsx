@@ -7,6 +7,7 @@ import { useCV } from '@context/CVContext';
 import { ACHIEVEMENT_TYPES } from '@data/initialCVData';
 import ItemCard from '../controls/ItemCard';
 import SectionHeader from '../controls/SectionHeader';
+import DateField from '../controls/DateField';
 
 const EMPTY_ACHIEVEMENT = {
   title: '',
@@ -31,14 +32,14 @@ export default function AchievementsSection() {
   return (
     <Box>
       <SectionHeader
-        title={`Palmarès sportif (${achievements.length})`}
+        title={`Compétitions & palmarès (${achievements.length})`}
         onAdd={() => addItem('achievements', EMPTY_ACHIEVEMENT)}
-        addLabel="Ajouter un titre / une distinction"
+        addLabel="Ajouter une compétition"
       />
 
       {achievements.length === 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ py: 3, textAlign: 'center' }}>
-          Aucune entrée - ajoutez vos médailles, titres ou compétitions.
+          Aucune entrée - ajoutez vos compétitions (ICPC, hackathons…), classements ou médailles.
         </Typography>
       )}
 
@@ -78,7 +79,7 @@ export default function AchievementsSection() {
                             <TextField fullWidth label="Compétition / Épreuve" placeholder="ex. Championnat de France" value={item.competition} onChange={handleChange(item.id, 'competition')} />
                           </Grid>
                           <Grid item xs={6}>
-                            <TextField fullWidth label="Date" type="month" value={item.date} onChange={handleChange(item.id, 'date')} InputLabelProps={{ shrink: true }} />
+                            <DateField label="Date" value={item.date} onChange={handleChange(item.id, 'date')} />
                           </Grid>
                           <Grid item xs={6}>
                             <TextField fullWidth label="Lieu" value={item.location} onChange={handleChange(item.id, 'location')} />

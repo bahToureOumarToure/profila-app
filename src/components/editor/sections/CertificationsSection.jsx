@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useCV } from '@context/CVContext';
 import ItemCard from '../controls/ItemCard';
 import SectionHeader from '../controls/SectionHeader';
+import DateField from '../controls/DateField';
 
 const EMPTY_CERT = { name: '', issuer: '', date: '', expiryDate: '', credentialId: '', url: '' };
 
@@ -53,10 +54,10 @@ export default function CertificationsSection() {
                             <TextField fullWidth label="Organisme délivreur" placeholder="ex. Université, FFF, AWS..." value={cert.issuer} onChange={handleChange(cert.id, 'issuer')} />
                           </Grid>
                           <Grid item xs={6}>
-                            <TextField fullWidth label="Date d'obtention" type="month" value={cert.date} onChange={handleChange(cert.id, 'date')} InputLabelProps={{ shrink: true }} />
+                            <DateField label="Date d'obtention" value={cert.date} onChange={handleChange(cert.id, 'date')} />
                           </Grid>
                           <Grid item xs={6}>
-                            <TextField fullWidth label="Expiration (optionnel)" type="month" value={cert.expiryDate} onChange={handleChange(cert.id, 'expiryDate')} InputLabelProps={{ shrink: true }} />
+                            <DateField label="Expiration (optionnel)" value={cert.expiryDate} onChange={handleChange(cert.id, 'expiryDate')} />
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             <TextField fullWidth label="N° / Identifiant (optionnel)" value={cert.credentialId} onChange={handleChange(cert.id, 'credentialId')} />

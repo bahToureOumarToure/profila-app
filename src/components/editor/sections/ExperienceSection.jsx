@@ -1,13 +1,12 @@
 import { Grid, TextField, FormControlLabel, Checkbox, Box, Typography } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useCV } from '@context/CVContext';
+import { EMPTY_ITEMS } from '@data/initialCVData';
 import ItemCard from '../controls/ItemCard';
 import SectionHeader from '../controls/SectionHeader';
+import DateField from '../controls/DateField';
 
-const EMPTY_EXP = {
-  company: '', position: '', startDate: '', endDate: '',
-  current: false, location: '', description: '',
-};
+const EMPTY_EXP = EMPTY_ITEMS.experiences;
 
 export default function ExperienceSection() {
   const { cvData, addItem, updateItem, removeItem, reorderItems } = useCV();
@@ -61,11 +60,11 @@ export default function ExperienceSection() {
                           <Grid item xs={12} sm={6}>
                             <TextField fullWidth label="Localisation" value={exp.location} onChange={handleChange(exp.id, 'location')} />
                           </Grid>
-                          <Grid item xs={12} sm={3}>
-                            <TextField fullWidth label="Début" type="month" value={exp.startDate} onChange={handleChange(exp.id, 'startDate')} InputLabelProps={{ shrink: true }} />
+                          <Grid item xs={12} sm={6}>
+                            <DateField label="Début" value={exp.startDate} onChange={handleChange(exp.id, 'startDate')} />
                           </Grid>
-                          <Grid item xs={12} sm={3}>
-                            <TextField fullWidth label="Fin" type="month" value={exp.endDate} onChange={handleChange(exp.id, 'endDate')} InputLabelProps={{ shrink: true }} disabled={exp.current} />
+                          <Grid item xs={12} sm={6}>
+                            <DateField label="Fin" value={exp.endDate} onChange={handleChange(exp.id, 'endDate')} disabled={exp.current} />
                           </Grid>
                           <Grid item xs={12}>
                             <FormControlLabel
@@ -75,11 +74,19 @@ export default function ExperienceSection() {
                           </Grid>
                           <Grid item xs={12}>
                             <TextField
-                              fullWidth multiline rows={4}
-                              label="Description & réalisations"
-                              placeholder="Décrivez vos missions et accomplissements..."
+                              fullWidth multiline minRows={4}
+                              label="Réalisations (une par ligne → puces)"
+                              placeholder={'- Conçu une API REST sécurisée (JWT) utilisée par 3 équipes\n- Automatisé le déploiement avec Docker et GitHub Actions'}
                               value={exp.description}
                               onChange={handleChange(exp.id, 'description')}
+                              helperText="Commencez par un verbe d'action, chiffrez les résultats, **gras** pour un mot-clé."
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <TextField
+                              fullWidth label="Stack technique / outils"
+                              placeholder="Java, Spring Boot, Docker, Git"
+                              value={exp.technologies} onChange={handleChange(exp.id, 'technologies')}
                             />
                           </Grid>
                         </Grid>

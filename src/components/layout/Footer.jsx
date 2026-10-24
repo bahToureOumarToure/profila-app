@@ -15,7 +15,7 @@ const LEGAL_LINKS = [
 
 const CREATOR = {
   name:     'Bah Omar Touré',
-  website:  'https://bahoumartoure.com',
+  website:  'https://bahoumartoure.vercel.app',
   email:    'o.t.bahtoure@gmail.com',
   phone:    '+212705107686',
   linkedin: 'https://www.linkedin.com/in/bahoumartoure/',

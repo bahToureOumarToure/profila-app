@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { v4 as uuid } from 'uuid';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography,
   LinearProgress, Alert, TextField, Stack, Chip, IconButton, Divider,
@@ -89,7 +90,7 @@ const STEPS = ['Offre', 'Audit', 'Optimisation'];
 const STEP_INDEX = { input: 0, auditing: 0, audit: 1, optimizing: 1, review: 2, done: 2 };
 
 export default function JobCoachDialog({ open, onClose }) {
-  const { cvData, updatePersonalInfo, updateItem, addItem } = useCV();
+  const { cvData, loadCV } = useCV();
   const [phase, setPhase] = useState('input');
   const [error, setError] = useState('');
   const [jobText, setJobText] = useState('');
@@ -123,16 +124,21 @@ export default function JobCoachDialog({ open, onClose }) {
     }
   }, [cvData, jobText]);
 
+  // Application en un seul bloc : un seul point de restauration pour « Annuler ».
   const apply = () => {
-    let n = 0;
-    suggestions.forEach((s) => {
-      if (!accepted[s.id]) return;
-      if (s.target === 'summary') updatePersonalInfo({ summary: s.after });
-      else if (s.target === 'experience') updateItem('experiences', s.expId, { description: s.after });
-      else if (s.target === 'skillAdd') addItem('skills', { name: s.skillName, category: s.skillCategory, level: 4 });
-      n += 1;
-    });
-    setAppliedCount(n); setPhase('done');
+    const chosen = suggestions.filter((s) => accepted[s.id]);
+    const next = chosen.reduce((cv, s) => {
+      if (s.target === 'summary') return { ...cv, personalInfo: { ...cv.personalInfo, summary: s.after } };
+      if (s.target === 'experience') {
+        return { ...cv, experiences: cv.experiences.map((e) => (e.id === s.expId ? { ...e, description: s.after } : e)) };
+      }
+      if (s.target === 'skillAdd') {
+        return { ...cv, skills: [...cv.skills, { id: uuid(), name: s.skillName, category: s.skillCategory, level: 4 }] };
+      }
+      return cv;
+    }, cvData);
+    loadCV(next, `Coach IA : ${chosen.length} optimisation(s)`);
+    setAppliedCount(chosen.length); setPhase('done');
   };
 
   const a = audit?.audit;
@@ -292,7 +298,8 @@ export default function JobCoachDialog({ open, onClose }) {
 
         {phase === 'done' && (
           <Alert icon={<CheckCircleOutlineIcon />} severity="success">
-            {appliedCount} suggestion(s) appliquée(s). Vérifie l'aperçu et télécharge le PDF mis à jour.
+            {appliedCount} suggestion(s) appliquée(s). Vérifie l'aperçu et télécharge le PDF mis à jour
+            (bouton « Annuler » de la barre d'outils pour revenir en arrière).
           </Alert>
         )}
       </DialogContent>

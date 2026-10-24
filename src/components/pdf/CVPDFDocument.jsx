@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { pdf } from '@react-pdf/renderer';
 import {
   Button,
   CircularProgress,
@@ -12,16 +11,8 @@ import {
   Box,
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
-import { ModernPDFTemplate } from './templates/ModernPDFTemplate';
-import { ClassicPDFTemplate } from './templates/ClassicPDFTemplate';
-import { MinimalPDFTemplate } from './templates/MinimalPDFTemplate';
 import { useCV } from '@context/CVContext';
-
-const TEMPLATE_MAP = {
-  modern:  ModernPDFTemplate,
-  classic: ClassicPDFTemplate,
-  minimal: MinimalPDFTemplate,
-};
+import { renderResume } from './renderResume';
 
 function suggestFileName(personalInfo) {
   const name = `${personalInfo.firstName ?? ''}-${personalInfo.lastName ?? ''}`
@@ -57,8 +48,8 @@ export default function PDFDownloadButton({ variant = 'contained', size = 'mediu
     setDialogOpen(false);
     setLoading(true);
     try {
-      const PDFTemplate = TEMPLATE_MAP[cvData.meta?.template] || ModernPDFTemplate;
-      const blob = await pdf(<PDFTemplate cvData={cvData} />).toBlob();
+      // Même moteur que l'aperçu : le fichier téléchargé est identique à ce qui est affiché.
+      const { blob } = await renderResume(cvData);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
