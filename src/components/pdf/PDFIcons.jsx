@@ -1,12 +1,13 @@
 import { Svg, Path, Circle, Rect } from '@react-pdf/renderer';
 
 // Small SVG icons for PDF contact lines (Lucide/Feather-style, 24x24 viewBox).
-// Default size 8pt. Color via `color` prop (defaults to white for sidebars).
+// Default size 8pt. Color via `color` prop. react-pdf n'hérite pas `fill` du
+// <Svg> parent : les icônes au trait déclarent fill="none" sur chaque forme.
 
 export const MailIcon = ({ size = 8, color = '#fff' }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-    <Rect x={2} y={4} width={20} height={16} rx={2} />
-    <Path d="M22 7l-10 6L2 7" />
+    <Rect x={2} y={4} width={20} height={16} rx={2} fill="none" />
+    <Path d="M22 7l-10 6L2 7" fill="none" />
   </Svg>
 );
 
@@ -18,16 +19,16 @@ export const PhoneIcon = ({ size = 8, color = '#fff' }) => (
 
 export const MapPinIcon = ({ size = 8, color = '#fff' }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-    <Path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z" />
-    <Circle cx={12} cy={10} r={3} />
+    <Path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z" fill="none" />
+    <Circle cx={12} cy={10} r={3} fill="none" />
   </Svg>
 );
 
 export const GlobeIcon = ({ size = 8, color = '#fff' }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-    <Circle cx={12} cy={12} r={10} />
-    <Path d="M2 12h20" />
-    <Path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    <Circle cx={12} cy={12} r={10} fill="none" />
+    <Path d="M2 12h20" fill="none" />
+    <Path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" />
   </Svg>
 );
 

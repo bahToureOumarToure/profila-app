@@ -1,29 +1,41 @@
 # 📄 Profila - CV Builder
 
-> Créez votre CV professionnel en ligne, gratuitement.
-> Templates modernes, éditeur temps réel, export PDF haute qualité.
+> Créez un CV professionnel **optimisé ATS**, dialoguez avec un assistant IA pour l'améliorer,
+> et exportez un PDF d'une page identique à l'aperçu.
 
 🌐 **Live Demo :** [profila.app](https://profila.app)
 
 ![React](https://img.shields.io/badge/React-18-61dafb?logo=react)
 ![MUI](https://img.shields.io/badge/MUI-5-007fff?logo=mui)
 ![Vite](https://img.shields.io/badge/Vite-5-646cff?logo=vite)
+![CI](https://github.com/bahToureOumarToure/profila-app/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
 ## ✨ Fonctionnalités
 
-- 🎨 **3 templates professionnels** - Moderne, Classique, Minimaliste
-- ⚡ **Éditeur temps réel** - prévisualisation instantanée pendant la saisie
-- 📄 **Export PDF haute qualité** - PDF natif A4 via `@react-pdf/renderer`
-- 🌓 **Dark / Light mode** - préférence persistée
-- 🎨 **Personnalisation complète** - 6 palettes de couleurs, 3 polices
-- 💾 **Sauvegarde automatique** - localStorage, aucune donnée envoyée
-- 📤 **Import / Export JSON** - sauvegardez et restaurez vos CV
-- 🔄 **Drag & Drop** - réordonnez vos sections
-- 📱 **100% Responsive** - mobile, tablette, desktop
-- 🔒 **Privacy-first** - aucun tracking, aucun cookie, aucun serveur
+- 🧾 **4 templates optimisés ATS** — Ingénieur (style LaTeX), Académique, Moderne, Minimaliste :
+  une seule colonne, texte réel extractible, titres de sections standards, liens lisibles **et** cliquables,
+  métadonnées PDF (titre, auteur, mots-clés).
+- 👁️ **Aperçu = PDF final** — l'aperçu affiche le vrai PDF (pdf.js) : mêmes polices, mêmes espacements,
+  même pagination que le fichier téléchargé, avec compteur de pages.
+- 📏 **Ajustement automatique sur 1 page** — resserre espacements puis taille du texte (jamais sous 88 %)
+  quand le CV déborde légèrement. Densité (compact / normal / aéré) et taille du texte réglables.
+- 💬 **Assistant IA conversationnel** — on dialogue avec son CV (« rends mon profil plus percutant »,
+  « condense en une page », « avis de recruteur ? »). L'assistant voit le CV à jour et l'offre ciblée,
+  propose des modifications en **avant / après**, que l'on applique une par une. Rien n'est inventé.
+- ↩️ **Annuler** — chaque modification en bloc (IA, import, réinitialisation) crée un point de restauration.
+- ✅ **Analyse ATS locale** — score et constats concrets (coordonnées, dates, puces, chiffres, titres
+  non standards, nombre de pages…), sans clé API ni envoi de données. Un clic mène au champ à corriger.
+- 🎯 **Coach offre** — score de compatibilité avec une annonce et optimisations ciblées.
+- 📥 **Import PDF par IA** — pré-remplit l'éditeur à partir d'un ancien CV.
+- ✍️ **Rédaction guidée** — une réalisation par ligne = une puce, `**gras**` pour un mot-clé,
+  stack technique par expérience, disponibilité (« Stage PFE – Février 2027 »), portfolio, dates mois/année.
+- 🎨 **Design** — polices nettes embarquées (Source Serif 4, Inter, Carlito ≈ Calibri, Lato, Roboto),
+  couleur, format des dates, ordre / titres / visibilité des sections, photo et icônes optionnelles.
+- 💾 **Sauvegarde automatique** (localStorage), import / export JSON, CV d'exemple.
+- 📱 **Responsive** — mobile, tablette, desktop.
 
 ---
 
@@ -33,11 +45,11 @@
 |--------|------------|
 | Framework | React 18 + Vite 5 |
 | UI Library | Material UI v5 + Emotion |
-| Routing | React Router v6 (lazy loading) |
-| State Management | Context API + useReducer |
-| PDF Generation | @react-pdf/renderer |
-| Drag & Drop | react-beautiful-dnd |
-| SEO | react-helmet-async |
+| PDF | @react-pdf/renderer (génération) + pdf.js (aperçu, extraction) |
+| IA | API Gemini (REST, sortie JSON validée côté client) |
+| State Management | Context API + useReducer (+ points de restauration) |
+| Tests | Vitest (unitaires + rendu PDF), Playwright (E2E) |
+| CI/CD | GitHub Actions, Vercel |
 
 ---
 
@@ -45,22 +57,17 @@
 
 ```
 src/
+├── ai/                  # Client Gemini, prompts, assistant conversationnel, coach, import PDF
 ├── components/
-│   ├── common/          # SEOHead, composants partagés
-│   ├── layout/          # Navbar, Footer, AppLayout
-│   ├── editor/
-│   │   ├── sections/    # 7 sections de formulaire
-│   │   └── controls/    # Composants réutilisables
-│   ├── preview/
-│   │   └── templates/   # 3 templates HTML temps réel
-│   └── pdf/
-│       └── templates/   # Templates PDF @react-pdf
-├── context/             # CVContext, ThemeContext
-├── data/                # Modèle de données CV
-├── hooks/               # Hooks personnalisés
+│   ├── ai/              # Panneau assistant, import PDF, coach offre
+│   ├── editor/          # Sections du formulaire, onglet Design, analyse ATS
+│   ├── preview/         # Aperçu = rendu pdf.js du PDF réel
+│   └── pdf/             # Moteur de rendu unique (ResumeDocument), thèmes, polices, auto-ajustement
+├── context/             # CVContext (état, autosave, annulation), ThemeContext
+├── data/                # Modèle de données, migration des anciens CV, CV d'exemple
 ├── pages/               # HomePage, BuilderPage, pages légales
-├── theme/               # Thème MUI + design tokens
-└── utils/               # Helpers
+└── utils/               # Helpers (dates, puces, liens), analyse ATS
+e2e/                     # Scénario de test fonctionnel (navigateur réel, IA simulée)
 ```
 
 ---
@@ -68,58 +75,55 @@ src/
 ## 🚀 Démarrage rapide
 
 ```bash
-# Cloner le repo
-git clone https://github.com/bahToureOumarToure/profila.git
-cd profila
-
-# Installer les dépendances
 npm install
-
-# Lancer en développement
-npm run dev
-
-# Build production
-npm run build
-
-# Preview du build
-npm run preview
+npm run dev          # développement
+npm run build        # build production
+npm run preview      # sert le build
 ```
 
----
+La clé Gemini est lue depuis `VITE_GEMINI_API_KEY` (fichier `.env`). Sans clé, tout fonctionne
+sauf les fonctions IA (l'analyse ATS reste disponible).
 
-## 📦 Déploiement
-
-Compatible avec tout hébergeur statique (Apache, Nginx, Vercel, Netlify).
-Le fichier `.htaccess` pour Apache est inclus (SPA routing).
+## 🧪 Tests
 
 ```bash
-npm run build
-# Upload le contenu de dist/ sur votre hébergeur
+npm run lint
+npm test                         # Vitest : helpers, migration, analyse ATS, assistant, rendu PDF des 4 templates
+PROFILA_PDF_OUT=out npm test     # écrit aussi les PDF générés dans ./out pour inspection
+npm run build && npx vite preview --port 4173 &
+npm run test:e2e                 # scénario complet dans Chromium (Gemini simulé)
 ```
+
+Les tests de rendu vérifient pour chaque template : une page, texte extractible dans l'ordre de
+lecture, liens cliquables, métadonnées PDF, absence de balises `**` résiduelles.
 
 ---
 
-## 🎨 Templates disponibles
+## 📦 Déploiement & CI/CD
 
-| Template | Description |
-|----------|-------------|
-| **Moderne** | Sidebar latérale colorée, design contemporain |
-| **Classique** | Élégant, sobre - idéal secteurs traditionnels |
-| **Minimaliste** | Épuré, typographique, très lisible |
+Le workflow `.github/workflows/ci.yml` s'exécute à chaque push et pull request :
+
+1. **quality** — `npm ci`, lint, tests Vitest, build ; le dossier `dist/` est publié en artefact ;
+2. **e2e** — sert le build et joue le scénario Playwright (captures d'écran en artefact) ;
+3. **deploy** — sur `main` uniquement, déploie sur Vercel si les secrets `VERCEL_TOKEN`,
+   `VERCEL_ORG_ID` et `VERCEL_PROJECT_ID` sont définis (Settings → Secrets → Actions) ; sinon il est ignoré.
+
+`vercel.json` configure le routage SPA et les en-têtes. Pour un hébergement Apache, uploadez `dist/`
+(le `.htaccess` inclus gère le routage SPA et le type MIME des modules `.mjs` de pdf.js).
 
 ---
 
 ## 🔐 Confidentialité
 
-Profila ne collecte **aucune donnée personnelle**.
-Toutes vos informations restent dans votre navigateur (localStorage).
-Aucun serveur, aucun tracking, aucun cookie.
+Le CV est stocké dans le navigateur (localStorage) ; l'aperçu, le PDF et l'analyse ATS sont calculés
+localement. Les fonctions IA sont facultatives : lorsqu'on les utilise, le texte nécessaire (CV hors photo,
+offre, messages) est envoyé à l'API Gemini.
 
 ---
 
 ## 📄 Licence
 
-MIT © [Bah Omar Touré](https://bahoumartoure.com)
+MIT © [Bah Omar Touré](https://bahoumartoure.vercel.app)
 
 ---
 
@@ -127,7 +131,7 @@ MIT © [Bah Omar Touré](https://bahoumartoure.com)
 
 **Bah Omar Touré**
 
-- 🌐 Site web : [bahoumartoure.com](https://bahoumartoure.com)
+- 🌐 Portfolio : [bahoumartoure.vercel.app](https://bahoumartoure.vercel.app)
 - 💼 LinkedIn : [bahoumartoure](https://www.linkedin.com/in/bahoumartoure/)
 - 💻 GitHub : [@bahToureOumarToure](https://github.com/bahToureOumarToure)
 - 📧 Email : o.t.bahtoure@gmail.com

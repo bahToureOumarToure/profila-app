@@ -1,9 +1,6 @@
 // Extraction du texte brut d'un PDF, 100 % côté navigateur (pdfjs-dist).
 // Aucune donnée ne sort de la machine à cette étape.
-import * as pdfjsLib from 'pdfjs-dist';
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+import pdfjsLib from '@utils/pdfjs';
 
 /**
  * Extrait le texte d'un fichier PDF.

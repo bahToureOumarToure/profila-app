@@ -7,7 +7,7 @@ import { LANGUAGE_LEVELS } from '@data/initialCVData';
 const str = (v) => (typeof v === 'string' ? v.trim() : v == null ? '' : String(v));
 const bool = (v) => v === true || v === 'true';
 
-function normDate(v) {
+export function normDate(v) {
   const s = str(v);
   if (/^\d{4}-(0[1-9]|1[0-2])$/.test(s)) return s;            // YYYY-MM
   if (/^\d{4}$/.test(s)) return s;                              // YYYY
@@ -18,13 +18,13 @@ function normDate(v) {
   return '';
 }
 
-function clampLevel(v) {
+export function clampLevel(v) {
   const n = Math.round(Number(v));
   if (Number.isNaN(n)) return 3;
   return Math.min(5, Math.max(1, n));
 }
 
-function normLangLevel(v) {
+export function normLangLevel(v) {
   const s = str(v);
   return LANGUAGE_LEVELS.includes(s) ? s : 'Courant (C1/C2)';
 }
@@ -47,6 +47,7 @@ export function normalizeParsedCV(raw) {
       firstName: str(p.firstName),
       lastName: str(p.lastName),
       title: str(p.title),
+      availability: str(p.availability),
       email: str(p.email),
       phone: str(p.phone),
       location: str(p.location),
@@ -65,12 +66,14 @@ export function normalizeParsedCV(raw) {
         current: bool(e.current),
         location: str(e.location),
         description: str(e.description),
+        technologies: str(e.technologies),
       })),
     education: arr(raw.education, (e) =>
       withId({
         school: str(e.school),
         degree: str(e.degree),
         field: str(e.field),
+        location: str(e.location),
         startDate: normDate(e.startDate),
         endDate: normDate(e.endDate),
         description: str(e.description),
@@ -83,6 +86,7 @@ export function normalizeParsedCV(raw) {
       str(pr.name) ? withId({
         name: str(pr.name), description: str(pr.description),
         url: str(pr.url), technologies: str(pr.technologies),
+        startDate: normDate(pr.startDate), endDate: normDate(pr.endDate),
       }) : null),
     certifications: arr(raw.certifications, (c) =>
       str(c.name) ? withId({
@@ -91,6 +95,12 @@ export function normalizeParsedCV(raw) {
       }) : null),
     interests: arr(raw.interests, (i) =>
       str(i.name) ? withId({ name: str(i.name), category: str(i.category) || 'Autre', description: str(i.description) }) : null),
+    achievements: arr(raw.achievements, (a) =>
+      (str(a.title) || str(a.rank)) ? withId({
+        title: str(a.title), type: str(a.type) || 'Compétition', rank: str(a.rank),
+        competition: str(a.competition), date: normDate(a.date), location: str(a.location),
+        description: str(a.description),
+      }) : null),
   };
 
   return out;
@@ -109,6 +119,7 @@ export function summarizeParsedCV(cv) {
       languages: cv.languages.length,
       projects: cv.projects.length,
       certifications: cv.certifications.length,
+      achievements: cv.achievements.length,
     },
   };
 }

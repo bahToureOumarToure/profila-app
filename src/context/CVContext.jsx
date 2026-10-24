@@ -1,6 +1,9 @@
-import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import {
+  createContext, useContext, useReducer, useEffect, useCallback, useRef, useState,
+} from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import initialCVData from '@data/initialCVData';
+import { migrateCV } from '@data/migrateCV';
 
 // ─── Action types ────────────────────────────────────────────────────────────
 export const CV_ACTIONS = {
@@ -15,7 +18,7 @@ export const CV_ACTIONS = {
 };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
-function cvReducer(state, action) {
+export function cvReducer(state, action) {
   switch (action.type) {
     case CV_ACTIONS.UPDATE_PERSONAL_INFO:
       return {
@@ -64,10 +67,13 @@ function cvReducer(state, action) {
     }
 
     case CV_ACTIONS.RESET_CV:
-      return initialCVData;
+      return migrateCV(initialCVData);
 
-    case CV_ACTIONS.LOAD_CV:
-      return { ...initialCVData, ...action.payload };
+    case CV_ACTIONS.LOAD_CV: {
+      // Un CV importé sans design (import PDF par IA) conserve le design actuel.
+      const payload = action.payload || {};
+      return migrateCV({ ...payload, meta: payload.meta || state.meta });
+    }
 
     default:
       return state;
@@ -78,18 +84,24 @@ function cvReducer(state, action) {
 const CVContext = createContext(null);
 
 const STORAGE_KEY = 'profila_cv_data';
+const MAX_SNAPSHOTS = 20;
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return migrateCV(raw ? JSON.parse(raw) : initialCVData);
+  } catch {
+    return migrateCV(initialCVData);
+  }
+}
 
 export function CVProvider({ children }) {
-  const savedData = (() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? { ...initialCVData, ...JSON.parse(raw) } : initialCVData;
-    } catch {
-      return initialCVData;
-    }
-  })();
-
-  const [cvData, dispatch] = useReducer(cvReducer, savedData);
+  const [cvData, dispatch] = useReducer(cvReducer, undefined, loadSaved);
+  // Points de restauration (en mémoire) avant chaque modification « en bloc » :
+  // import, application des suggestions IA, réinitialisation.
+  const [snapshots, setSnapshots] = useState([]);
+  const cvRef = useRef(cvData);
+  cvRef.current = cvData;
 
   // Auto-save to localStorage on every change
   useEffect(() => {
@@ -119,11 +131,27 @@ export function CVProvider({ children }) {
   const reorderItems = useCallback((section, sourceIndex, destinationIndex) =>
     dispatch({ type: CV_ACTIONS.REORDER_ITEMS, payload: { section, sourceIndex, destinationIndex } }), []);
 
-  const resetCV = useCallback(() =>
-    dispatch({ type: CV_ACTIONS.RESET_CV }), []);
+  const checkpoint = useCallback((label) => {
+    const data = cvRef.current;
+    setSnapshots((prev) => [...prev.slice(-(MAX_SNAPSHOTS - 1)), { label, data, at: Date.now() }]);
+  }, []);
 
-  const loadCV = useCallback((data) =>
-    dispatch({ type: CV_ACTIONS.LOAD_CV, payload: data }), []);
+  const resetCV = useCallback(() => {
+    checkpoint('Réinitialisation du CV');
+    dispatch({ type: CV_ACTIONS.RESET_CV });
+  }, [checkpoint]);
+
+  // Remplace le CV entier ; un point de restauration est créé si `label` est fourni.
+  const loadCV = useCallback((data, label) => {
+    if (label) checkpoint(label);
+    dispatch({ type: CV_ACTIONS.LOAD_CV, payload: data });
+  }, [checkpoint]);
+
+  const undo = useCallback(() => {
+    if (!snapshots.length) return;
+    dispatch({ type: CV_ACTIONS.LOAD_CV, payload: snapshots[snapshots.length - 1].data });
+    setSnapshots(snapshots.slice(0, -1));
+  }, [snapshots]);
 
   // Écriture explicite dans le navigateur (le CV est déjà auto-sauvegardé en
   // continu ; ce helper sert au bouton « Sauvegarder » pour une confirmation).
@@ -147,6 +175,9 @@ export function CVProvider({ children }) {
     resetCV,
     loadCV,
     saveCV,
+    undo,
+    canUndo: snapshots.length > 0,
+    lastChangeLabel: snapshots[snapshots.length - 1]?.label || '',
   };
 
   return <CVContext.Provider value={value}>{children}</CVContext.Provider>;
