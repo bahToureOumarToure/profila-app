@@ -4,7 +4,7 @@
 // d'être montrée, puis appliquée seulement si l'utilisateur l'accepte.
 import { v4 as uuid } from 'uuid';
 import { generateJSON } from './geminiClient';
-import { normDate, clampLevel, normLangLevel } from './cvSchema';
+import { normDate, clampLevel, normLangLevel, normActivityType } from './cvSchema';
 import {
   CV_TEMPLATES, DEFAULT_SECTION_ORDER, DENSITY_OPTIONS, DATE_STYLES, EMPTY_ITEMS,
   FONT_OPTIONS, LIST_SECTIONS, SECTION_LABELS,
@@ -21,6 +21,7 @@ export const EDITABLE_FIELDS = {
   certifications: ['name', 'issuer', 'date', 'expiryDate', 'credentialId', 'url'],
   interests:      ['name', 'category', 'description'],
   achievements:   ['title', 'type', 'rank', 'competition', 'date', 'location', 'description'],
+  activities:     ['role', 'organization', 'type', 'location', 'startDate', 'endDate', 'current', 'description'],
   distinctions:   ['title', 'type', 'issuer', 'date', 'url', 'description'],
 };
 
@@ -33,7 +34,7 @@ export const FIELD_LABELS = {
   current: 'En cours', description: 'Description', technologies: 'Technologies', school: 'Établissement',
   degree: 'Diplôme', field: 'Spécialité', name: 'Nom', category: 'Catégorie', level: 'Niveau',
   url: 'Lien', issuer: 'Organisme', date: 'Date', expiryDate: 'Expiration', credentialId: 'Identifiant',
-  type: 'Type', rank: 'Classement', competition: 'Compétition', template: 'Template', density: 'Densité',
+  type: 'Type', rank: 'Classement', competition: 'Compétition', role: 'Rôle', organization: 'Organisation', template: 'Template', density: 'Densité',
   fontScale: 'Taille du texte', fontFamily: 'Police', sectionOrder: 'Ordre des sections',
   hiddenSections: 'Sections masquées', sectionTitles: 'Titres des sections', autoFit: 'Ajuster sur 1 page',
   showPhoto: 'Photo', dateStyle: 'Format des dates',
@@ -43,6 +44,7 @@ const DATE_FIELDS = new Set(['startDate', 'endDate', 'date', 'expiryDate']);
 const MAIN_FIELD = {
   experiences: 'position', education: 'school', skills: 'name', languages: 'name', projects: 'name',
   certifications: 'name', interests: 'name', achievements: 'title', distinctions: 'title',
+  activities: 'role',
 };
 
 const str = (v) => (typeof v === 'string' ? v.trim() : v == null ? '' : String(v).trim());
@@ -54,6 +56,7 @@ function sanitizeValue(section, field, value) {
   if (DATE_FIELDS.has(field)) return normDate(value);
   if (section === 'skills' && field === 'level') return clampLevel(value);
   if (section === 'languages' && field === 'level') return normLangLevel(value);
+  if (section === 'activities' && field === 'type') return normActivityType(value);
   // Le modèle renvoie parfois une liste pour une description : on la met en puces.
   if (Array.isArray(value)) return value.map(str).filter(Boolean).map((l) => (l.startsWith('- ') ? l : `- ${l}`)).join('\n');
   return str(value);
@@ -95,7 +98,9 @@ function sanitizeDesign(fields, meta) {
 const itemLabel = (section, item) => {
   if (!item) return '';
   const main = str(item[MAIN_FIELD[section]]) || str(item.name) || str(item.title);
-  const sub = section === 'experiences' ? str(item.company) : section === 'education' ? str(item.degree) : '';
+  const sub = section === 'experiences' ? str(item.company)
+    : section === 'education' ? str(item.degree)
+      : section === 'activities' ? str(item.organization) : '';
   return sub ? `${main} · ${sub}` : main;
 };
 
@@ -158,7 +163,7 @@ export function normalizeAssistantResponse(raw, cv) {
         if (!LIST_SECTIONS.includes(section)) return;
         const fields = sanitizeFields(section, a.item);
         const item = { ...EMPTY_ITEMS[section], ...fields };
-        if (!str(item[MAIN_FIELD[section]]) && !str(item.company)) return;
+        if (!str(item[MAIN_FIELD[section]]) && !str(item.company) && !str(item.organization)) return;
         if (section === 'skills' && (cv.skills || []).some((s) => str(s.name).toLowerCase() === str(item.name).toLowerCase())) return;
         const shown = Object.keys(fields).filter((f) => fields[f] !== '' && fields[f] !== false);
         actions.push({

@@ -77,6 +77,20 @@ try {
   await page.waitForTimeout(2500);
   await shot(page, '02-moderne-compact');
 
+  step('ajout d’une activité parauniversitaire');
+  await page.getByRole('tab', { name: 'Activités' }).click();
+  await page.getByRole('button', { name: 'Ajouter une activité' }).click();
+  await page.getByLabel('Rôle').last().fill('Trésorier');
+  await page.getByLabel('Association / club / organisation').last().fill('BDE ENIAD');
+  cv = await readCV(page);
+  assert.equal(cv.activities.length, 3);
+  assert.deepEqual(
+    { role: cv.activities[2].role, organization: cv.activities[2].organization, type: cv.activities[2].type },
+    { role: 'Trésorier', organization: 'BDE ENIAD', type: 'Association' },
+  );
+  await page.waitForTimeout(2500);
+  await shot(page, '02b-activites');
+
   step('dialogue avec l’assistant : proposition, sélection, application');
   await page.getByRole('button', { name: 'Assistant IA' }).click();
   await page.getByLabel("Message pour l'assistant").fill('Améliore mon profil pour un stage PFE backend');

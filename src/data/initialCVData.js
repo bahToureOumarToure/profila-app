@@ -83,7 +83,7 @@ export const DATE_STYLES = [
 // Ordre des sections du CV (réordonnable par l'utilisateur dans l'onglet Design).
 export const DEFAULT_SECTION_ORDER = [
   'summary', 'education', 'experiences', 'projects', 'achievements',
-  'skills', 'certifications', 'distinctions', 'languages', 'interests',
+  'skills', 'certifications', 'activities', 'distinctions', 'languages', 'interests',
 ];
 
 // Libellés de l'éditeur.
@@ -96,6 +96,7 @@ export const SECTION_LABELS = {
   projects:       'Projets',
   certifications: 'Certifications',
   achievements:   'Compétitions & palmarès',
+  activities:     'Activités parauniversitaires',
   distinctions:   'Distinctions & publications',
   interests:      "Centres d'intérêt",
 };
@@ -111,6 +112,7 @@ export const DEFAULT_SECTION_TITLES = {
   projects:       'Projets',
   certifications: 'Certifications',
   achievements:   'Compétitions et algorithmique',
+  activities:     'Activités parauniversitaires',
   distinctions:   'Distinctions et publications',
   interests:      "Centres d'intérêt",
 };
@@ -154,6 +156,7 @@ const initialCVData = {
   certifications: [],
   interests:      [],
   achievements:   [],
+  activities:     [],
   distinctions:   [],
 };
 
@@ -167,6 +170,7 @@ export const EMPTY_ITEMS = {
   certifications: { name: '', issuer: '', date: '', expiryDate: '', credentialId: '', url: '' },
   interests:      { name: '', category: 'Autre', description: '' },
   achievements:   { title: '', type: 'Compétition', rank: '', competition: '', date: '', location: '', description: '' },
+  activities:     { role: '', organization: '', type: 'Association', location: '', startDate: '', endDate: '', current: false, description: '' },
   distinctions:   { title: '', type: 'Distinction', issuer: '', date: '', url: '', description: '' },
 };
 
@@ -192,6 +196,18 @@ export const ACHIEVEMENT_TYPES = [
   'Record',
   'Sélection',
   'Distinction',
+  'Autre',
+];
+
+// Engagement hors cursus : vie associative, clubs, bénévolat, organisation d'événements.
+export const ACTIVITY_TYPES = [
+  'Association',
+  'Club étudiant',
+  'Bureau des étudiants (BDE)',
+  'Bénévolat',
+  'Organisation d’événement',
+  'Mentorat / tutorat',
+  'Sport',
   'Autre',
 ];
 

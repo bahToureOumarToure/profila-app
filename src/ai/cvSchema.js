@@ -2,7 +2,7 @@
 // Ce module valide/normalise le JSON de Gemini vers la forme EXACTE attendue par
 // loadCV() / initialCVData, et injecte les `id` (uuid) requis par les listes drag & drop.
 import { v4 as uuid } from 'uuid';
-import { LANGUAGE_LEVELS } from '@data/initialCVData';
+import { LANGUAGE_LEVELS, ACTIVITY_TYPES } from '@data/initialCVData';
 
 const str = (v) => (typeof v === 'string' ? v.trim() : v == null ? '' : String(v));
 const bool = (v) => v === true || v === 'true';
@@ -27,6 +27,17 @@ export function clampLevel(v) {
 export function normLangLevel(v) {
   const s = str(v);
   return LANGUAGE_LEVELS.includes(s) ? s : 'Courant (C1/C2)';
+}
+
+export function normActivityType(v) {
+  const s = str(v).toLowerCase();
+  const found = ACTIVITY_TYPES.find((t) => t.toLowerCase() === s);
+  if (found) return found;
+  if (/b[ée]n[ée]vol/.test(s)) return 'Bénévolat';
+  if (/\bbde\b|bureau des [ée]tudiants/.test(s)) return 'Bureau des étudiants (BDE)';
+  if (/club/.test(s)) return 'Club étudiant';
+  if (/association|ong/.test(s)) return 'Association';
+  return s ? 'Autre' : 'Association';
 }
 
 const arr = (v, mapFn) => (Array.isArray(v) ? v.map(mapFn).filter(Boolean) : []);
@@ -95,6 +106,12 @@ export function normalizeParsedCV(raw) {
       }) : null),
     interests: arr(raw.interests, (i) =>
       str(i.name) ? withId({ name: str(i.name), category: str(i.category) || 'Autre', description: str(i.description) }) : null),
+    activities: arr(raw.activities, (a) =>
+      (str(a.role) || str(a.organization)) ? withId({
+        role: str(a.role), organization: str(a.organization), type: normActivityType(a.type),
+        location: str(a.location), startDate: normDate(a.startDate), endDate: normDate(a.endDate),
+        current: bool(a.current), description: str(a.description),
+      }) : null),
     achievements: arr(raw.achievements, (a) =>
       (str(a.title) || str(a.rank)) ? withId({
         title: str(a.title), type: str(a.type) || 'Compétition', rank: str(a.rank),
@@ -120,6 +137,7 @@ export function summarizeParsedCV(cv) {
       projects: cv.projects.length,
       certifications: cv.certifications.length,
       achievements: cv.achievements.length,
+      activities: cv.activities.length,
     },
   };
 }

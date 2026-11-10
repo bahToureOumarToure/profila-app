@@ -4,6 +4,7 @@ import {
 } from '../cvAssistant';
 import sampleCV from '@data/sampleCV';
 import { migrateCV } from '@data/migrateCV';
+import { normalizeParsedCV } from '../cvSchema';
 
 const cv = migrateCV({ ...sampleCV, personalInfo: { ...sampleCV.personalInfo, photo: 'data:image/png;base64,AAAA' } });
 
@@ -21,7 +22,7 @@ describe('normalizeAssistantResponse', () => {
         { type: 'add_item', section: 'skills', item: { name: 'docker' } }, // doublon (casse ignorée)
         { type: 'add_item', section: 'projects', item: { description: 'sans nom' } },
         { type: 'remove_item', section: 'interests', id: 'int-2' },
-        { type: 'reorder_items', section: 'projects', ids: ['proj-3', 'proj-1', 'nope'] },
+        { type: 'reorder_items', section: 'projects', ids: ['proj-2', 'nope'] },
         { type: 'update_design', fields: { density: 'compact', template: 'inexistant', fontScale: 3, hiddenSections: ['interests', 'xxx'] } },
         { type: 'delete_everything' },
         'pas un objet',
@@ -38,13 +39,46 @@ describe('normalizeAssistantResponse', () => {
     expect(personal.fields).toEqual({ summary: 'Nouveau profil' });
     expect(item.fields).toEqual({ description: '- Fait A\n- Fait B', startDate: '2025-07' });
     expect(add.item).toMatchObject({ name: 'Kubernetes', level: 5, category: 'DevOps & Outils' });
-    expect(reorder.ids).toEqual(['proj-3', 'proj-1', 'proj-2']);
+    expect(reorder.ids).toEqual(['proj-2', 'proj-1']);
     expect(design.fields).toEqual({ density: 'compact', fontScale: 1.1, hiddenSections: ['interests'] });
     expect(personal.changes[0]).toMatchObject({ label: 'Profil', after: 'Nouveau profil' });
   });
 
   it('refuse une réponse qui n’est pas un objet', () => {
     expect(() => normalizeAssistantResponse('texte', cv)).toThrow();
+  });
+});
+
+describe('activités parauniversitaires', () => {
+  it("l'assistant peut ajouter et modifier une activité (type normalisé)", () => {
+    const { actions } = normalizeAssistantResponse({
+      actions: [
+        { type: 'add_item', section: 'activities', item: { role: 'Trésorier', organization: 'BDE ENIAD', type: 'bde', startDate: '09/2024', current: 'true' } },
+        { type: 'update_item', section: 'activities', id: 'act-2', fields: { type: 'bénévole', description: ['Aidé 15 élèves de collège'] } },
+        { type: 'add_item', section: 'activities', item: { type: 'Association' } }, // ni rôle ni organisation
+      ],
+    }, cv);
+    expect(actions).toHaveLength(2);
+    expect(actions[0].item).toMatchObject({ role: 'Trésorier', type: 'Bureau des étudiants (BDE)', startDate: '2024-09', current: true });
+    expect(actions[0].title).toContain('Trésorier · BDE ENIAD');
+    expect(actions[1].fields).toEqual({ description: '- Aidé 15 élèves de collège' });
+
+    const next = applyActionsToCV(cv, actions);
+    expect(next.activities).toHaveLength(3);
+    expect(next.activities.find((a) => a.id === 'act-2').description).toBe('- Aidé 15 élèves de collège');
+  });
+
+  it("l'import PDF extrait les activités", () => {
+    const parsed = normalizeParsedCV({
+      personalInfo: {},
+      activities: [
+        { role: 'Secrétaire général', organization: 'Horizon Youth', type: 'association', startDate: '2023', current: true },
+        { role: '', organization: '', type: 'Club' },
+      ],
+    });
+    expect(parsed.activities).toHaveLength(1);
+    expect(parsed.activities[0]).toMatchObject({ role: 'Secrétaire général', type: 'Association', current: true, startDate: '2023' });
+    expect(parsed.activities[0].id).toBeTruthy();
   });
 });
 

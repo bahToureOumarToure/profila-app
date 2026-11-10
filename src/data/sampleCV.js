@@ -57,12 +57,6 @@ const sampleCV = {
       startDate: '2025-03', endDate: '2025-04', url: '',
       description: "- Développement client-serveur avec pagination serveur, recherche en temps réel et formulaires modaux.\n- Gestion de l'état global via Context API et centralisation des requêtes HTTP et des erreurs avec Axios.",
     },
-    {
-      id: 'proj-3', name: 'Application de gestion hospitalière',
-      technologies: 'Java 17, Spring Boot, Hibernate (JPA), Spring Security, MySQL',
-      startDate: '2024-11', endDate: '2024-12', url: '',
-      description: "- Gestion des dossiers patients, admissions et antécédents avec contrôle d'accès par rôles (RBAC).\n- Optimisation des requêtes avec Spring Data JPA, Hibernate et pagination des résultats.",
-    },
   ],
   achievements: [
     { id: 'ach-1', title: 'ICPC Moroccan Collegiate Programming Contest (MCPC)', type: 'Compétition', rank: 'Mention honorable', competition: '', date: '2025-09', location: '', description: '' },
@@ -94,6 +88,18 @@ const sampleCV = {
   ],
   certifications: [
     { id: 'cert-1', name: 'Java Intermediate', issuer: 'SoloLearn', date: '2024-01', expiryDate: '', credentialId: '', url: '' },
+  ],
+  activities: [
+    {
+      id: 'act-1', role: 'Responsable des événements', organization: "Club Informatique de l'ENIAD", type: 'Club étudiant',
+      location: 'Berkane', startDate: '2024-10', endDate: '', current: true,
+      description: '- Organisé un hackathon de 24 h réunissant 120 participants et 4 partenaires',
+    },
+    {
+      id: 'act-2', role: 'Bénévole', organization: 'Association de soutien scolaire', type: 'Bénévolat',
+      location: 'Oujda', startDate: '2022', endDate: '2023', current: false,
+      description: '',
+    },
   ],
   distinctions: [],
   languages: [

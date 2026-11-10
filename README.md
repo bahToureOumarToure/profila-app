@@ -32,6 +32,9 @@
 - 📥 **Import PDF par IA** — pré-remplit l'éditeur à partir d'un ancien CV.
 - ✍️ **Rédaction guidée** — une réalisation par ligne = une puce, `**gras**` pour un mot-clé,
   stack technique par expérience, disponibilité (« Stage PFE – Février 2027 »), portfolio, dates mois/année.
+- 🤝 **Activités parauniversitaires** — associations, clubs, BDE, bénévolat, organisation d'événements,
+  tutorat : rôle, organisation, dates (ou « en cours ») et réalisations, imprimés en une ligne compacte par
+  engagement. Importés depuis un PDF et modifiables par l'assistant.
 - 🎨 **Design** — polices nettes embarquées (Source Serif 4, Inter, Carlito ≈ Calibri, Lato, Roboto),
   couleur, format des dates, ordre / titres / visibilité des sections, photo et icônes optionnelles.
 - 💾 **Sauvegarde automatique** (localStorage), import / export JSON, CV d'exemple.
