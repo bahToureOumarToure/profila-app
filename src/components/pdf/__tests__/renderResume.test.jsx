@@ -45,8 +45,8 @@ describe.each(CV_TEMPLATES)('template $id', ({ id: template, defaultFont, defaul
     dump(`template-${template}`, res.buffer);
     expect(res.pages).toBe(1);
     // CV dense d'élève-ingénieur : tient sur une page avec une compression légère
-    // (palier ≤ 3 : texte à 93 % minimum).
-    expect(res.fitLevel).toBeLessThanOrEqual(3);
+    // (palier ≤ 4 : texte à 90 % minimum).
+    expect(res.fitLevel).toBeLessThanOrEqual(4);
     const { text, links, pages, info } = await extract(res.buffer);
     expect(pages).toBe(res.pages);
 
@@ -57,6 +57,8 @@ describe.each(CV_TEMPLATES)('template $id', ({ id: template, defaultFont, defaul
       'Profil professionnel', 'Formation', 'Expérience professionnelle', 'Compétences techniques',
       'NBS Consulting', 'Spring Cloud', 'Langages', 'Recherche de stage PFE',
       'linkedin.com/in/amine-bennani-exemple', 'github.com/amine-bennani-exemple',
+      'Activités parauniversitaires', "Responsable des événements – Club Informatique de l'ENIAD, Berkane",
+      'Organisé un hackathon de 24 h', 'Bénévole – Association de soutien scolaire, Oujda (2022 – 2023)',
     ]) {
       expect(flat).toContain(needle.toLowerCase());
     }

@@ -26,6 +26,10 @@ pas de Markdown) respectant EXACTEMENT cette structure :
   "achievements": [
     { "title": "", "rank": "", "competition": "", "date": "", "location": "", "description": "" }
   ],
+  "activities": [
+    { "role": "", "organization": "", "type": "Association", "location": "",
+      "startDate": "", "endDate": "", "current": false, "description": "" }
+  ],
   "interests": [ { "name": "", "category": "Autre", "description": "" } ]
 }
 
@@ -47,6 +51,10 @@ RÈGLES STRICTES :
   "availability" : disponibilité si mentionnée (ex. "Stage PFE à partir de février 2027").
 - "website" : portfolio ou site personnel. "achievements" : compétitions, hackathons,
   classements ("rank" = ex. "1re place", "Mention honorable").
+- "activities" : engagements hors cursus (associations, clubs, BDE, bénévolat, organisation
+  d'événements, tutorat). "role" = fonction (ex. "Président", "Bénévole"), "organization" = nom
+  de la structure, "type" parmi : "Association", "Club étudiant", "Bureau des étudiants (BDE)",
+  "Bénévolat", "Organisation d’événement", "Mentorat / tutorat", "Sport", "Autre".
 - Renvoie des tableaux vides [] pour les sections absentes. Aucune valeur null.
 
 TEXTE BRUT DU CV :

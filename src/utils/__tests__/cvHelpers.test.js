@@ -53,8 +53,16 @@ describe('liens', () => {
 describe('sections', () => {
   it('complète l’ordre, dédoublonne et applique les titres personnalisés', () => {
     const order = resolveSectionOrder({ sectionOrder: ['skills', 'skills', 'bogus'] }, DEFAULT_SECTION_ORDER);
-    expect(order[0]).toBe('skills');
     expect(order).toHaveLength(DEFAULT_SECTION_ORDER.length);
+    expect(new Set(order).size).toBe(order.length);
+    expect(order).not.toContain('bogus');
+    // Un ancien CV (sans la section « activities ») la reçoit à sa place par défaut,
+    // en conservant l'ordre choisi par l'utilisateur pour le reste.
+    const legacy = ['experiences', 'summary', 'education', 'projects', 'achievements', 'skills',
+      'certifications', 'distinctions', 'languages', 'interests'];
+    const upgraded = resolveSectionOrder({ sectionOrder: legacy }, DEFAULT_SECTION_ORDER);
+    expect(upgraded.slice(0, 2)).toEqual(['experiences', 'summary']);
+    expect(upgraded.indexOf('activities')).toBe(upgraded.indexOf('certifications') + 1);
     expect(sectionTitle({ sectionTitles: { skills: 'Stack' } }, 'skills')).toBe('Stack');
     expect(sectionTitle({ sectionTitles: { skills: '  ' } }, 'skills')).toBe('Compétences techniques');
     expect(formatLanguageLevel('Courant (C1/C2)')).toBe('courant, C1/C2');
@@ -77,6 +85,7 @@ describe('migrateCV', () => {
     expect(old.experiences[0]).toMatchObject({ company: 'X', technologies: '', current: false });
     expect(old.experiences[0].id).toBeTruthy();
     expect(old.projects).toEqual([]);
+    expect(old.activities).toEqual([]);
     expect(migrateCV({ meta: { template: '???' } }).meta.template).toBe('ats');
   });
 });
@@ -104,6 +113,14 @@ describe('analyzeATS', () => {
     expect(msgs).toContain('peu standard');
     expect(checks[0].level).toBe('error');
     expect(score).toBeLessThan(70);
+  });
+
+  it('conseille d’ajouter des activités parauniversitaires quand il n’y en a pas', () => {
+    const base = migrateCV(sampleCV);
+    const msgs = (cv) => analyzeATS(cv).checks.map((c) => c.message).join('\n');
+    expect(msgs(base)).not.toContain('activités parauniversitaires');
+    expect(msgs({ ...base, activities: [] })).toContain('activités parauniversitaires');
+    expect(msgs({ ...base, activities: [{ id: 'a', role: 'Bénévole', organization: '' }] })).toContain('précisez l’association');
   });
 
   it("accepte une fin en année seule et signale une date incomplète", () => {

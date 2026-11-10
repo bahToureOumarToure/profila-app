@@ -118,6 +118,18 @@ export function analyzeATS(cv, { pages } = {}) {
   });
   if (!(cv.languages || []).some((l) => clean(l.name))) add('warning', 'languages', 'Ajoutez vos langues et leur niveau.');
 
+  // ── Activités parauniversitaires ───────────────────────────────────────
+  const activities = (cv.activities || []).filter((a) => clean(a.role) || clean(a.organization));
+  if (!activities.length) {
+    add('info', 'activities', 'Ajoutez vos activités parauniversitaires (association, club, BDE, bénévolat).',
+      'Elles prouvent leadership, organisation et travail d’équipe, très regardés pour un stage.');
+  }
+  activities.forEach((a) => {
+    const name = clean(a.role) || clean(a.organization);
+    if (!clean(a.organization)) add('info', 'activities', `Activité « ${name} » : précisez l’association ou le club.`);
+    if (!hasDate(a.startDate) && !hasDate(a.endDate)) add('info', 'activities', `Activité « ${name} » : ajoutez au moins l’année.`);
+  });
+
   // ── Mise en page ───────────────────────────────────────────────────────
   if (pages > 1) add('warning', 'customization', `Le CV fait ${pages} pages : visez une page pour un stage.`, 'Activez « Ajuster sur 1 page » ou demandez à l’assistant de condenser.');
   Object.entries(STANDARD_TITLE_WORDS).forEach(([key, re]) => {

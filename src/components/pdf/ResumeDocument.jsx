@@ -79,6 +79,7 @@ function makeStyles(t) {
     para: { marginTop: 1 + 0.5 * sp },
     summary: { textAlign: preset.summaryAlign },
     bulletRow: { flexDirection: 'row', marginTop: 0.6 + 0.8 * sp, paddingLeft: 7 },
+    subBulletRow: { flexDirection: 'row', marginTop: 0.4 + 0.5 * sp, paddingLeft: 18 },
     bulletDot: { width: 9 },
     bulletText: { flex: 1 },
     techLine: { marginTop: 0.6 + 0.8 * sp, fontSize: t.small },
@@ -96,10 +97,10 @@ function Rich({ text, style }) {
   );
 }
 
-function Bullet({ s, children }) {
+function Bullet({ s, children, sub = false }) {
   return (
-    <View style={s.bulletRow} wrap={false}>
-      <Text style={s.bulletDot}>•</Text>
+    <View style={sub ? s.subBulletRow : s.bulletRow} wrap={false}>
+      <Text style={s.bulletDot}>{sub ? '–' : '•'}</Text>
       <View style={s.bulletText}>{children}</View>
     </View>
   );
@@ -422,6 +423,38 @@ function buildSections(cv, t, s) {
               {g.items.join(', ')}
             </Text>
           ))}
+        </Section>
+      );
+    },
+
+    // Une ligne par engagement (rôle en gras – organisation, lieu (dates)),
+    // et les détails éventuels en sous-puces : compact, comme les CV de référence.
+    activities: () => {
+      const list = nonEmpty(cv.activities, (a) => clean(a.role) || clean(a.organization));
+      if (!list.length) return null;
+      return (
+        <Section title={title('activities')} s={s}>
+          {list.map((a) => {
+            const lead = clean(a.role) || clean(a.organization);
+            const rest = [clean(a.role) ? clean(a.organization) : '', clean(a.location)].filter(Boolean).join(', ');
+            const dates = formatDateRange(a.startDate, a.endDate, a.current, ds);
+            const { paragraph, bullets } = parseDescription(a.description);
+            return (
+              <View key={a.id} wrap={false}>
+                <Bullet s={s}>
+                  <Text>
+                    <Text style={s.strong}>{lead}</Text>
+                    {rest ? ` – ${rest}` : ''}
+                    {dates ? <Text style={s.italic}>{` (${dates})`}</Text> : null}
+                    {paragraph ? <Rich text={`. ${paragraph}`} /> : null}
+                  </Text>
+                </Bullet>
+                {bullets.map((b, i) => (
+                  <Bullet key={i} s={s} sub><Rich text={b} /></Bullet>
+                ))}
+              </View>
+            );
+          })}
         </Section>
       );
     },

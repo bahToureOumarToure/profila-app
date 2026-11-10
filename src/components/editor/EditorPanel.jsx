@@ -10,6 +10,7 @@ import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOu
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
+import VolunteerActivismOutlinedIcon from '@mui/icons-material/VolunteerActivismOutlined';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 import PersonalInfoSection from './sections/PersonalInfoSection';
 import ExperienceSection from './sections/ExperienceSection';
@@ -20,6 +21,7 @@ import ProjectsSection from './sections/ProjectsSection';
 import CertificationsSection from './sections/CertificationsSection';
 import InterestsSection from './sections/InterestsSection';
 import AchievementsSection from './sections/AchievementsSection';
+import ActivitiesSection from './sections/ActivitiesSection';
 import DistinctionsSection from './sections/DistinctionsSection';
 import CustomizationSection from './sections/CustomizationSection';
 import { useCV } from '@context/CVContext';
@@ -36,6 +38,7 @@ const SECTIONS = [
   { id: 'projects',       label: 'Projets',         icon: <CodeIcon fontSize="small" /> },
   { id: 'certifications', label: 'Certifications',  icon: <WorkspacePremiumOutlinedIcon fontSize="small" /> },
   { id: 'achievements',   label: 'Compétitions',        icon: <EmojiEventsOutlinedIcon fontSize="small" /> },
+  { id: 'activities',     label: 'Activités',       icon: <VolunteerActivismOutlinedIcon fontSize="small" /> },
   { id: 'distinctions',   label: 'Distinctions',    icon: <MilitaryTechOutlinedIcon fontSize="small" /> },
   { id: 'interests',      label: 'Intérêts',        icon: <FavoriteBorderIcon fontSize="small" /> },
   { id: 'customization',  label: 'Design',          icon: <PaletteOutlinedIcon fontSize="small" /> },
@@ -50,6 +53,7 @@ const SECTION_COMPONENTS = {
   projects:       <ProjectsSection />,
   certifications: <CertificationsSection />,
   achievements:   <AchievementsSection />,
+  activities:     <ActivitiesSection />,
   distinctions:   <DistinctionsSection />,
   interests:      <InterestsSection />,
   customization:  <CustomizationSection />,

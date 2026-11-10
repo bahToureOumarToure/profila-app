@@ -28,12 +28,17 @@ export function getInitials(firstName, lastName) {
 }
 
 // Ordre effectif des sections : la préférence utilisateur, complétée par les
-// sections manquantes dans l'ordre par défaut (rétro-compatible avec d'anciens CV).
+// sections manquantes (ajoutées dans une version plus récente). Chacune est placée
+// juste après la section qui la précède dans l'ordre par défaut.
 export function resolveSectionOrder(meta, defaultOrder) {
   const saved = Array.isArray(meta?.sectionOrder) ? meta.sectionOrder : [];
-  const valid = saved.filter((k, i) => defaultOrder.includes(k) && saved.indexOf(k) === i);
-  const missing = defaultOrder.filter((k) => !valid.includes(k));
-  return [...valid, ...missing];
+  const order = saved.filter((k, i) => defaultOrder.includes(k) && saved.indexOf(k) === i);
+  defaultOrder.forEach((key, i) => {
+    if (order.includes(key)) return;
+    const prev = defaultOrder.slice(0, i).reverse().find((k) => order.includes(k));
+    order.splice(prev ? order.indexOf(prev) + 1 : 0, 0, key);
+  });
+  return order;
 }
 
 export function sectionTitle(meta, key) {

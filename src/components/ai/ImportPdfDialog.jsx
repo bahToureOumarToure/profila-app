@@ -135,6 +135,7 @@ export default function ImportPdfDialog({ open, onClose }) {
               <Chip size="small" label={`${summary.counts.projects} projet(s)`} />
               <Chip size="small" label={`${summary.counts.certifications} certif.`} />
               <Chip size="small" label={`${summary.counts.achievements} compétition(s)`} />
+              <Chip size="small" label={`${summary.counts.activities} activité(s)`} />
             </Stack>
 
             <Alert severity="info">
