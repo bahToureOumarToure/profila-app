@@ -85,6 +85,9 @@ describe('migrateCV', () => {
     expect(old.meta.fontFamily).toBe('Source Serif 4');
     expect(old.meta.density).toBe('normal');
     expect(old.meta.autoFit).toBe(true);
+    expect(old.meta.techLabel).toBe('');
+    expect(migrateCV({ meta: { techLabel: 'Stack technique' } }).meta.techLabel).toBe('Stack technique');
+    expect(migrateCV({ meta: { techLabel: '<b>' } }).meta.techLabel).toBe('');
     expect(old.personalInfo.availability).toBe('');
     expect(old.personalInfo.summary).toBe('');
     expect(old.experiences[0]).toMatchObject({ company: 'X', technologies: '', current: false });

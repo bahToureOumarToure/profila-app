@@ -67,6 +67,9 @@ export const DENSITY_OPTIONS = [
   { value: 'airy',    label: 'Aéré' },
 ];
 
+// Libellé de la ligne de technologies (expériences et projets). '' = celui du template.
+export const TECH_LABELS = ['Stack technique', 'Environnement technique', 'Technologies', 'Outils'];
+
 export const DATE_STYLES = [
   { value: 'long',    label: 'Juillet 2026' },
   { value: 'short',   label: 'Juil. 2026' },
@@ -124,6 +127,7 @@ export const DEFAULT_META = {
   density:        'normal',
   fontScale:      1,
   dateStyle:      'long',
+  techLabel:      '',
   showPhoto:      true,
   showIcons:      true,
   autoFit:        true,

@@ -51,7 +51,11 @@ function ProjectCard({ proj, group, drag, onChange, onDelete, expanded }) {
           />
         </Grid>
         <Grid item xs={12}>
-          <TextField fullWidth label="Technologies" placeholder="Java, Spring Boot, Docker…" value={proj.technologies} onChange={handleChange('technologies')} />
+          <TextField
+            fullWidth label="Stack technique / outils" placeholder="Java, Spring Boot, Docker, Git"
+            value={proj.technologies} onChange={handleChange('technologies')}
+            helperText="Imprimée sous le projet, comme pour les expériences."
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
           <DateField label="Début" value={proj.startDate} onChange={handleChange('startDate')} />

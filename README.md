@@ -37,6 +37,8 @@
   une ligne : **Anglais** : pré-intermédiaire – A2/B1, bonne compréhension écrite.
 - 🗂️ **Projets académiques / personnels** — chaque projet a un type et un cadre (« PFA – ENIAD ») ; le CV les
   imprime en deux sections distinctes, ordonnables et renommables.
+- 🧱 **Stack technique homogène** — la même ligne « Stack technique : … » sous chaque expérience et chaque projet ;
+  libellé au choix dans Design (Stack technique, Environnement technique, Technologies, Outils).
 - 🤝 **Activités parauniversitaires** — associations, clubs, BDE, bénévolat, organisation d'événements,
   tutorat : rôle, organisation, dates (ou « en cours ») et réalisations, imprimés en une ligne compacte par
   engagement. Importés depuis un PDF et modifiables par l'assistant.

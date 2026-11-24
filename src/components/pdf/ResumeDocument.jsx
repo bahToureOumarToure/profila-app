@@ -178,13 +178,13 @@ function TechLine({ value, t, s }) {
   if (t.preset.tech === 'bullet') {
     return (
       <Bullet s={s}>
-        <Text><Text style={s.strong}>{t.preset.techLabel} : </Text>{tech}</Text>
+        <Text><Text style={s.strong}>{t.techLabel} : </Text>{tech}</Text>
       </Bullet>
     );
   }
   return (
     <Text style={s.techLine}>
-      <Text style={s.italic}>{t.preset.techLabel} : </Text>
+      <Text style={s.italic}>{t.techLabel} : </Text>
       <Text style={[s.italic, s.strong]}>{tech}</Text>
     </Text>
   );
@@ -305,11 +305,11 @@ function buildSections(cv, t, s) {
   const nonEmpty = (arr, pred) => (arr || []).filter(pred);
 
   // Projets académiques et projets personnels : même liste, deux sections.
-  // Le cadre (« PFA – ENIAD ») suit le nom entre parenthèses.
+  // Le cadre (« PFA – ENIAD ») suit le nom entre parenthèses ; la stack technique
+  // est imprimée comme pour les expériences, pour une structure homogène.
   const projectSection = (key, keep) => {
     const list = nonEmpty(cv.projects, (pr) => clean(pr.name) && keep(pr));
     if (!list.length) return null;
-    const inlineTech = t.preset.tech === 'bullet' || t.preset.entry === 'role-first';
     return (
       <Section title={title(key)} s={s}>
         {list.map((pr) => {
@@ -321,14 +321,13 @@ function buildSections(cv, t, s) {
             <Text>
               <Text style={s.strong}>{nameEl}</Text>
               {clean(pr.context) ? ` (${clean(pr.context)})` : ''}
-              {inlineTech && tech ? <Text style={s.small}>{`  |  ${tech}`}</Text> : null}
             </Text>
           );
           return (
             <View key={pr.id} style={s.entry} wrap={false}>
               <Row s={s} left={left} right={formatDateRange(pr.startDate, pr.endDate, false, ds)} rightStyle={s.italic} />
               <Description text={pr.description} s={s} />
-              {!inlineTech ? <TechLine value={tech} t={t} s={s} /> : null}
+              <TechLine value={tech} t={t} s={s} />
             </View>
           );
         })}

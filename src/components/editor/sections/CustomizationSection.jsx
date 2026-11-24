@@ -10,8 +10,9 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useCV } from '@context/CVContext';
 import {
   CV_TEMPLATES, COLOR_PRESETS, FONT_OPTIONS, SECTION_LABELS, DEFAULT_SECTION_ORDER,
-  DEFAULT_SECTION_TITLES, DENSITY_OPTIONS, DATE_STYLES,
+  DEFAULT_SECTION_TITLES, DENSITY_OPTIONS, DATE_STYLES, TECH_LABELS,
 } from '@data/initialCVData';
+import { TEMPLATE_PRESETS } from '@components/pdf/resumeTheme';
 import { resolveSectionOrder } from '@utils/cvHelpers';
 import { alpha } from '@mui/material/styles';
 import { tokens } from '@theme/tokens';
@@ -143,6 +144,21 @@ export default function CustomizationSection() {
               {DATE_STYLES.map((d) => <MenuItem key={d.value} value={d.value}>{d.label}</MenuItem>)}
             </Select>
           </FormControl>
+        </Grid>
+        <Grid item xs={12}>
+          <FormControl fullWidth size="small">
+            <InputLabel>Libellé des technologies</InputLabel>
+            <Select
+              value={meta.techLabel || ''} label="Libellé des technologies"
+              onChange={(e) => updateMeta({ techLabel: e.target.value })}
+            >
+              <MenuItem value="">Celui du template ({(TEMPLATE_PRESETS[meta.template] || TEMPLATE_PRESETS.ats).techLabel})</MenuItem>
+              {TECH_LABELS.map((l) => <MenuItem key={l} value={l}>{l}</MenuItem>)}
+            </Select>
+          </FormControl>
+          <Typography variant="caption" color="text.secondary">
+            Utilisé sous chaque expérience et chaque projet : « {meta.techLabel || (TEMPLATE_PRESETS[meta.template] || TEMPLATE_PRESETS.ats).techLabel} : Java, Spring Boot… »
+          </Typography>
         </Grid>
       </Grid>
       <Box sx={{ px: 1, mt: 1.5 }}>
