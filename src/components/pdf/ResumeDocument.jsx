@@ -10,8 +10,9 @@ import { DEFAULT_SECTION_ORDER } from '@data/initialCVData';
 import {
   formatDateRange, formatMonthYear, resolveSectionOrder, isSectionHidden, sectionTitle,
   groupSkillsByCategory, parseDescription, parseInlineBold, normalizeUrl, prettyUrl,
-  telHref, formatLanguageLevel, stripInlineMarkup,
+  telHref, stripInlineMarkup,
 } from '@utils/cvHelpers';
+import { formatLanguageLevel } from '@utils/languageLevel';
 
 const clean = (v) => (typeof v === 'string' ? v.trim() : '');
 
@@ -303,6 +304,38 @@ function buildSections(cv, t, s) {
   const title = (key) => sectionTitle(meta, key);
   const nonEmpty = (arr, pred) => (arr || []).filter(pred);
 
+  // Projets académiques et projets personnels : même liste, deux sections.
+  // Le cadre (« PFA – ENIAD ») suit le nom entre parenthèses.
+  const projectSection = (key, keep) => {
+    const list = nonEmpty(cv.projects, (pr) => clean(pr.name) && keep(pr));
+    if (!list.length) return null;
+    const inlineTech = t.preset.tech === 'bullet' || t.preset.entry === 'role-first';
+    return (
+      <Section title={title(key)} s={s}>
+        {list.map((pr) => {
+          const tech = clean(pr.technologies);
+          const nameEl = clean(pr.url)
+            ? <Link src={normalizeUrl(pr.url)} style={s.link}>{clean(pr.name)}</Link>
+            : clean(pr.name);
+          const left = (
+            <Text>
+              <Text style={s.strong}>{nameEl}</Text>
+              {clean(pr.context) ? ` (${clean(pr.context)})` : ''}
+              {inlineTech && tech ? <Text style={s.small}>{`  |  ${tech}`}</Text> : null}
+            </Text>
+          );
+          return (
+            <View key={pr.id} style={s.entry} wrap={false}>
+              <Row s={s} left={left} right={formatDateRange(pr.startDate, pr.endDate, false, ds)} rightStyle={s.italic} />
+              <Description text={pr.description} s={s} />
+              {!inlineTech ? <TechLine value={tech} t={t} s={s} /> : null}
+            </View>
+          );
+        })}
+      </Section>
+    );
+  };
+
   return {
     summary: () => (clean(p.summary) ? (
       <Section title={title('summary')} s={s}>
@@ -354,34 +387,8 @@ function buildSections(cv, t, s) {
       );
     },
 
-    projects: () => {
-      const list = nonEmpty(cv.projects, (pr) => clean(pr.name));
-      if (!list.length) return null;
-      const inlineTech = t.preset.tech === 'bullet' || t.preset.entry === 'role-first';
-      return (
-        <Section title={title('projects')} s={s}>
-          {list.map((pr) => {
-            const tech = clean(pr.technologies);
-            const nameEl = clean(pr.url)
-              ? <Link src={normalizeUrl(pr.url)} style={s.link}>{clean(pr.name)}</Link>
-              : clean(pr.name);
-            const left = (
-              <Text>
-                <Text style={s.strong}>{nameEl}</Text>
-                {inlineTech && tech ? <Text style={s.small}>{`  |  ${tech}`}</Text> : null}
-              </Text>
-            );
-            return (
-              <View key={pr.id} style={s.entry} wrap={false}>
-                <Row s={s} left={left} right={formatDateRange(pr.startDate, pr.endDate, false, ds)} rightStyle={s.italic} />
-                <Description text={pr.description} s={s} />
-                {!inlineTech ? <TechLine value={tech} t={t} s={s} /> : null}
-              </View>
-            );
-          })}
-        </Section>
-      );
-    },
+    projects: () => projectSection('projects', (pr) => pr.type !== 'Personnel'),
+    personalProjects: () => projectSection('personalProjects', (pr) => pr.type === 'Personnel'),
 
     achievements: () => {
       const list = nonEmpty(cv.achievements, (a) => clean(a.title) || clean(a.rank) || clean(a.competition));
@@ -508,15 +515,24 @@ function buildSections(cv, t, s) {
       );
     },
 
+    // Une seule ligne : « Français : courant – C1/C2 · Anglais : pré-intermédiaire – A2/B1, … ».
     languages: () => {
       const list = nonEmpty(cv.languages, (l) => clean(l.name));
       if (!list.length) return null;
-      const text = list
-        .map((l) => (clean(l.level) ? `${clean(l.name)} (${formatLanguageLevel(l.level)})` : clean(l.name)))
-        .join(', ');
       return (
         <Section title={title('languages')} s={s}>
-          <Text>{text}.</Text>
+          <Text>
+            {list.map((l, i) => {
+              const level = formatLanguageLevel(l);
+              return (
+                <Text key={l.id}>
+                  {i > 0 ? '  ·  ' : ''}
+                  <Text style={s.strong}>{clean(l.name)}</Text>
+                  {level ? ` : ${level}` : ''}
+                </Text>
+              );
+            })}
+          </Text>
         </Section>
       );
     },

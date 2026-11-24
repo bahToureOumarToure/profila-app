@@ -18,8 +18,9 @@ pas de Markdown) respectant EXACTEMENT cette structure :
     { "school": "", "degree": "", "field": "", "location": "", "startDate": "", "endDate": "", "description": "" }
   ],
   "skills": [ { "name": "", "level": 3, "category": "" } ],
-  "languages": [ { "name": "", "level": "Courant (C1/C2)" } ],
-  "projects": [ { "name": "", "description": "", "url": "", "technologies": "", "startDate": "", "endDate": "" } ],
+  "languages": [ { "name": "", "nativeLevel": "", "cefrMin": "", "cefrMax": "", "note": "" } ],
+  "projects": [ { "name": "", "type": "Académique", "context": "", "description": "", "url": "",
+    "technologies": "", "startDate": "", "endDate": "" } ],
   "certifications": [
     { "name": "", "issuer": "", "date": "", "expiryDate": "", "credentialId": "", "url": "" }
   ],
@@ -39,8 +40,14 @@ RÈGLES STRICTES :
 - Pour une expérience/formation en cours : "current": true et "endDate": "".
 - "skills[].level" est un entier de 1 (débutant) à 5 (expert). Estime-le à partir du contexte,
   sinon mets 3. "category" regroupe la compétence (ex: "Frontend", "Langages", "Outils").
-- "languages[].level" doit être EXACTEMENT l'une de ces valeurs :
-  "Langue maternelle", "Bilingue", "Courant (C1/C2)", "Intermédiaire (B1/B2)", "Débutant (A1/A2)".
+- "languages" : "nativeLevel" = "Langue maternelle", "Bilingue" ou "". Sinon niveau CECRL :
+  "cefrMin" et "cefrMax" parmi "A1","A2","B1","B2","C1","C2" (même valeur pour un niveau unique,
+  deux valeurs pour un niveau intermédiaire, ex. "A2" et "B1"). Sans code CECRL dans le texte :
+  courant → C1/C2, intermédiaire → B1/B2, débutant / notions → A1/A2. "note" = précision écrite
+  dans le CV (ex. "bonne compréhension écrite"), sinon "".
+- "projects[].type" : "Académique" si le projet a été réalisé dans le cadre des études (PFA, PFE,
+  module, projet de fin d'année, mini-projet d'école), sinon "Personnel". "context" = ce cadre
+  s'il est indiqué (ex. "PFA – ENIAD", "Module Génie logiciel"), sinon "".
 - N'invente RIEN : si une information n'est pas dans le texte, laisse le champ vide ou omets l'item.
   Ne crée pas de compétences ou d'expériences fictives.
 - Conserve les chiffres et résultats quantifiables dans les descriptions (très importants).

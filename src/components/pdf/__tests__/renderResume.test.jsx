@@ -59,6 +59,9 @@ describe.each(CV_TEMPLATES)('template $id', ({ id: template, defaultFont, defaul
       'linkedin.com/in/amine-bennani-exemple', 'github.com/amine-bennani-exemple',
       'Activités parauniversitaires', "Responsable des événements – Club Informatique de l'ENIAD, Berkane",
       'Organisé un hackathon de 24 h', 'Bénévole – Association de soutien scolaire, Oujda (2022 – 2023)',
+      'Projets académiques', 'WorkForceX – Gestion des collaborateurs (PFA – ENIAD)', 'Projets personnels',
+      'Arabe : langue maternelle', 'Français : courant – C1/C2',
+      'Anglais : pré-intermédiaire – A2/B1, bonne compréhension écrite (documentation technique)',
     ]) {
       expect(flat).toContain(needle.toLowerCase());
     }
@@ -66,6 +69,11 @@ describe.each(CV_TEMPLATES)('template $id', ({ id: template, defaultFont, defaul
     expect(flat.indexOf('profil professionnel')).toBeLessThan(flat.indexOf('formation'));
     expect(flat.indexOf('formation')).toBeLessThan(flat.indexOf('expérience professionnelle'));
     expect(flat).not.toContain('**');
+    expect(flat.indexOf('projets académiques')).toBeLessThan(flat.indexOf('projets personnels'));
+    expect(flat.indexOf('workforcex')).toBeLessThan(flat.indexOf('projets personnels'));
+    expect(flat.indexOf('application full-stack')).toBeGreaterThan(flat.indexOf('projets personnels'));
+    // Plus de niveau entre parenthèses (« Français (courant, C1/C2) »).
+    expect(flat).not.toContain('(courant');
 
     expect(links).toEqual(expect.arrayContaining([
       'mailto:amine.bennani@example.com',

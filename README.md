@@ -32,6 +32,11 @@
 - 📥 **Import PDF par IA** — pré-remplit l'éditeur à partir d'un ancien CV.
 - ✍️ **Rédaction guidée** — une réalisation par ligne = une puce, `**gras**` pour un mot-clé,
   stack technique par expérience, disponibilité (« Stage PFE – Février 2027 »), portfolio, dates mois/année.
+- 🌍 **Langues au niveau près** — échelle européenne A1 → C2 avec plages (« A2/B1 » pour qui est entre deux
+  niveaux), langue maternelle / bilingue, qualificatif automatique modifiable et précision libre ; imprimées sur
+  une ligne : **Anglais** : pré-intermédiaire – A2/B1, bonne compréhension écrite.
+- 🗂️ **Projets académiques / personnels** — chaque projet a un type et un cadre (« PFA – ENIAD ») ; le CV les
+  imprime en deux sections distinctes, ordonnables et renommables.
 - 🤝 **Activités parauniversitaires** — associations, clubs, BDE, bénévolat, organisation d'événements,
   tutorat : rôle, organisation, dates (ou « en cours ») et réalisations, imprimés en une ligne compacte par
   engagement. Importés depuis un PDF et modifiables par l'assistant.

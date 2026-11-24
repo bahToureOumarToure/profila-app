@@ -125,15 +125,6 @@ export function telHref(phone) {
   return digits ? `tel:${digits}` : '';
 }
 
-// « Courant (C1/C2) » → « courant, C1/C2 » pour l'affichage en ligne.
-export function formatLanguageLevel(level) {
-  const s = String(level || '').trim();
-  if (!s) return '';
-  const m = s.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
-  const base = m ? `${m[1]}, ${m[2]}` : s;
-  return base.charAt(0).toLowerCase() + base.slice(1);
-}
-
 export function downloadJSON(data, filename = 'mon-cv.json') {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
