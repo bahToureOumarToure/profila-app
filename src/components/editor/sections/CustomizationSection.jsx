@@ -193,6 +193,14 @@ export default function CustomizationSection() {
           control={<Switch checked={meta.showIcons !== false} onChange={(e) => updateMeta({ showIcons: e.target.checked })} />}
           label={<Typography variant="body2">Icônes devant les coordonnées</Typography>}
         />
+        <FormControlLabel
+          control={<Switch checked={meta.highlightTitle !== false} onChange={(e) => updateMeta({ highlightTitle: e.target.checked })} />}
+          label={<Typography variant="body2">Titre professionnel en couleur</Typography>}
+        />
+        <FormControlLabel
+          control={<Switch checked={meta.colorKeywords === true} onChange={(e) => updateMeta({ colorKeywords: e.target.checked })} />}
+          label={<Typography variant="body2">Mots-clés en gras affichés en couleur</Typography>}
+        />
       </Stack>
 
       <Label hint="Glissez pour réordonner, l'œil masque une section sans perdre son contenu, cliquez sur un titre pour le renommer.">

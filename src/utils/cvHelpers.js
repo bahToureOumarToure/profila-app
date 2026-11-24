@@ -103,6 +103,61 @@ export function parseInlineBold(text) {
 
 export const stripInlineMarkup = (text) => String(text || '').replace(/\*\*(.+?)\*\*/g, '$1');
 
+const escapeRegExp = (v) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Met en **gras** la première occurrence de chaque mot-clé (mots entiers, sans tenir
+ * compte de la casse), sans toucher au texte déjà en gras. Les plus longs d'abord :
+ * « Spring Boot » passe avant « Spring ».
+ * @returns {{ text: string, added: string[] }}
+ */
+export function boldKeywords(text, keywords = []) {
+  let parts = parseInlineBold(text);
+  const added = [];
+  const list = [...new Set(keywords.map((k) => String(k || '').replace(/\s*\(.*?\)\s*/g, ' ').trim()).filter((k) => k.length > 1))]
+    .sort((a, b) => b.length - a.length);
+  list.forEach((kw) => {
+    const re = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(kw)}(?![\\p{L}\\p{N}])`, 'iu');
+    if (parts.some((p) => p.bold && p.text.toLowerCase() === kw.toLowerCase())) return;
+    const idx = parts.findIndex((p) => !p.bold && re.test(p.text));
+    if (idx === -1) return;
+    const seg = parts[idx].text;
+    const m = seg.match(re);
+    parts = [
+      ...parts.slice(0, idx),
+      { text: seg.slice(0, m.index), bold: false },
+      { text: m[0], bold: true },
+      { text: seg.slice(m.index + m[0].length), bold: false },
+      ...parts.slice(idx + 1),
+    ].filter((p) => p.text);
+    added.push(m[0]);
+  });
+  return { text: parts.map((p) => (p.bold ? `**${p.text}**` : p.text)).join(''), added };
+}
+
+/** Met en gras la sélection [start, end[ (ou retire le gras si elle l'est déjà). */
+export function toggleBold(text, start, end) {
+  const s = String(text || '');
+  if (start == null || end == null || end <= start) return { text: s, start, end };
+  const raw = s.slice(start, end);
+  // Sélection déjà encadrée par ** (à l'extérieur ou incluse) : on retire le gras.
+  if (s.slice(start - 2, start) === '**' && s.slice(end, end + 2) === '**') {
+    return { text: s.slice(0, start - 2) + raw + s.slice(end + 2), start: start - 2, end: end - 2 };
+  }
+  if (/^\*\*.+\*\*$/s.test(raw)) {
+    const inner = raw.slice(2, -2);
+    return { text: s.slice(0, start) + inner + s.slice(end), start, end: start + inner.length };
+  }
+  // Les espaces sélectionnés aux bords restent hors du gras.
+  const lead = raw.length - raw.trimStart().length;
+  const trail = raw.length - raw.trimEnd().length;
+  const core = raw.trim();
+  if (!core) return { text: s, start, end };
+  const a = start + lead;
+  const b = end - trail;
+  return { text: `${s.slice(0, a)}**${core}**${s.slice(b)}`, start: a, end: b + 4 };
+}
+
 // URL cliquable : ajoute https:// si l'utilisateur a saisi « github.com/moi ».
 export function normalizeUrl(value) {
   const v = String(value || '').trim();

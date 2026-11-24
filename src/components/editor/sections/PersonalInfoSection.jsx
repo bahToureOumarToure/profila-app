@@ -1,15 +1,20 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
-  Grid, TextField, Box, Avatar, Button, Typography, IconButton, Tooltip,
+  Grid, TextField, Box, Avatar, Button, Typography, IconButton, Tooltip, Stack, FormControlLabel, Switch,
 } from '@mui/material';
 import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import FormatClearIcon from '@mui/icons-material/FormatClear';
 import { useCV } from '@context/CVContext';
-import { getInitials } from '@utils/cvHelpers';
+import { getInitials, boldKeywords, toggleBold, stripInlineMarkup } from '@utils/cvHelpers';
 import { tokens } from '@theme/tokens';
 
 export default function PersonalInfoSection() {
-  const { cvData, updatePersonalInfo } = useCV();
+  const { cvData, updatePersonalInfo, updateMeta } = useCV();
+  const summaryRef = useRef(null);
+  const [keywordInfo, setKeywordInfo] = useState('');
   const { personalInfo } = cvData;
   const fileInputRef = useRef(null);
 
@@ -93,6 +98,15 @@ export default function PersonalInfoSection() {
         </Grid>
         <Grid item xs={12}>
           <TextField fullWidth label="Titre professionnel ciblé" placeholder="ex. Élève-ingénieur en génie informatique" value={personalInfo.title} onChange={handleChange('title')} />
+          <FormControlLabel
+            control={(
+              <Switch
+                size="small" checked={cvData.meta.highlightTitle !== false}
+                onChange={(e) => updateMeta({ highlightTitle: e.target.checked })}
+              />
+            )}
+            label={<Typography variant="body2">Titre en couleur (comme les titres de sections)</Typography>}
+          />
         </Grid>
         <Grid item xs={12}>
           <TextField
@@ -121,15 +135,72 @@ export default function PersonalInfoSection() {
           <TextField fullWidth label="Portfolio / site web" placeholder="ex. https://bahoumartoure.vercel.app" value={personalInfo.website} onChange={handleChange('website')} helperText="Les liens sont cliquables dans le PDF et imprimés en clair (lisibles par les ATS)." />
         </Grid>
         <Grid item xs={12}>
+          {/* Mise en valeur des mots-clés du profil : **gras**, et couleur en option. */}
+          <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mb: 1 }}>
+            <Tooltip title="Mettre la sélection en gras (ou retirer le gras)">
+              <Button
+                size="small" variant="outlined" startIcon={<FormatBoldIcon />}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  const el = summaryRef.current;
+                  if (!el) return;
+                  const res = toggleBold(personalInfo.summary, el.selectionStart, el.selectionEnd);
+                  updatePersonalInfo({ summary: res.text });
+                  requestAnimationFrame(() => { el.focus(); el.setSelectionRange(res.start, res.end); });
+                }}
+              >
+                Gras
+              </Button>
+            </Tooltip>
+            <Tooltip title="Met en gras, dans le profil, les compétences de votre liste qui y sont citées">
+              <Button
+                size="small" variant="outlined" startIcon={<AutoFixHighIcon />}
+                onClick={() => {
+                  const res = boldKeywords(personalInfo.summary, cvData.skills.map((sk) => sk.name));
+                  updatePersonalInfo({ summary: res.text });
+                  setKeywordInfo(res.added.length
+                    ? `Mis en gras : ${res.added.join(', ')}`
+                    : 'Aucune nouvelle compétence de votre liste trouvée dans le profil.');
+                }}
+              >
+                Mots-clés auto
+              </Button>
+            </Tooltip>
+            <Tooltip title="Retirer tout le gras du profil">
+              <span>
+                <IconButton
+                  size="small" aria-label="Retirer le gras"
+                  disabled={!personalInfo.summary.includes('**')}
+                  onClick={() => { updatePersonalInfo({ summary: stripInlineMarkup(personalInfo.summary) }); setKeywordInfo(''); }}
+                >
+                  <FormatClearIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <FormControlLabel
+              sx={{ ml: 'auto' }}
+              control={(
+                <Switch
+                  size="small" checked={cvData.meta.colorKeywords === true}
+                  onChange={(e) => updateMeta({ colorKeywords: e.target.checked })}
+                />
+              )}
+              label={<Typography variant="body2">Mots-clés en couleur</Typography>}
+            />
+          </Stack>
+          {keywordInfo && (
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>{keywordInfo}</Typography>
+          )}
           <TextField
             fullWidth
             multiline
             minRows={4}
+            inputRef={summaryRef}
             label="Profil professionnel"
             placeholder="Niveau d'études et spécialité, domaines techniques, réalisations clés, stage recherché et disponibilité."
             value={personalInfo.summary}
             onChange={handleChange('summary')}
-            helperText={`${personalInfo.summary.length} caractères · idéal : 3 à 5 lignes (250 à 550 caractères). **gras** pour un mot-clé.`}
+            helperText={`${stripInlineMarkup(personalInfo.summary).length} caractères · idéal : 3 à 5 lignes (250 à 550 caractères). Sélectionnez un mot puis « Gras » pour le mettre en avant (3 à 6 mots-clés suffisent).`}
             inputProps={{ maxLength: 900 }}
           />
         </Grid>

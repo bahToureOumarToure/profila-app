@@ -128,6 +128,8 @@ export const DEFAULT_META = {
   fontScale:      1,
   dateStyle:      'long',
   techLabel:      '',
+  highlightTitle: true,
+  colorKeywords:  false,
   showPhoto:      true,
   showIcons:      true,
   autoFit:        true,

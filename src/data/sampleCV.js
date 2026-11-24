@@ -16,7 +16,7 @@ const sampleCV = {
     linkedin: 'https://www.linkedin.com/in/amine-bennani-exemple',
     github: 'https://github.com/amine-bennani-exemple',
     photo: '',
-    summary: "Élève-ingénieur en dernière année, orienté ingénierie logicielle, backend Java et architectures distribuées. Maîtrise des microservices, de la sécurité des API REST (OAuth2/OIDC, JWT) et de Docker. Compétiteur actif en algorithmique (LeetCode, ICPC, Codeforces). Recherche un stage PFE de 4 à 6 mois dès février 2027.",
+    summary: "Élève-ingénieur en dernière année, orienté ingénierie logicielle, backend **Java** et architectures distribuées. Maîtrise des **microservices**, de la sécurité des API REST (OAuth2/OIDC, **JWT**) et de **Docker**. Compétiteur actif en algorithmique (LeetCode, ICPC, Codeforces). Recherche un stage PFE de 4 à 6 mois dès février 2027.",
   },
   education: [
     {
