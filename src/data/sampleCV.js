@@ -40,19 +40,19 @@ const sampleCV = {
     {
       id: 'exp-2', company: 'Centre de relation client', position: 'Conseiller en relation client',
       location: 'Maroc', startDate: '2024-07', endDate: '2024-09', current: false,
-      description: '- Prise en charge et résolution des requêtes clients dans le respect des objectifs de qualité et des délais (SLA).\n- Diagnostic des anomalies, escalade structurée des incidents techniques et suivi via les outils CRM.',
+      description: '- Résolution des requêtes clients dans le respect des délais (SLA), escalade structurée des incidents et suivi via les outils CRM.',
       technologies: '',
     },
   ],
   projects: [
     {
-      id: 'proj-1', name: 'WorkForceX – Gestion des collaborateurs',
+      id: 'proj-1', name: 'WorkForceX – Gestion des collaborateurs', type: 'Académique', context: 'PFA – ENIAD',
       technologies: 'Java, Spring Boot, Spring Cloud, OAuth2/OIDC, Docker',
       startDate: '2025', endDate: '2026', url: 'https://github.com/amine-bennani-exemple/workforcex',
       description: "- Architecture microservices avec découverte de services et routage centralisé via **Spring Cloud**.\n- Sécurisation des API REST via Spring Security, OAuth2 et OpenID Connect avec tokens JWT sans état.\n- Conteneurisation des microservices avec **Docker** pour standardiser les déploiements.",
     },
     {
-      id: 'proj-2', name: 'Application full-stack de gestion de posts',
+      id: 'proj-2', name: 'Application full-stack de gestion de posts', type: 'Personnel', context: '',
       technologies: 'React.js, Spring Boot, Axios, REST API, Maven',
       startDate: '2025-03', endDate: '2025-04', url: '',
       description: "- Développement client-serveur avec pagination serveur, recherche en temps réel et formulaires modaux.\n- Gestion de l'état global via Context API et centralisation des requêtes HTTP et des erreurs avec Axios.",
@@ -103,9 +103,12 @@ const sampleCV = {
   ],
   distinctions: [],
   languages: [
-    { id: 'lang-1', name: 'Arabe', level: 'Langue maternelle' },
-    { id: 'lang-2', name: 'Français', level: 'Courant (C1/C2)' },
-    { id: 'lang-3', name: 'Anglais', level: 'Courant (C1/C2)' },
+    { id: 'lang-1', name: 'Arabe', nativeLevel: 'Langue maternelle', cefrMin: '', cefrMax: '', label: '', note: '' },
+    { id: 'lang-2', name: 'Français', nativeLevel: '', cefrMin: 'C1', cefrMax: 'C2', label: '', note: '' },
+    {
+      id: 'lang-3', name: 'Anglais', nativeLevel: '', cefrMin: 'A2', cefrMax: 'B1', label: '',
+      note: 'bonne compréhension écrite (documentation technique)',
+    },
   ],
   interests: [
     { id: 'int-1', name: "Jeux d'échecs", category: 'Sport', description: 'analyse positionnelle, calcul tactique' },

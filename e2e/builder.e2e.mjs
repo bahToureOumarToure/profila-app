@@ -91,6 +91,31 @@ try {
   await page.waitForTimeout(2500);
   await shot(page, '02b-activites');
 
+  step('projet personnel rangé dans sa propre section');
+  await page.getByRole('tab', { name: 'Projets' }).click();
+  await page.getByRole('button', { name: 'Ajouter un projet personnel' }).click();
+  await page.getByLabel('Nom du projet').last().fill('Bot Discord de révision');
+  cv = await readCV(page);
+  assert.deepEqual(cv.projects.map((p) => p.type), ['Académique', 'Personnel', 'Personnel']);
+
+  step('langue entre deux niveaux (A2/B1) via le curseur');
+  await page.getByRole('tab', { name: 'Langues' }).click();
+  await page.getByRole('button', { name: 'Ajouter une langue' }).click();
+  await page.getByLabel('Langue', { exact: true }).last().fill('Espagnol');
+  await page.getByLabel('Niveau minimum').last().focus();
+  await page.keyboard.press('ArrowLeft');
+  await page.getByLabel('Niveau maximum').last().focus();
+  await page.keyboard.press('ArrowLeft');
+  cv = await readCV(page);
+  assert.deepEqual(
+    (({ name, nativeLevel, cefrMin, cefrMax }) => ({ name, nativeLevel, cefrMin, cefrMax }))(cv.languages.at(-1)),
+    { name: 'Espagnol', nativeLevel: '', cefrMin: 'A2', cefrMax: 'B1' },
+  );
+  await page.getByText('Aperçu :').last().waitFor();
+  assert.ok((await page.getByText('Aperçu :').last().innerText()).includes('Espagnol : pré-intermédiaire – A2/B1'));
+  await page.waitForTimeout(2500);
+  await shot(page, '02c-langues');
+
   step('dialogue avec l’assistant : proposition, sélection, application');
   await page.getByRole('button', { name: 'Assistant IA' }).click();
   await page.getByLabel("Message pour l'assistant").fill('Améliore mon profil pour un stage PFE backend');

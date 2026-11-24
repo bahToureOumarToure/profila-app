@@ -2,7 +2,8 @@
 // Ce module valide/normalise le JSON de Gemini vers la forme EXACTE attendue par
 // loadCV() / initialCVData, et injecte les `id` (uuid) requis par les listes drag & drop.
 import { v4 as uuid } from 'uuid';
-import { LANGUAGE_LEVELS, ACTIVITY_TYPES } from '@data/initialCVData';
+import { ACTIVITY_TYPES, PROJECT_TYPES } from '@data/initialCVData';
+import { CEFR_LEVELS, NATIVE_LEVELS, normalizeLanguage } from '@utils/languageLevel';
 
 const str = (v) => (typeof v === 'string' ? v.trim() : v == null ? '' : String(v));
 const bool = (v) => v === true || v === 'true';
@@ -24,9 +25,25 @@ export function clampLevel(v) {
   return Math.min(5, Math.max(1, n));
 }
 
-export function normLangLevel(v) {
-  const s = str(v);
-  return LANGUAGE_LEVELS.includes(s) ? s : 'Courant (C1/C2)';
+export const normCefr = (v) => (CEFR_LEVELS.includes(str(v).toUpperCase()) ? str(v).toUpperCase() : '');
+
+export function normNativeLevel(v) {
+  const s = str(v).toLowerCase();
+  if (!s) return '';
+  if (/maternelle|natif|native/.test(s)) return 'Langue maternelle';
+  if (/bilingue|bilingual/.test(s)) return 'Bilingue';
+  return NATIVE_LEVELS.find((n) => n.toLowerCase() === s) || '';
+}
+
+// Académique si le projet relève du cursus (PFA, PFE, module, école…), sinon personnel.
+export function normProjectType(v, hint = '') {
+  const s = str(v).toLowerCase();
+  const found = PROJECT_TYPES.find((t) => t.toLowerCase() === s);
+  if (found) return found;
+  if (/perso/.test(s)) return 'Personnel';
+  if (/acad|scolaire|univ/.test(s)) return 'Académique';
+  if (/\b(pfa|pfe)\b|module|\bcours\b|[ée]cole|universit|semestre|fin d'ann[ée]e|fin d’ann[ée]e|acad[ée]mique/i.test(hint)) return 'Académique';
+  return s || hint ? 'Personnel' : 'Académique';
 }
 
 export function normActivityType(v) {
@@ -92,10 +109,15 @@ export function normalizeParsedCV(raw) {
     skills: arr(raw.skills, (s) =>
       str(s.name) ? withId({ name: str(s.name), level: clampLevel(s.level), category: str(s.category) }) : null),
     languages: arr(raw.languages, (l) =>
-      str(l.name) ? withId({ name: str(l.name), level: normLangLevel(l.level) }) : null),
+      str(l.name) ? withId(normalizeLanguage({
+        name: str(l.name), level: str(l.level), nativeLevel: normNativeLevel(l.nativeLevel),
+        cefrMin: normCefr(l.cefrMin), cefrMax: normCefr(l.cefrMax), label: '', note: str(l.note),
+      })) : null),
     projects: arr(raw.projects, (pr) =>
       str(pr.name) ? withId({
         name: str(pr.name), description: str(pr.description),
+        type: normProjectType(pr.type, `${str(pr.context)} ${str(pr.name)} ${str(pr.description)}`),
+        context: str(pr.context),
         url: str(pr.url), technologies: str(pr.technologies),
         startDate: normDate(pr.startDate), endDate: normDate(pr.endDate),
       }) : null),

@@ -49,6 +49,47 @@ describe('normalizeAssistantResponse', () => {
   });
 });
 
+describe('langues et projets', () => {
+  it("l'assistant règle une plage de niveaux, une précision et le type d'un projet", () => {
+    const { actions } = normalizeAssistantResponse({
+      actions: [
+        { type: 'update_item', section: 'languages', id: 'lang-2', fields: { cefrMin: 'b2', cefrMax: 'C1', note: 'TCF B2', level: 'x' } },
+        { type: 'add_item', section: 'languages', item: { name: 'Espagnol', cefrMin: 'A2' } },
+        { type: 'add_item', section: 'languages', item: { name: 'Wolof', nativeLevel: 'natif' } },
+        { type: 'update_item', section: 'projects', id: 'proj-1', fields: { type: 'perso', context: 'Hackathon' } },
+      ],
+    }, cv);
+    expect(actions[0].fields).toEqual({ cefrMin: 'B2', cefrMax: 'C1', note: 'TCF B2' });
+    expect(actions[1].item).toMatchObject({ name: 'Espagnol', cefrMin: 'A2', cefrMax: 'A2' });
+    expect(actions[2].item).toMatchObject({ name: 'Wolof', nativeLevel: 'Langue maternelle' });
+    expect(actions[3].fields).toEqual({ type: 'Personnel', context: 'Hackathon' });
+    expect(actions[3].title).toContain('Projets académiques');
+  });
+
+  it("l'import PDF structure les langues et classe les projets", () => {
+    const parsed = normalizeParsedCV({
+      personalInfo: {},
+      languages: [
+        { name: 'Anglais', cefrMin: 'B1', cefrMax: 'A2', note: 'en progression' },
+        { name: 'Français', level: 'Courant (C1/C2)' },
+        { name: 'Arabe', nativeLevel: 'Langue maternelle' },
+      ],
+      projects: [
+        { name: 'KardioMa', type: 'Académique', context: 'PFA' },
+        { name: 'Bot Discord', type: 'personnel' },
+        { name: 'Mini-projet', description: 'Réalisé dans le module Bases de données' },
+      ],
+    });
+    expect(parsed.languages.map((l) => [l.name, l.nativeLevel, l.cefrMin, l.cefrMax, l.note])).toEqual([
+      ['Anglais', '', 'A2', 'B1', 'en progression'],
+      ['Français', '', 'C1', 'C2', ''],
+      ['Arabe', 'Langue maternelle', '', '', ''],
+    ]);
+    expect(parsed.projects.map((p) => p.type)).toEqual(['Académique', 'Personnel', 'Académique']);
+    expect(parsed.projects[0].context).toBe('PFA');
+  });
+});
+
 describe('activités parauniversitaires', () => {
   it("l'assistant peut ajouter et modifier une activité (type normalisé)", () => {
     const { actions } = normalizeAssistantResponse({

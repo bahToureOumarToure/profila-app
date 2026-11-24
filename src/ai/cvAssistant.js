@@ -4,7 +4,9 @@
 // d'être montrée, puis appliquée seulement si l'utilisateur l'accepte.
 import { v4 as uuid } from 'uuid';
 import { generateJSON } from './geminiClient';
-import { normDate, clampLevel, normLangLevel, normActivityType } from './cvSchema';
+import {
+  normDate, clampLevel, normActivityType, normCefr, normNativeLevel, normProjectType,
+} from './cvSchema';
 import {
   CV_TEMPLATES, DEFAULT_SECTION_ORDER, DENSITY_OPTIONS, DATE_STYLES, EMPTY_ITEMS,
   FONT_OPTIONS, LIST_SECTIONS, SECTION_LABELS,
@@ -16,8 +18,8 @@ export const EDITABLE_FIELDS = {
   experiences:    ['company', 'position', 'location', 'startDate', 'endDate', 'current', 'description', 'technologies'],
   education:      ['school', 'degree', 'field', 'location', 'startDate', 'endDate', 'description'],
   skills:         ['name', 'category', 'level'],
-  languages:      ['name', 'level'],
-  projects:       ['name', 'technologies', 'startDate', 'endDate', 'url', 'description'],
+  languages:      ['name', 'nativeLevel', 'cefrMin', 'cefrMax', 'label', 'note'],
+  projects:       ['name', 'type', 'context', 'technologies', 'startDate', 'endDate', 'url', 'description'],
   certifications: ['name', 'issuer', 'date', 'expiryDate', 'credentialId', 'url'],
   interests:      ['name', 'category', 'description'],
   achievements:   ['title', 'type', 'rank', 'competition', 'date', 'location', 'description'],
@@ -34,6 +36,8 @@ export const FIELD_LABELS = {
   current: 'En cours', description: 'Description', technologies: 'Technologies', school: 'Établissement',
   degree: 'Diplôme', field: 'Spécialité', name: 'Nom', category: 'Catégorie', level: 'Niveau',
   url: 'Lien', issuer: 'Organisme', date: 'Date', expiryDate: 'Expiration', credentialId: 'Identifiant',
+  nativeLevel: 'Langue maternelle / bilingue', cefrMin: 'Niveau min.', cefrMax: 'Niveau max.',
+  label: 'Qualificatif', note: 'Précision', context: 'Cadre',
   type: 'Type', rank: 'Classement', competition: 'Compétition', role: 'Rôle', organization: 'Organisation', template: 'Template', density: 'Densité',
   fontScale: 'Taille du texte', fontFamily: 'Police', sectionOrder: 'Ordre des sections',
   hiddenSections: 'Sections masquées', sectionTitles: 'Titres des sections', autoFit: 'Ajuster sur 1 page',
@@ -55,7 +59,10 @@ function sanitizeValue(section, field, value) {
   if (field === 'current') return value === true || value === 'true';
   if (DATE_FIELDS.has(field)) return normDate(value);
   if (section === 'skills' && field === 'level') return clampLevel(value);
-  if (section === 'languages' && field === 'level') return normLangLevel(value);
+  if (section === 'languages' && (field === 'cefrMin' || field === 'cefrMax')) return normCefr(value);
+  if (section === 'languages' && field === 'nativeLevel') return normNativeLevel(value);
+  if (section === 'languages' && field === 'label') return str(value).slice(0, 40);
+  if (section === 'projects' && field === 'type') return normProjectType(value);
   if (section === 'activities' && field === 'type') return normActivityType(value);
   // Le modèle renvoie parfois une liste pour une description : on la met en puces.
   if (Array.isArray(value)) return value.map(str).filter(Boolean).map((l) => (l.startsWith('- ') ? l : `- ${l}`)).join('\n');
@@ -94,6 +101,10 @@ function sanitizeDesign(fields, meta) {
   ['autoFit', 'showPhoto'].forEach((k) => { if (typeof fields[k] === 'boolean') out[k] = fields[k]; });
   return out;
 }
+
+// Les projets sont rangés en deux sections selon leur type.
+const sectionName = (section, item) => (section === 'projects' && item?.type === 'Personnel'
+  ? SECTION_LABELS.personalProjects : SECTION_LABELS[section]);
 
 const itemLabel = (section, item) => {
   if (!item) return '';
@@ -154,7 +165,7 @@ export function normalizeAssistantResponse(raw, cv) {
         const kept = Object.fromEntries(changed.map((f) => [f, fields[f]]));
         actions.push({
           ...base, type: a.type, section, id: item.id, fields: kept,
-          title: `${SECTION_LABELS[section]} : ${itemLabel(section, item) || 'élément'}`,
+          title: `${sectionName(section, item)} : ${itemLabel(section, item) || 'élément'}`,
           changes: changesFor(item, kept, changed, meta),
         });
         return;
@@ -162,13 +173,19 @@ export function normalizeAssistantResponse(raw, cv) {
       case 'add_item': {
         if (!LIST_SECTIONS.includes(section)) return;
         const fields = sanitizeFields(section, a.item);
+        if (section === 'languages') {
+          // Un seul niveau fourni vaut pour les deux bornes (pas de plage par défaut).
+          const one = fields.cefrMin || fields.cefrMax || '';
+          fields.cefrMin = fields.cefrMin || one;
+          fields.cefrMax = fields.cefrMax || one;
+        }
         const item = { ...EMPTY_ITEMS[section], ...fields };
         if (!str(item[MAIN_FIELD[section]]) && !str(item.company) && !str(item.organization)) return;
         if (section === 'skills' && (cv.skills || []).some((s) => str(s.name).toLowerCase() === str(item.name).toLowerCase())) return;
         const shown = Object.keys(fields).filter((f) => fields[f] !== '' && fields[f] !== false);
         actions.push({
           ...base, type: a.type, section, item,
-          title: `Ajouter dans ${SECTION_LABELS[section]} : ${itemLabel(section, item)}`,
+          title: `Ajouter dans ${sectionName(section, item)} : ${itemLabel(section, item)}`,
           changes: changesFor({}, item, shown, meta),
         });
         return;
@@ -179,7 +196,7 @@ export function normalizeAssistantResponse(raw, cv) {
         if (!item) return;
         actions.push({
           ...base, type: a.type, section, id: item.id,
-          title: `Supprimer de ${SECTION_LABELS[section]} : ${itemLabel(section, item)}`, changes: [],
+          title: `Supprimer de ${sectionName(section, item)} : ${itemLabel(section, item)}`, changes: [],
         });
         return;
       }
@@ -192,7 +209,7 @@ export function normalizeAssistantResponse(raw, cv) {
         const labels = (order) => order.map((id) => itemLabel(section, find(section, id))).join(' → ');
         actions.push({
           ...base, type: a.type, section, ids,
-          title: `Réordonner : ${SECTION_LABELS[section]}`,
+          title: `Réordonner : ${section === 'projects' ? 'Projets' : SECTION_LABELS[section]}`,
           changes: [{ field: 'order', label: 'Ordre', before: labels(list.map((it) => it.id)), after: labels(ids) }],
         });
         return;
@@ -282,6 +299,11 @@ RÈGLES
 - ATS : intitulés de sections standards, une seule colonne, mots-clés de l'offre UNIQUEMENT s'ils correspondent au
   vécu réel, aucun bourrage de mots-clés. Un CV de stage PFE tient sur une page.
 - Dates au format "YYYY-MM" ou "YYYY". Cible les éléments avec leur "id" exact. Ne renvoie que les champs modifiés.
+- Langues : "nativeLevel" = "Langue maternelle", "Bilingue" ou "" ; sinon "cefrMin" / "cefrMax" parmi A1…C2
+  (deux valeurs différentes pour quelqu'un entre deux niveaux, ex. A2 et B1) ; "label" = qualificatif
+  ("" = automatique, "none" = aucun) ; "note" = précision courte (ex. "bonne compréhension écrite").
+- Projets : "type" = "Académique" (PFA, PFE, module, projet d'école) ou "Personnel" ; "context" = cadre
+  facultatif (ex. "PFA – ENIAD"). Ils sont imprimés en deux sections : Projets académiques / Projets personnels.
 
 FORMAT : renvoie UNIQUEMENT ce JSON (pas de Markdown autour) :
 {

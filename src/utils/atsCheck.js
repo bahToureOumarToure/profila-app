@@ -3,6 +3,7 @@
 // indique la section de l'éditeur où le corriger.
 import { DEFAULT_SECTION_TITLES } from '@data/initialCVData';
 import { parseDescription, stripInlineMarkup, isSectionHidden } from './cvHelpers';
+import { hasLanguageLevel } from './languageLevel';
 
 const clean = (v) => (typeof v === 'string' ? v.trim() : '');
 // Une date n'est exploitable que si l'année est complète (« 2025 » ou « 2025-06 »).
@@ -117,6 +118,9 @@ export function analyzeATS(cv, { pages } = {}) {
     seen.add(k);
   });
   if (!(cv.languages || []).some((l) => clean(l.name))) add('warning', 'languages', 'Ajoutez vos langues et leur niveau.');
+  (cv.languages || []).filter((l) => clean(l.name) && !hasLanguageLevel(l)).forEach((l) => {
+    add('info', 'languages', `Langue « ${clean(l.name)} » : indiquez un niveau (A1 → C2, langue maternelle ou bilingue).`);
+  });
 
   // ── Activités parauniversitaires ───────────────────────────────────────
   const activities = (cv.activities || []).filter((a) => clean(a.role) || clean(a.organization));

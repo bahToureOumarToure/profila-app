@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   formatDateRange, formatMonthYear, parseDescription, parseInlineBold, prettyUrl, normalizeUrl,
-  formatLanguageLevel, resolveSectionOrder, sectionTitle, telHref,
+  resolveSectionOrder, sectionTitle, telHref,
 } from '../cvHelpers';
 import { analyzeATS } from '../atsCheck';
 import { migrateCV } from '@data/migrateCV';
@@ -63,9 +63,9 @@ describe('sections', () => {
     const upgraded = resolveSectionOrder({ sectionOrder: legacy }, DEFAULT_SECTION_ORDER);
     expect(upgraded.slice(0, 2)).toEqual(['experiences', 'summary']);
     expect(upgraded.indexOf('activities')).toBe(upgraded.indexOf('certifications') + 1);
+    expect(upgraded.indexOf('personalProjects')).toBe(upgraded.indexOf('projects') + 1);
     expect(sectionTitle({ sectionTitles: { skills: 'Stack' } }, 'skills')).toBe('Stack');
     expect(sectionTitle({ sectionTitles: { skills: '  ' } }, 'skills')).toBe('Compétences techniques');
-    expect(formatLanguageLevel('Courant (C1/C2)')).toBe('courant, C1/C2');
   });
 });
 
@@ -76,6 +76,11 @@ describe('migrateCV', () => {
       personalInfo: { firstName: 'A', summary: null },
       experiences: [{ company: 'X' }],
       projects: 'pas un tableau',
+      languages: [
+        { name: 'Anglais', level: 'Courant (C1/C2)' },
+        { name: 'Arabe', level: 'Langue maternelle' },
+        { name: 'Espagnol', level: 'Débutant (A1/A2)' },
+      ],
     });
     expect(old.meta.fontFamily).toBe('Source Serif 4');
     expect(old.meta.density).toBe('normal');
@@ -86,6 +91,14 @@ describe('migrateCV', () => {
     expect(old.experiences[0].id).toBeTruthy();
     expect(old.projects).toEqual([]);
     expect(old.activities).toEqual([]);
+    expect(old.languages.map(({ name, nativeLevel, cefrMin, cefrMax }) => ({ name, nativeLevel, cefrMin, cefrMax }))).toEqual([
+      { name: 'Anglais', nativeLevel: '', cefrMin: 'C1', cefrMax: 'C2' },
+      { name: 'Arabe', nativeLevel: 'Langue maternelle', cefrMin: '', cefrMax: '' },
+      { name: 'Espagnol', nativeLevel: '', cefrMin: 'A1', cefrMax: 'A2' },
+    ]);
+    expect(old.languages[0]).not.toHaveProperty('level');
+    expect(migrateCV({ projects: [{ name: 'P' }, { name: 'Q', type: 'Personnel' }] }).projects.map((p) => p.type))
+      .toEqual(['Académique', 'Personnel']);
     expect(migrateCV({ meta: { template: '???' } }).meta.template).toBe('ats');
   });
 });

@@ -4,8 +4,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import initialCVData, {
   CV_TEMPLATES, DEFAULT_META, DEFAULT_SECTION_ORDER, EMPTY_ITEMS, FONT_OPTIONS,
-  LIST_SECTIONS, DENSITY_OPTIONS, DATE_STYLES,
+  LIST_SECTIONS, DENSITY_OPTIONS, DATE_STYLES, PROJECT_TYPES,
 } from './initialCVData';
+import { normalizeLanguage } from '@utils/languageLevel';
 
 const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
 const FONT_ALIASES = { 'Playfair Display': 'Source Serif 4' };
@@ -39,13 +40,22 @@ function migrateMeta(meta) {
   };
 }
 
+// Conversions propres à certaines sections (anciens formats de données).
+const UPGRADE = {
+  // « level: 'Courant (C1/C2)' » → plage CECRL structurée.
+  languages: (item) => normalizeLanguage(item),
+  // Les projets sans type (avant la distinction) sont considérés académiques.
+  projects: (item) => ({ ...item, type: PROJECT_TYPES.includes(item.type) ? item.type : 'Académique' }),
+};
+
 function migrateItems(section, items) {
   if (!Array.isArray(items)) return [];
+  const upgrade = UPGRADE[section] || ((item) => item);
   return items
     .filter(isObj)
     .map((item) => ({
       ...EMPTY_ITEMS[section],
-      ...item,
+      ...upgrade(item),
       id: typeof item.id === 'string' && item.id ? item.id : uuidv4(),
     }));
 }

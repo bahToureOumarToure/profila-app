@@ -40,13 +40,6 @@ export const SKILL_LEVELS = [
   { value: 5, label: 'Expert' },
 ];
 
-export const LANGUAGE_LEVELS = [
-  'Langue maternelle',
-  'Bilingue',
-  'Courant (C1/C2)',
-  'Intermédiaire (B1/B2)',
-  'Débutant (A1/A2)',
-];
 
 export const COLOR_PRESETS = [
   { name: 'Pétrole',         primary: '#15616d', secondary: '#4f9da6' },
@@ -81,8 +74,10 @@ export const DATE_STYLES = [
 ];
 
 // Ordre des sections du CV (réordonnable par l'utilisateur dans l'onglet Design).
+// « projects » = projets académiques, « personalProjects » = projets personnels :
+// une seule liste de projets (champ `type`), imprimée en deux sections.
 export const DEFAULT_SECTION_ORDER = [
-  'summary', 'education', 'experiences', 'projects', 'achievements',
+  'summary', 'education', 'experiences', 'projects', 'personalProjects', 'achievements',
   'skills', 'certifications', 'activities', 'distinctions', 'languages', 'interests',
 ];
 
@@ -93,7 +88,8 @@ export const SECTION_LABELS = {
   education:      'Formation',
   skills:         'Compétences',
   languages:      'Langues',
-  projects:       'Projets',
+  projects:       'Projets académiques',
+  personalProjects: 'Projets personnels',
   certifications: 'Certifications',
   achievements:   'Compétitions & palmarès',
   activities:     'Activités parauniversitaires',
@@ -109,7 +105,8 @@ export const DEFAULT_SECTION_TITLES = {
   education:      'Formation',
   skills:         'Compétences techniques',
   languages:      'Langues',
-  projects:       'Projets',
+  projects:       'Projets académiques',
+  personalProjects: 'Projets personnels',
   certifications: 'Certifications',
   achievements:   'Compétitions et algorithmique',
   activities:     'Activités parauniversitaires',
@@ -165,8 +162,8 @@ export const EMPTY_ITEMS = {
   experiences:    { company: '', position: '', startDate: '', endDate: '', current: false, location: '', description: '', technologies: '' },
   education:      { school: '', degree: '', field: '', location: '', startDate: '', endDate: '', description: '' },
   skills:         { name: '', level: 3, category: '' },
-  languages:      { name: '', level: 'Courant (C1/C2)' },
-  projects:       { name: '', description: '', url: '', technologies: '', startDate: '', endDate: '' },
+  languages:      { name: '', nativeLevel: '', cefrMin: 'B1', cefrMax: 'B2', label: '', note: '' },
+  projects:       { name: '', type: 'Académique', context: '', description: '', url: '', technologies: '', startDate: '', endDate: '' },
   certifications: { name: '', issuer: '', date: '', expiryDate: '', credentialId: '', url: '' },
   interests:      { name: '', category: 'Autre', description: '' },
   achievements:   { title: '', type: 'Compétition', rank: '', competition: '', date: '', location: '', description: '' },
@@ -198,6 +195,8 @@ export const ACHIEVEMENT_TYPES = [
   'Distinction',
   'Autre',
 ];
+
+export const PROJECT_TYPES = ['Académique', 'Personnel'];
 
 // Engagement hors cursus : vie associative, clubs, bénévolat, organisation d'événements.
 export const ACTIVITY_TYPES = [
