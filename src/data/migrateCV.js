@@ -37,6 +37,8 @@ function migrateMeta(meta) {
     fontScale: Number.isFinite(scale) ? Math.min(1.15, Math.max(0.8, scale)) : 1,
     showPhoto: m.showPhoto !== false,
     showIcons: m.showIcons !== false,
+    highlightTitle: m.highlightTitle !== false,
+    colorKeywords: m.colorKeywords === true,
     autoFit: m.autoFit !== false,
   };
 }

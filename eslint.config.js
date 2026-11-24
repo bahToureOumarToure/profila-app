@@ -34,6 +34,7 @@ export default [
         Image: 'readonly',
         process: 'readonly',
         ResizeObserver: 'readonly',
+        requestAnimationFrame: 'readonly',
         TextDecoder: 'readonly',
         clearTimeout: 'readonly',
         confirm: 'readonly',

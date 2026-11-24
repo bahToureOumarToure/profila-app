@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { renderResume, countPdfPages } from '../renderResume';
 import sampleCV from '@data/sampleCV';
 import { CV_TEMPLATES } from '@data/initialCVData';
@@ -129,6 +129,30 @@ describe('renderResume', () => {
     const { text } = await extract((await renderResume(cv)).buffer);
     expect(text.split('Environnement technique :').length - 1).toBe(3);
     expect(text).not.toMatch(/(?<!& )Outils :/);
+  });
+
+  // Nombre de fois où la couleur des titres est appliquée au texte de la page.
+  async function primaryFills(cv) {
+    const { buffer } = await renderResume(cv);
+    const doc = await getDocument({ data: new Uint8Array(buffer.slice(0)) }).promise;
+    const ops = await (await doc.getPage(1)).getOperatorList();
+    const hex = cv.meta.colorScheme.primary.toLowerCase();
+    // pdf.js fournit la couleur sous forme d'octets R, G, B.
+    const toHex = (a) => `#${[0, 1, 2].map((k) => Number(a[k]).toString(16).padStart(2, '0')).join('')}`;
+    return ops.fnArray.filter((fn, i) => fn === OPS.setFillRGBColor && toHex(ops.argsArray[i]) === hex).length;
+  }
+
+  it('colore le titre professionnel et, sur option, les mots-clés en gras', async () => {
+    const base = { ...sampleCV.meta, template: 'ats', colorScheme: { primary: '#15616d' } };
+    const plain = await primaryFills(migrateCV({ ...sampleCV, meta: { ...base, highlightTitle: false, colorKeywords: false } }));
+    const title = await primaryFills(migrateCV({ ...sampleCV, meta: { ...base, highlightTitle: true, colorKeywords: false } }));
+    const all = await primaryFills(migrateCV({ ...sampleCV, meta: { ...base, highlightTitle: true, colorKeywords: true } }));
+    expect(title).toBeGreaterThan(plain);
+    expect(all).toBeGreaterThan(title);
+
+    const { text } = await extract((await renderResume(migrateCV({ ...sampleCV, meta: { ...base, colorKeywords: true } }))).buffer);
+    expect(text.replace(/\s+/g, ' ')).toContain('Élève-ingénieur en Génie Informatique | Recherche de stage PFE');
+    expect(text).not.toContain('**');
   });
 
   it("rend un CV vide sans erreur", async () => {

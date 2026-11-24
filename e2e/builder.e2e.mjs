@@ -66,11 +66,20 @@ try {
   await page.waitForTimeout(1500);
   await shot(page, '01-exemple');
 
+  step('profil : mots-clés mis en gras automatiquement, couleur des mots-clés');
+  await page.getByText('Mots-clés auto', { exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Mots-clés en couleur' }).check();
+  let cv = await readCV(page);
+  assert.ok(cv.personalInfo.summary.includes('**OAuth2**'), cv.personalInfo.summary);
+  assert.ok(cv.personalInfo.summary.includes('**Docker**'));
+  assert.equal(cv.meta.colorKeywords, true);
+  assert.equal(cv.meta.highlightTitle, true);
+
   step('changement de template et de densité');
   await page.getByRole('tab', { name: 'Design' }).click();
   await page.getByText('Moderne', { exact: true }).first().click();
   await page.getByRole('button', { name: 'Compact' }).click();
-  let cv = await readCV(page);
+  cv = await readCV(page);
   assert.equal(cv.meta.template, 'modern');
   assert.equal(cv.meta.fontFamily, 'Inter');
   assert.equal(cv.meta.density, 'compact');

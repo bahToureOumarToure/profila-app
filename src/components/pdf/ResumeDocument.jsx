@@ -2,6 +2,7 @@
 // Règles ATS : une seule colonne, ordre de lecture = ordre visuel, aucun texte
 // dans des images, titres de section standards, liens lisibles ET cliquables,
 // métadonnées PDF renseignées (titre, auteur, mots-clés).
+import { createContext, useContext } from 'react';
 import { Document, Page, Text, View, Link, Image } from '@react-pdf/renderer';
 import './pdfFonts';
 import { ICONS } from './PDFIcons';
@@ -41,6 +42,7 @@ function makeStyles(t) {
       textTransform: preset.headlineUpper ? 'uppercase' : 'none',
       marginTop: 2 + sp,
     },
+    headlineTitle: { color: t.primary, fontWeight: 700 },
     contactLine: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 2 + sp },
     contactItem: { flexDirection: 'row', alignItems: 'center', marginRight: 11, marginTop: 1 },
     contactIcon: { marginRight: 3.5 },
@@ -88,12 +90,30 @@ function makeStyles(t) {
   };
 }
 
+// Style des mots-clés **…** (gras, et couleur des titres si l'option est active).
+const KeywordStyle = createContext({ fontWeight: 700 });
+
 // Texte avec segments **gras**.
 function Rich({ text, style }) {
+  const keyword = useContext(KeywordStyle);
   const parts = parseInlineBold(text);
   return (
     <Text style={style}>
-      {parts.map((p, i) => (p.bold ? <Text key={i} style={{ fontWeight: 700 }}>{p.text}</Text> : p.text))}
+      {parts.map((p, i) => (p.bold ? <Text key={i} style={keyword}>{p.text}</Text> : p.text))}
+    </Text>
+  );
+}
+
+// Titre professionnel mis en valeur (couleur + gras), la disponibilité reste en texte courant.
+function Headline({ p, t, s, center }) {
+  const title = clean(p.title);
+  const availability = clean(p.availability);
+  if (!title && !availability) return null;
+  return (
+    <Text style={[s.headline, center ? { textAlign: 'center' } : null]}>
+      {title ? <Text style={t.highlightTitle ? s.headlineTitle : null}>{title}</Text> : null}
+      {title && availability ? t.preset.headlineSep : ''}
+      {availability}
     </Text>
   );
 }
@@ -246,7 +266,6 @@ function JoinedLine({ list, s, sep, labels, center }) {
 function Header({ cv, t, s }) {
   const p = cv.personalInfo || {};
   const name = [clean(p.firstName), clean(p.lastName)].filter(Boolean).join(' ');
-  const headline = [clean(p.title), clean(p.availability)].filter(Boolean).join(t.preset.headlineSep);
   const { items, links } = contactItems(p);
   const photo = t.showPhoto && /^data:image\/(png|jpe?g);/i.test(p.photo || '') ? p.photo : '';
   const kind = t.preset.header;
@@ -255,7 +274,7 @@ function Header({ cv, t, s }) {
     return (
       <View style={{ alignItems: 'center' }}>
         {name ? <Text style={[s.name, { textAlign: 'center' }]}>{name}</Text> : null}
-        {headline ? <Text style={[s.headline, { textAlign: 'center' }]}>{headline}</Text> : null}
+        <Headline p={p} t={t} s={s} center />
         <JoinedLine list={items} s={s} sep="   |   " center />
         <JoinedLine list={links} s={s} sep="   |   " center />
       </View>
@@ -266,7 +285,7 @@ function Header({ cv, t, s }) {
   const body = (
     <View style={{ flex: 1, alignItems: center ? 'center' : 'flex-start' }}>
       {name ? <Text style={[s.name, center ? { textAlign: 'center' } : null]}>{name}</Text> : null}
-      {headline ? <Text style={[s.headline, center ? { textAlign: 'center' } : null]}>{headline}</Text> : null}
+      <Headline p={p} t={t} s={s} center={center} />
       {kind === 'photo-left-labeled' ? (
         <>
           <JoinedLine list={items} s={s} labels />
@@ -582,11 +601,13 @@ export function ResumeDocument({ cvData, fit = FIT_STEPS[0] }) {
       language="fr-FR"
     >
       <Page size="A4" style={s.page}>
-        <Header cv={cvData} t={t} s={s} />
-        {order.map((k) => {
-          const el = sections[k]?.();
-          return el ? <View key={k}>{el}</View> : null;
-        })}
+        <KeywordStyle.Provider value={t.colorKeywords ? { fontWeight: 700, color: t.primary } : { fontWeight: 700 }}>
+          <Header cv={cvData} t={t} s={s} />
+          {order.map((k) => {
+            const el = sections[k]?.();
+            return el ? <View key={k}>{el}</View> : null;
+          })}
+        </KeywordStyle.Provider>
       </Page>
     </Document>
   );

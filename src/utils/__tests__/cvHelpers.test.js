@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   formatDateRange, formatMonthYear, parseDescription, parseInlineBold, prettyUrl, normalizeUrl,
+  boldKeywords, toggleBold,
   resolveSectionOrder, sectionTitle, telHref,
 } from '../cvHelpers';
 import { analyzeATS } from '../atsCheck';
@@ -37,6 +38,34 @@ describe('descriptions en puces', () => {
       { text: 'K8s', bold: true }, { text: '.', bold: false },
     ]);
     expect(parseInlineBold('5 * 3 **')).toEqual([{ text: '5 * 3 **', bold: false }]);
+  });
+});
+
+describe('mise en avant des mots-clés', () => {
+  it('met en gras la première occurrence de chaque compétence citée, mots entiers', () => {
+    const res = boldKeywords(
+      'Backend Java avec Spring Boot et Spring, JavaScript côté client, Docker et docker-compose.',
+      ['Java (17+)', 'Spring', 'Spring Boot', 'Docker', 'Kubernetes', 'C'],
+    );
+    expect(res.text).toBe('Backend **Java** avec **Spring Boot** et **Spring**, JavaScript côté client, **Docker** et docker-compose.');
+    expect(res.added).toEqual(['Spring Boot', 'Spring', 'Docker', 'Java']);
+  });
+
+  it('ne double pas le gras existant et respecte les accents', () => {
+    expect(boldKeywords('Maîtrise de **Docker** et Docker Swarm', ['Docker']).text).toBe('Maîtrise de **Docker** et Docker Swarm');
+    expect(boldKeywords('Sécurité réseau, sécurité applicative', ['Sécurité']).text).toBe('**Sécurité** réseau, sécurité applicative');
+    expect(boldKeywords('Node.js et C++', ['Node.js', 'C++']).text).toBe('**Node.js** et **C++**');
+  });
+
+  it('bascule le gras sur une sélection', () => {
+    const t = 'Expert Java et Spring';
+    const on = toggleBold(t, 7, 11);
+    expect(on.text).toBe('Expert **Java** et Spring');
+    expect(on.text.slice(on.start, on.end)).toBe('**Java**');
+    expect(toggleBold(on.text, on.start, on.end).text).toBe(t);
+    expect(toggleBold(on.text, 9, 13).text).toBe(t); // sélection à l'intérieur des **
+    expect(toggleBold(t, 6, 12).text).toBe('Expert **Java** et Spring'); // espaces exclus
+    expect(toggleBold(t, 3, 3).text).toBe(t);
   });
 });
 
@@ -86,6 +115,8 @@ describe('migrateCV', () => {
     expect(old.meta.density).toBe('normal');
     expect(old.meta.autoFit).toBe(true);
     expect(old.meta.techLabel).toBe('');
+    expect(old.meta.highlightTitle).toBe(true);
+    expect(old.meta.colorKeywords).toBe(false);
     expect(migrateCV({ meta: { techLabel: 'Stack technique' } }).meta.techLabel).toBe('Stack technique');
     expect(migrateCV({ meta: { techLabel: '<b>' } }).meta.techLabel).toBe('');
     expect(old.personalInfo.availability).toBe('');

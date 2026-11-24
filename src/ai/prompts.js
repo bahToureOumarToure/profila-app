@@ -130,7 +130,8 @@ RÉSUMÉ DE PROFIL (priorité) :
 - Réécris-le pour qu'il CIBLE explicitement ce poste : 2 à 4 phrases percutantes.
 - Commence par le positionnement (intitulé visé / profil) + technologies-clés communes
   à l'offre et au CV, puis la valeur ajoutée concrète.
-- Intègre les mots-clés majeurs de l'offre qui correspondent au candidat.
+- Intègre les mots-clés majeurs de l'offre qui correspondent au candidat, et mets-en 3 à 5
+  en **gras** (ils ressortent à l'impression).
 - Adapte-le toujours à l'offre (ne renvoie "after" = "before" que s'il cible DÉJÀ
   parfaitement ce poste).
 

@@ -27,7 +27,7 @@ export const EDITABLE_FIELDS = {
   distinctions:   ['title', 'type', 'issuer', 'date', 'url', 'description'],
 };
 
-const DESIGN_FIELDS = ['template', 'density', 'fontScale', 'fontFamily', 'sectionOrder', 'hiddenSections', 'sectionTitles', 'autoFit', 'showPhoto', 'dateStyle', 'techLabel'];
+const DESIGN_FIELDS = ['template', 'density', 'fontScale', 'fontFamily', 'sectionOrder', 'hiddenSections', 'sectionTitles', 'autoFit', 'showPhoto', 'dateStyle', 'techLabel', 'highlightTitle', 'colorKeywords'];
 
 export const FIELD_LABELS = {
   firstName: 'Prénom', lastName: 'Nom', title: 'Titre', availability: 'Disponibilité', email: 'Email',
@@ -42,6 +42,7 @@ export const FIELD_LABELS = {
   fontScale: 'Taille du texte', fontFamily: 'Police', sectionOrder: 'Ordre des sections',
   hiddenSections: 'Sections masquées', sectionTitles: 'Titres des sections', autoFit: 'Ajuster sur 1 page',
   showPhoto: 'Photo', dateStyle: 'Format des dates', techLabel: 'Libellé des technologies',
+  highlightTitle: 'Titre en couleur', colorKeywords: 'Mots-clés en couleur',
 };
 
 const DATE_FIELDS = new Set(['startDate', 'endDate', 'date', 'expiryDate']);
@@ -99,7 +100,7 @@ function sanitizeDesign(fields, meta) {
     Object.entries(fields.sectionTitles).forEach(([k, v]) => { if (keys.includes(k)) titles[k] = str(v); });
     out.sectionTitles = titles;
   }
-  ['autoFit', 'showPhoto'].forEach((k) => { if (typeof fields[k] === 'boolean') out[k] = fields[k]; });
+  ['autoFit', 'showPhoto', 'highlightTitle', 'colorKeywords'].forEach((k) => { if (typeof fields[k] === 'boolean') out[k] = fields[k]; });
   return out;
 }
 
@@ -297,6 +298,7 @@ RÈGLES
   peuvent être mis en **gras**. "technologies" : liste séparée par des virgules.
 - Profil ("summary") : 3 à 5 lignes (250 à 550 caractères) : niveau d'études et spécialité, domaines techniques,
   réalisations clés, type de stage et disponibilité. Pas de clichés (« passionné », « dynamique », « motivé »).
+  Mets en **gras** 3 à 5 mots-clés techniques réellement présents dans le CV (ils ressortent à l'impression).
 - ATS : intitulés de sections standards, une seule colonne, mots-clés de l'offre UNIQUEMENT s'ils correspondent au
   vécu réel, aucun bourrage de mots-clés. Un CV de stage PFE tient sur une page.
 - Dates au format "YYYY-MM" ou "YYYY". Cible les éléments avec leur "id" exact. Ne renvoie que les champs modifiés.
