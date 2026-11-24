@@ -9,7 +9,7 @@ import {
 } from './cvSchema';
 import {
   CV_TEMPLATES, DEFAULT_SECTION_ORDER, DENSITY_OPTIONS, DATE_STYLES, EMPTY_ITEMS,
-  FONT_OPTIONS, LIST_SECTIONS, SECTION_LABELS,
+  FONT_OPTIONS, LIST_SECTIONS, SECTION_LABELS, TECH_LABELS,
 } from '@data/initialCVData';
 import { resolveSectionOrder, sectionTitle } from '@utils/cvHelpers';
 
@@ -27,7 +27,7 @@ export const EDITABLE_FIELDS = {
   distinctions:   ['title', 'type', 'issuer', 'date', 'url', 'description'],
 };
 
-const DESIGN_FIELDS = ['template', 'density', 'fontScale', 'fontFamily', 'sectionOrder', 'hiddenSections', 'sectionTitles', 'autoFit', 'showPhoto', 'dateStyle'];
+const DESIGN_FIELDS = ['template', 'density', 'fontScale', 'fontFamily', 'sectionOrder', 'hiddenSections', 'sectionTitles', 'autoFit', 'showPhoto', 'dateStyle', 'techLabel'];
 
 export const FIELD_LABELS = {
   firstName: 'Prénom', lastName: 'Nom', title: 'Titre', availability: 'Disponibilité', email: 'Email',
@@ -41,7 +41,7 @@ export const FIELD_LABELS = {
   type: 'Type', rank: 'Classement', competition: 'Compétition', role: 'Rôle', organization: 'Organisation', template: 'Template', density: 'Densité',
   fontScale: 'Taille du texte', fontFamily: 'Police', sectionOrder: 'Ordre des sections',
   hiddenSections: 'Sections masquées', sectionTitles: 'Titres des sections', autoFit: 'Ajuster sur 1 page',
-  showPhoto: 'Photo', dateStyle: 'Format des dates',
+  showPhoto: 'Photo', dateStyle: 'Format des dates', techLabel: 'Libellé des technologies',
 };
 
 const DATE_FIELDS = new Set(['startDate', 'endDate', 'date', 'expiryDate']);
@@ -85,6 +85,7 @@ function sanitizeDesign(fields, meta) {
   if (CV_TEMPLATES.some((t) => t.id === fields.template)) out.template = fields.template;
   if (DENSITY_OPTIONS.some((d) => d.value === fields.density)) out.density = fields.density;
   if (DATE_STYLES.some((d) => d.value === fields.dateStyle)) out.dateStyle = fields.dateStyle;
+  if (fields.techLabel === '' || TECH_LABELS.includes(fields.techLabel)) out.techLabel = fields.techLabel;
   if (FONT_OPTIONS.some((f) => f.value === fields.fontFamily)) out.fontFamily = fields.fontFamily;
   if (Number.isFinite(Number(fields.fontScale)) && fields.fontScale !== null && fields.fontScale !== '') {
     out.fontScale = Math.round(Math.min(1.1, Math.max(0.85, Number(fields.fontScale))) * 100) / 100;

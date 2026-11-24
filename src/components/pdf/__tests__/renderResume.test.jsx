@@ -5,6 +5,7 @@ import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { renderResume, countPdfPages } from '../renderResume';
 import sampleCV from '@data/sampleCV';
 import { CV_TEMPLATES } from '@data/initialCVData';
+import { TEMPLATE_PRESETS } from '../resumeTheme';
 import { migrateCV } from '@data/migrateCV';
 
 // PROFILA_PDF_OUT=dossier npm test → écrit les PDF générés pour inspection visuelle.
@@ -75,6 +76,15 @@ describe.each(CV_TEMPLATES)('template $id', ({ id: template, defaultFont, defaul
     // Plus de niveau entre parenthèses (« Français (courant, C1/C2) »).
     expect(flat).not.toContain('(courant');
 
+    // Stack technique homogène : même libellé sous l'expérience et sous chaque projet
+    // (NBS Consulting, WorkForceX, application full-stack), jamais en ligne après le nom.
+    // (« DevOps & Outils : » est une catégorie de compétences, pas une ligne de stack.)
+    const label = TEMPLATE_PRESETS[template].techLabel.toLowerCase();
+    expect(flat.match(new RegExp(`(?<!& )${label} :`, 'g'))).toHaveLength(3);
+    expect(flat).toContain(`${label} : java, spring boot, spring cloud`);
+    expect(flat).toContain(`${label} : react.js, spring boot, axios`);
+    expect(flat).not.toContain('|  java');
+
     expect(links).toEqual(expect.arrayContaining([
       'mailto:amine.bennani@example.com',
       'https://www.linkedin.com/in/amine-bennani-exemple',
@@ -112,6 +122,13 @@ describe('renderResume', () => {
     const { text } = await extract((await renderResume(cv)).buffer);
     expect(text).not.toContain("Centres d'intérêt");
     expect(text).toContain('Algorithmique');
+  });
+
+  it('applique le libellé de stack choisi partout', async () => {
+    const cv = migrateCV({ ...sampleCV, meta: { ...sampleCV.meta, template: 'classic', techLabel: 'Environnement technique' } });
+    const { text } = await extract((await renderResume(cv)).buffer);
+    expect(text.split('Environnement technique :').length - 1).toBe(3);
+    expect(text).not.toMatch(/(?<!& )Outils :/);
   });
 
   it("rend un CV vide sans erreur", async () => {

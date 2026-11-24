@@ -87,6 +87,7 @@ export default function ExperienceSection() {
                               fullWidth label="Stack technique / outils"
                               placeholder="Java, Spring Boot, Docker, Git"
                               value={exp.technologies} onChange={handleChange(exp.id, 'technologies')}
+                              helperText="Imprimée sous l'expérience, comme pour les projets."
                             />
                           </Grid>
                         </Grid>

@@ -4,7 +4,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import initialCVData, {
   CV_TEMPLATES, DEFAULT_META, DEFAULT_SECTION_ORDER, EMPTY_ITEMS, FONT_OPTIONS,
-  LIST_SECTIONS, DENSITY_OPTIONS, DATE_STYLES, PROJECT_TYPES,
+  LIST_SECTIONS, DENSITY_OPTIONS, DATE_STYLES, PROJECT_TYPES, TECH_LABELS,
 } from './initialCVData';
 import { normalizeLanguage } from '@utils/languageLevel';
 
@@ -33,6 +33,7 @@ function migrateMeta(meta) {
     hiddenSections: Array.isArray(m.hiddenSections) ? m.hiddenSections.filter((k) => typeof k === 'string') : [],
     density: DENSITY_OPTIONS.some((d) => d.value === m.density) ? m.density : 'normal',
     dateStyle: DATE_STYLES.some((d) => d.value === m.dateStyle) ? m.dateStyle : 'long',
+    techLabel: TECH_LABELS.includes(m.techLabel) ? m.techLabel : '',
     fontScale: Number.isFinite(scale) ? Math.min(1.15, Math.max(0.8, scale)) : 1,
     showPhoto: m.showPhoto !== false,
     showIcons: m.showIcons !== false,

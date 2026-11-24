@@ -105,6 +105,8 @@ export function buildTheme(meta = {}, fit = FIT_STEPS[0]) {
     sp: density.space * fit.space,
     scale,
     showIcons: meta.showIcons !== false,
+    // Même libellé partout (expériences et projets) : choix de l'utilisateur, sinon celui du template.
+    techLabel: (typeof meta.techLabel === 'string' && meta.techLabel.trim()) || preset.techLabel,
     showPhoto: meta.showPhoto !== false && Boolean(preset.photo),
     dateStyle: meta.dateStyle || 'long',
   };
