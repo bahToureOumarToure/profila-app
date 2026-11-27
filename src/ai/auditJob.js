@@ -31,12 +31,12 @@ export function cvHasContent(cv) {
   );
 }
 
-export async function auditCvAgainstJob(cv, jobText, { apiKey } = {}) {
+export async function auditCvAgainstJob(cv, jobText) {
   const text = (jobText || '').trim();
   if (text.length < 30) {
     throw new Error("Colle le texte de l'offre d'emploi (au moins quelques lignes).");
   }
-  const raw = await generateJSON({ prompt: buildJobAuditPrompt(compactCV(cv), text), apiKey });
+  const raw = await generateJSON({ prompt: buildJobAuditPrompt(compactCV(cv), text) });
   const result = normalizeJobAudit(raw);
 
   if (import.meta.env.DEV) {

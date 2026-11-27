@@ -15,7 +15,7 @@ const readCV = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('pr
 
 // Réponse simulée de l'assistant : cible le premier élément réellement présent dans le CV envoyé.
 function fakeGemini(body) {
-  const sys = body.systemInstruction?.parts?.[0]?.text || '';
+  const sys = body.payload.systemInstruction?.parts?.[0]?.text || '';
   const marker = 'CV ACTUEL (JSON) :';
   const cv = JSON.parse(sys.slice(sys.indexOf(marker) + marker.length));
   return {
@@ -39,7 +39,10 @@ try {
   page.on('dialog', (d) => d.accept());
 
   const calls = [];
-  await page.route('**/generativelanguage.googleapis.com/**', async (route) => {
+  // Le site appelle son relais serveur /api/gemini (jamais Google directement).
+  let directGoogleCalls = 0;
+  page.on('request', (r) => { if (r.url().includes('generativelanguage.googleapis.com')) directGoogleCalls += 1; });
+  await page.route('**/api/gemini', async (route) => {
     const body = JSON.parse(route.request().postData());
     calls.push(body);
     await route.fulfill({
@@ -137,15 +140,16 @@ try {
   assert.ok(cv.personalInfo.summary.startsWith('Élève-ingénieur backend Java/Spring'));
   assert.equal(cv.experiences[0].description, '- Modélisé 4 objets Salesforce\n- Automatisé 6 flux métier');
   assert.ok(!cv.skills.some((s) => s.name === 'Kubernetes'), 'compétence décochée non ajoutée');
-  assert.ok(calls[0].systemInstruction.parts[0].text.includes('"id":"exp-1"'));
-  assert.ok(!calls[0].systemInstruction.parts[0].text.includes('base64'));
+  assert.ok(calls[0].payload.systemInstruction.parts[0].text.includes('"id":"exp-1"'));
+  assert.ok(!calls[0].payload.systemInstruction.parts[0].text.includes('base64'));
+  assert.equal(directGoogleCalls, 0, 'aucun appel direct à Google depuis le navigateur');
 
   step('second tour : l’historique et le statut des actions sont transmis');
   await page.getByText('Et mes projets ?').click();
   await page.waitForFunction(() => document.querySelectorAll('[data-testid="assistant-messages"] button').length > 0);
   await page.waitForTimeout(1000);
-  assert.deepEqual(calls[1].contents.map((c) => c.role), ['user', 'model', 'user']);
-  assert.ok(calls[1].contents[1].parts[0].text.includes('appliquée'));
+  assert.deepEqual(calls[1].payload.contents.map((c) => c.role), ['user', 'model', 'user']);
+  assert.ok(calls[1].payload.contents[1].parts[0].text.includes('appliquée'));
 
   step('annulation de la dernière modification');
   await page.getByRole('button', { name: 'Annuler' }).first().click();

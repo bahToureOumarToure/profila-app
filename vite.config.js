@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import compression from 'vite-plugin-compression';
 import { resolve } from 'path';
+import { geminiApiPlugin } from './server/viteGeminiPlugin.js';
 
 // Tests (Vitest, Node) : react-pdf lit les polices sur disque. Les imports
 // « font.woff?url » renvoient donc le chemin absolu du fichier au lieu d'une URL.
@@ -22,6 +23,8 @@ const fontPathsForTests = {
 export default defineConfig({
   plugins: [
     fontPathsForTests,
+    // /api/gemini en dev et en preview (même code que la fonction Vercel).
+    geminiApiPlugin(),
     react(),
     compression({ algorithm: 'gzip' }),
     compression({ algorithm: 'brotliCompress', ext: '.br' }),
@@ -60,7 +63,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.{js,jsx}'],
+    include: ['src/**/*.test.{js,jsx}', 'server/**/*.test.js'],
     testTimeout: 30000,
   },
 });

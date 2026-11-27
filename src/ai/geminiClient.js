@@ -1,16 +1,7 @@
-// Client Gemini minimal via l'API REST (pas de SDK → bundle léger).
-// La clé provient UNIQUEMENT de l'environnement (VITE_GEMINI_API_KEY), définie
-// dans .env — inlinée par Vite au build (dev comme prod). Aucune saisie côté UI.
-const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
-const DEFAULT_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
-
-export function getApiKey() {
-  return import.meta.env.VITE_GEMINI_API_KEY || '';
-}
-
-export function hasApiKey() {
-  return Boolean(getApiKey());
-}
+// Client Gemini du navigateur. Il n'appelle jamais Google directement : il passe
+// par la fonction serveur /api/gemini (api/gemini.js), qui détient la clé
+// GEMINI_API_KEY côté serveur. Aucune clé n'est présente dans le JavaScript du site.
+const ENDPOINT = '/api/gemini';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -36,35 +27,24 @@ function parseRetryMs(errorBody, message) {
  * `systemInstruction` (consignes et contexte rafraîchis à chaque appel).
  */
 export async function generateJSON({
-  prompt, contents, systemInstruction, apiKey, model, temperature = 0.2, maxRetries = 4, onRetry,
+  prompt, contents, systemInstruction, temperature = 0.2, maxRetries = 4, onRetry,
 } = {}) {
-  const key = (apiKey || getApiKey()).trim();
-  if (!key) {
-    throw new Error('Clé API Gemini manquante. Ajoute VITE_GEMINI_API_KEY ou saisis ta clé.');
-  }
-  const mdl = model || DEFAULT_MODEL;
-
   const generationConfig = { responseMimeType: 'application/json', temperature };
-  // Les modèles 2.5 activent le "thinking" par défaut : inutile pour de
-  // l'extraction structurée, et ça consomme des tokens + de la latence.
-  if (/2\.5/.test(mdl)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
-
-  const url = `${ENDPOINT}/${mdl}:generateContent?key=${encodeURIComponent(key)}`;
   const payload = {
     contents: contents?.length ? contents : [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig,
   };
   if (systemInstruction) payload.systemInstruction = { parts: [{ text: systemInstruction }] };
-  const body = JSON.stringify(payload);
+  const body = JSON.stringify({ payload });
 
   for (let attempt = 0; ; attempt += 1) {
     let res;
     try {
-      res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+      res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
     } catch (e) {
       // Erreur réseau transitoire : on retente quelques fois.
       if (attempt < maxRetries) { await sleep(700 * (attempt + 1)); continue; }
-      throw new Error(`Réseau indisponible lors de l'appel à Gemini : ${e.message}`);
+      throw new Error(`Réseau indisponible lors de l'appel à l'assistant IA : ${e.message}`);
     }
 
     if (res.ok) {
@@ -96,11 +76,20 @@ export async function generateJSON({
     const detail = errorBody?.message || '';
     const gstatus = errorBody?.status || '';
 
-    if (res.status === 400 && /API key/i.test(detail)) {
-      throw new Error('Clé API Gemini invalide. Vérifie VITE_GEMINI_API_KEY / la clé saisie.');
+    if ((res.status === 400 && /API key/i.test(detail)) || (res.status === 403 && /API key|permission|suspend/i.test(detail))) {
+      throw new Error("Clé API Gemini refusée par Google (invalide, restreinte ou projet suspendu). L'administrateur du site doit vérifier GEMINI_API_KEY dans Vercel.");
+    }
+    if (res.status === 503 && /GEMINI_API_KEY/.test(detail)) {
+      throw new Error("L'assistant IA n'est pas encore configuré sur ce site (clé GEMINI_API_KEY absente côté serveur).");
+    }
+    if (res.status === 404 && /model/i.test(detail)) {
+      throw new Error(`Modèle Gemini introuvable pour cette clé. L'administrateur peut définir GEMINI_MODEL (ex. gemini-2.5-flash) dans Vercel.`);
     }
     if (res.status === 404) {
-      throw new Error(`Modèle "${mdl}" introuvable pour cette clé. Essaie VITE_GEMINI_MODEL=gemini-1.5-flash.`);
+      throw new Error("Service IA introuvable (/api/gemini). Sur un hébergement statique, les fonctions IA nécessitent la fonction serveur Vercel.");
+    }
+    if (res.status === 429 && /Trop de demandes/.test(detail)) {
+      throw new Error(detail);
     }
     if (res.status === 429) {
       const retryMs = parseRetryMs(errorBody, detail);

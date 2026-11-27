@@ -16,7 +16,6 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useCV } from '@context/CVContext';
 import { auditCvAgainstJob, cvHasContent } from '@ai/auditJob';
 import { optimizeCvForJob } from '@ai/optimizeCV';
-import { hasApiKey } from '@ai/geminiClient';
 
 const scoreColor = (s) => (s >= 75 ? 'success' : s >= 50 ? 'warning' : 'error');
 
@@ -98,7 +97,6 @@ export default function JobCoachDialog({ open, onClose }) {
   const [suggestions, setSuggestions] = useState([]);
   const [accepted, setAccepted] = useState({});
   const [appliedCount, setAppliedCount] = useState(0);
-  const keyMissing = !hasApiKey();
 
   const handleClose = () => { if (!['auditing', 'optimizing'].includes(phase)) onClose(); };
 
@@ -172,12 +170,6 @@ export default function JobCoachDialog({ open, onClose }) {
             </Typography>
             {!cvHasContent(cvData) && (
               <Alert severity="warning">Remplis ou importe d'abord ton CV pour un résultat pertinent.</Alert>
-            )}
-            {keyMissing && (
-              <Alert severity="warning">
-                Clé API Gemini non configurée. Définis <strong>VITE_GEMINI_API_KEY</strong> dans
-                ton fichier <code>.env</code> (puis rebuild).
-              </Alert>
             )}
             <TextField fullWidth multiline minRows={7} maxRows={15}
               label="Texte de l'offre d'emploi"
@@ -309,7 +301,7 @@ export default function JobCoachDialog({ open, onClose }) {
           <>
             <Button onClick={handleClose}>Fermer</Button>
             <Button variant="contained" onClick={runAudit}
-              disabled={jobText.trim().length < 30 || keyMissing}>
+              disabled={jobText.trim().length < 30}>
               Analyser
             </Button>
           </>

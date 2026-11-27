@@ -31,6 +31,12 @@ jobs:
         run: npm test
       - name: Build de production
         run: npm run build
+      - name: Aucune clé API dans le build
+        run: |
+          if grep -rlE "AIza[0-9A-Za-z_-]{30,}|generativelanguage\.googleapis\.com" dist; then
+            echo "::error::Clé Google ou appel direct à Gemini trouvé dans dist/ : la clé doit rester côté serveur."
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: dist

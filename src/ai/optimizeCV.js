@@ -74,12 +74,12 @@ export function normalizeOptimizations(raw, cv) {
   return suggestions;
 }
 
-export async function optimizeCvForJob(cv, jobText, { apiKey } = {}) {
+export async function optimizeCvForJob(cv, jobText) {
   const text = (jobText || '').trim();
   if (text.length < 30) {
     throw new Error("Colle le texte de l'offre d'emploi (au moins quelques lignes).");
   }
-  const raw = await generateJSON({ prompt: buildOptimizePrompt(buildInput(cv), text), apiKey });
+  const raw = await generateJSON({ prompt: buildOptimizePrompt(buildInput(cv), text) });
   const suggestions = normalizeOptimizations(raw, cv);
 
   if (import.meta.env.DEV) {
