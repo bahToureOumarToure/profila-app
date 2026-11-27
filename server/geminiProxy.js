@@ -19,7 +19,8 @@ const error = (status, message) => ({ status, json: { error: { code: status, mes
 
 export function getServerKey(env = process.env) {
   // VITE_GEMINI_API_KEY accepté par compatibilité : lu ici côté serveur uniquement.
-  return String(env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY || '').trim();
+  // Tolère une valeur collée entre guillemets dans le tableau de bord.
+  return String(env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY || '').trim().replace(/^["']+|["']+$/g, '').trim();
 }
 
 function hostOf(value) {
