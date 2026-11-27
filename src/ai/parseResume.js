@@ -6,10 +6,10 @@ import { normalizeParsedCV } from './cvSchema';
 
 /**
  * @param {File} file  fichier PDF
- * @param {{ apiKey?: string, onProgress?: (step: string) => void }} [opts]
+ * @param {{ onProgress?: (step: string) => void }} [opts]
  * @returns {Promise<{ cv: object, meta: { pages: number, lowText: boolean } }>}
  */
-export async function parseResumeFromPdf(file, { apiKey, onProgress } = {}) {
+export async function parseResumeFromPdf(file, { onProgress } = {}) {
   if (!file || file.type !== 'application/pdf') {
     throw new Error('Merci de fournir un fichier PDF.');
   }
@@ -22,7 +22,7 @@ export async function parseResumeFromPdf(file, { apiKey, onProgress } = {}) {
   const lowText = charsPerPage < LOW_TEXT_THRESHOLD;
 
   onProgress?.('analyze');
-  const raw = await generateJSON({ prompt: buildParsePrompt(text), apiKey });
+  const raw = await generateJSON({ prompt: buildParsePrompt(text) });
 
   onProgress?.('structure');
   const cv = normalizeParsedCV(raw);

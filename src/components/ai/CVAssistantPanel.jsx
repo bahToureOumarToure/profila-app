@@ -15,7 +15,6 @@ import CheckIcon from '@mui/icons-material/Check';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useCV } from '@context/CVContext';
 import { askAssistant, applyActionsToCV } from '@ai/cvAssistant';
-import { hasApiKey } from '@ai/geminiClient';
 import { getLayoutInfo } from '@components/pdf/layoutInfo';
 import { parseInlineBold } from '@utils/cvHelpers';
 
@@ -148,7 +147,6 @@ export default function CVAssistantPanel() {
   const [busy, setBusy] = useState(false);
   const [jobOpen, setJobOpen] = useState(false);
   const listRef = useRef(null);
-  const keyMissing = !hasApiKey();
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages: messages.slice(-40), jobText })); } catch { /* quota */ }
@@ -239,11 +237,6 @@ export default function CVAssistantPanel() {
 
       {/* Messages */}
       <Box ref={listRef} sx={{ flex: 1, overflowY: 'auto', p: 1.5 }} data-testid="assistant-messages">
-        {keyMissing && (
-          <Alert severity="warning" sx={{ mb: 1.5 }}>
-            Clé API Gemini non configurée : définis <strong>VITE_GEMINI_API_KEY</strong> dans <code>.env</code> puis relance le build.
-          </Alert>
-        )}
         {messages.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 2 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
@@ -253,7 +246,7 @@ export default function CVAssistantPanel() {
             </Typography>
             <Stack spacing={0.75} alignItems="center">
               {STARTERS.map((s) => (
-                <Chip key={s} label={s} variant="outlined" onClick={() => send(s)} disabled={busy || keyMissing} sx={{ maxWidth: '100%' }} />
+                <Chip key={s} label={s} variant="outlined" onClick={() => send(s)} disabled={busy} sx={{ maxWidth: '100%' }} />
               ))}
             </Stack>
           </Box>
@@ -300,10 +293,9 @@ export default function CVAssistantPanel() {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
           }}
-          disabled={keyMissing}
           inputProps={{ 'aria-label': "Message pour l'assistant" }}
         />
-        <IconButton color="primary" onClick={() => send()} disabled={!input.trim() || busy || keyMissing} aria-label="Envoyer">
+        <IconButton color="primary" onClick={() => send()} disabled={!input.trim() || busy} aria-label="Envoyer">
           <SendIcon />
         </IconButton>
       </Stack>

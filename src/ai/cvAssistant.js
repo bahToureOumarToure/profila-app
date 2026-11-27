@@ -352,12 +352,11 @@ export function toGeminiContents(messages) {
       }));
 }
 
-export async function askAssistant({ cv, messages, jobText, pages, apiKey }) {
+export async function askAssistant({ cv, messages, jobText, pages }) {
   const raw = await generateJSON({
     systemInstruction: buildAssistantSystemPrompt(cv, { jobText, pages }),
     contents: toGeminiContents(messages),
     temperature: 0.4,
-    apiKey,
   });
   return normalizeAssistantResponse(raw, cv);
 }

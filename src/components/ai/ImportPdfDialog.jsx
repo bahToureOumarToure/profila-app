@@ -9,7 +9,6 @@ import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useCV } from '@context/CVContext';
 import { parseResumeFromPdf } from '@ai/parseResume';
-import { hasApiKey } from '@ai/geminiClient';
 import { summarizeParsedCV } from '@ai/cvSchema';
 
 const STEP_LABELS = {
@@ -24,7 +23,6 @@ export default function ImportPdfDialog({ open, onClose }) {
   const [step, setStep] = useState('extract');
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);     // { cv, meta }
-  const keyMissing = !hasApiKey();
 
   const reset = useCallback(() => {
     setPhase('idle'); setStep('extract'); setError(''); setResult(null);
@@ -76,18 +74,10 @@ export default function ImportPdfDialog({ open, onClose }) {
               l'éditeur. Tu pourras tout vérifier et corriger ensuite.
             </Typography>
 
-            {keyMissing && (
-              <Alert severity="warning">
-                Clé API Gemini non configurée. Définis <strong>VITE_GEMINI_API_KEY</strong> dans
-                ton fichier <code>.env</code> (puis rebuild), pour le dev comme pour la prod.
-              </Alert>
-            )}
-
             {phase === 'error' && <Alert severity="error">{error}</Alert>}
 
             <Button
               component="label" variant="contained" startIcon={<UploadFileOutlinedIcon />}
-              disabled={keyMissing}
             >
               Choisir un fichier PDF
               <input type="file" accept="application/pdf" hidden onChange={handleFile} />

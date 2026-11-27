@@ -9,6 +9,13 @@ export default [
   },
   js.configs.recommended,
   {
+    // Code serveur (fonction Vercel, relais Gemini) : globals Node.
+    files: ['api/**/*.js', 'server/**/*.js'],
+    languageOptions: {
+      globals: { Buffer: 'readonly', process: 'readonly', fetch: 'readonly', URL: 'readonly', console: 'readonly' },
+    },
+  },
+  {
     // Scripts Node (tests E2E) : globals Node.
     files: ['e2e/**/*.mjs'],
     languageOptions: {

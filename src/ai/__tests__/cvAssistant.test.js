@@ -186,13 +186,16 @@ describe('askAssistant', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     const res = await askAssistant({
-      cv, apiKey: 'test-key', jobText: 'Stage PFE backend Java Spring', pages: 1,
+      cv, jobText: 'Stage PFE backend Java Spring', pages: 1,
       messages: [{ role: 'user', text: 'Raccourcis mon profil' }],
     });
 
     expect(res.actions).toHaveLength(1);
     expect(res.suggestions).toEqual(['Et mes projets ?']);
-    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    // Le navigateur passe par le relais serveur, sans aucune clé.
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/gemini');
+    expect(JSON.stringify(fetchMock.mock.calls[0])).not.toMatch(/key=|x-goog-api-key/);
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body).payload;
     expect(body.contents).toEqual([{ role: 'user', parts: [{ text: 'Raccourcis mon profil' }] }]);
     expect(body.systemInstruction.parts[0].text).toContain('Stage PFE backend Java Spring');
     expect(body.systemInstruction.parts[0].text).toContain('"id":"exp-1"');
