@@ -5,6 +5,25 @@ const ENDPOINT = '/api/gemini';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Traduit le refus de Google en cause précise et en action pour l'administrateur.
+export function explainKeyError(detail = '', errorBody = null) {
+  const reasons = (errorBody?.details || []).map((d) => d?.reason).filter(Boolean).join(' ');
+  const text = `${detail} ${reasons}`;
+  let hint = "Vérifie GEMINI_API_KEY dans Vercel, puis redéploie.";
+  if (/referer|referrer|API_KEY_HTTP_REFERRER_BLOCKED/i.test(text)) {
+    hint = "La clé a une restriction « Référents HTTP » : les appels partent du serveur, retire cette restriction dans Google Cloud (garde seulement la restriction d'API).";
+  } else if (/suspend|CONSUMER_SUSPENDED/i.test(text)) {
+    hint = 'Le projet Google de cette clé est suspendu : crée une clé dans un nouveau projet.';
+  } else if (/SERVICE_DISABLED|has not been used|is disabled/i.test(text)) {
+    hint = "L'API Generative Language n'est pas activée sur le projet Google de la clé.";
+  } else if (/API_KEY_SERVICE_BLOCKED|API_KEY_IP_ADDRESS_BLOCKED|blocked/i.test(text)) {
+    hint = "La clé est restreinte : autorise l'API « Generative Language » et retire toute restriction d'application.";
+  } else if (/not valid|API_KEY_INVALID|expired/i.test(text)) {
+    hint = 'Clé invalide ou expirée : recopie-la dans Vercel (sans guillemets ni espaces), puis redéploie.';
+  }
+  return `Clé API Gemini refusée par Google. ${hint}${detail ? ` (Google : « ${detail} »)` : ''}`;
+}
+
 // Délai de réessai conseillé par Google (RetryInfo dans details, ou "retry in Xms").
 function parseRetryMs(errorBody, message) {
   const details = errorBody?.details || [];
@@ -76,8 +95,8 @@ export async function generateJSON({
     const detail = errorBody?.message || '';
     const gstatus = errorBody?.status || '';
 
-    if ((res.status === 400 && /API key/i.test(detail)) || (res.status === 403 && /API key|permission|suspend/i.test(detail))) {
-      throw new Error("Clé API Gemini refusée par Google (invalide, restreinte ou projet suspendu). L'administrateur du site doit vérifier GEMINI_API_KEY dans Vercel.");
+    if ((res.status === 400 && /API key/i.test(detail)) || (res.status === 403 && /API key|permission|suspend|referer|blocked/i.test(detail))) {
+      throw new Error(explainKeyError(detail, errorBody));
     }
     if (res.status === 503 && /GEMINI_API_KEY/.test(detail)) {
       throw new Error("L'assistant IA n'est pas encore configuré sur ce site (clé GEMINI_API_KEY absente côté serveur).");

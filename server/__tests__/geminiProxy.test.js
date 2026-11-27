@@ -83,3 +83,10 @@ describe('relais Gemini côté serveur', () => {
     expect(getServerKey({ GEMINI_API_KEY: 'a', VITE_GEMINI_API_KEY: 'b' })).toBe('a');
   });
 });
+
+describe('lecture de la clé', () => {
+  it('retire guillemets et espaces collés par erreur', () => {
+    expect(getServerKey({ GEMINI_API_KEY: ' "AIzaTest" ' })).toBe('AIzaTest');
+    expect(getServerKey({ GEMINI_API_KEY: "'AIzaTest'" })).toBe('AIzaTest');
+  });
+});
